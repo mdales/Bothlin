@@ -4,7 +4,10 @@
         <attribute name="name" attributeType="String"/>
     </entity>
     <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
+        <attribute name="added" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="bookmark" attributeType="Binary"/>
+        <attribute name="created" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="notes" attributeType="String" defaultValueString=""/>
         <attribute name="path" attributeType="String"/>
         <attribute name="type" attributeType="String"/>

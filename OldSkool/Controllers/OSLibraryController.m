@@ -32,6 +32,10 @@
     NSManagedObjectContext *context = appDelegate.persistentContainer.viewContext;
 
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName: @"Item"];
+    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey: @"created"
+                                                           ascending: YES];
+    [fetchRequest setSortDescriptors: [NSArray arrayWithObject: sort]];
+
     NSError *innerError = nil;
     NSArray<Item *> *result = [context executeFetchRequest: fetchRequest
                                                      error: &innerError];
@@ -87,9 +91,25 @@
 
         Item *item = [NSEntityDescription insertNewObjectForEntityForName: @"Item"
                                                    inManagedObjectContext: context];
+        item.name = filename;
         item.path = fullPathURL.path;
         item.bookmark = bookmark;
+        item.added = [NSDate now];
         item.type = [filename pathExtension];  // TODO: this should be mime type one day
+
+        NSDictionary<NSFileAttributeKey, id> *attributes = [fm attributesOfItemAtPath: fullPathURL.path
+                                                                                error: &error];
+        if (nil != error) {
+            NSLog(@"Failed to stat item: %@", error.localizedDescription);
+            item.created = [NSDate now];
+        } else {
+            NSDate *creationDate = [attributes objectForKey: NSFileCreationDate];
+            if (nil != creationDate) {
+                item.created = creationDate;
+            } else {
+                item.created = [NSDate now];
+            }
+        }
     }
 
     innerError = nil;
@@ -134,8 +154,7 @@
                                               error: &error];
 
     NSCollectionViewItem *viewItem = [collectionView makeItemWithIdentifier: @"OSLibraryViewItem" forIndexPath: indexPath];
-    NSString *filename = [path lastPathComponent];
-    viewItem.textField.stringValue = filename;
+    viewItem.textField.stringValue = item.name;
 
     BOOL canAccess = [path startAccessingSecurityScopedResource];
     if (canAccess) {

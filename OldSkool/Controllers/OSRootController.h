@@ -11,10 +11,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSRootController : NSObject <NSSplitViewDelegate>
+@interface OSRootController : NSObject <NSSplitViewDelegate, NSOutlineViewDelegate, NSOutlineViewDataSource>
 
 @property (weak, nonatomic) IBOutlet NSSplitView *splitView;
 @property (weak, nonatomic) IBOutlet NSCollectionView *libraryView;
+@property (weak, nonatomic) IBOutlet NSOutlineView *outlineView;
 
 - (IBAction)addItem: (id)sender;
 
