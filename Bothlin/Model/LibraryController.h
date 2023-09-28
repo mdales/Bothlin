@@ -1,6 +1,6 @@
 //
-//  OSLibraryController.h
-//  OldSkool
+//  LibraryController.h
+//  Bothlin
 //
 //  Created by Michael Dales on 19/09/2023.
 //
@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSLibraryController : NSObject
+@interface LibraryController : NSObject
 
 - (instancetype)initWithPersistentStore: (NSPersistentStoreCoordinator *)store;
 

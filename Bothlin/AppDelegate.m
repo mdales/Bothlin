@@ -1,12 +1,12 @@
 //
 //  AppDelegate.m
-//  OldSkool
+//  Bothlin
 //
 //  Created by Michael Dales on 16/09/2023.
 //
 
 #import "AppDelegate.h"
-#import "OSLibraryController.h"
+#import "LibraryController.h"
 #import "RootWindowController.h"
 
 @interface AppDelegate ()
@@ -40,7 +40,7 @@
 
     // TODO: icky self use
     NSPersistentStoreCoordinator *store = self.persistentContainer.persistentStoreCoordinator;
-    self->_libraryController = [[OSLibraryController alloc] initWithPersistentStore: store];
+    self->_libraryController = [[LibraryController alloc] initWithPersistentStore: store];
 }
 
 

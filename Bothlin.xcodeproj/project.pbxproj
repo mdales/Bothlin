@@ -35,9 +35,9 @@
 		4C011A0E2AC5D178004A94C4 /* ItemExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A0C2AC5D178004A94C4 /* ItemExtension.m */; };
 		4C011A0F2AC5D178004A94C4 /* ItemExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A0C2AC5D178004A94C4 /* ItemExtension.m */; };
 		4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
-		4CB8861E2ABA2CA900968B0F /* OSLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* OSLibraryController.m */; };
-		4CB8861F2ABA2CA900968B0F /* OSLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* OSLibraryController.m */; };
-		4CB886202ABA2CA900968B0F /* OSLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* OSLibraryController.m */; };
+		4CB8861E2ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
+		4CB8861F2ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
+		4CB886202ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
 		4CB886262ABACBA700968B0F /* OSLibraryViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886242ABACBA700968B0F /* OSLibraryViewItem.m */; };
 		4CB886272ABACBA700968B0F /* OSLibraryViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886242ABACBA700968B0F /* OSLibraryViewItem.m */; };
 		4CB886282ABACBA700968B0F /* OSLibraryViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CB886252ABACBA700968B0F /* OSLibraryViewItem.xib */; };
@@ -91,8 +91,8 @@
 		4C011A0B2AC5D178004A94C4 /* ItemExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ItemExtension.h; sourceTree = "<group>"; };
 		4C011A0C2AC5D178004A94C4 /* ItemExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ItemExtension.m; sourceTree = "<group>"; };
 		4C9D91F12AC2C9B400E42251 /* Bothlin.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Bothlin.entitlements; sourceTree = "<group>"; };
-		4CB8861C2ABA2CA900968B0F /* OSLibraryController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSLibraryController.h; sourceTree = "<group>"; };
-		4CB8861D2ABA2CA900968B0F /* OSLibraryController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSLibraryController.m; sourceTree = "<group>"; };
+		4CB8861C2ABA2CA900968B0F /* LibraryController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryController.h; sourceTree = "<group>"; };
+		4CB8861D2ABA2CA900968B0F /* LibraryController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryController.m; sourceTree = "<group>"; };
 		4CB886232ABACBA700968B0F /* OSLibraryViewItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSLibraryViewItem.h; sourceTree = "<group>"; };
 		4CB886242ABACBA700968B0F /* OSLibraryViewItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSLibraryViewItem.m; sourceTree = "<group>"; };
 		4CB886252ABACBA700968B0F /* OSLibraryViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = OSLibraryViewItem.xib; sourceTree = "<group>"; };
@@ -207,8 +207,8 @@
 				4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */,
 				4C011A0B2AC5D178004A94C4 /* ItemExtension.h */,
 				4C011A0C2AC5D178004A94C4 /* ItemExtension.m */,
-				4CB8861C2ABA2CA900968B0F /* OSLibraryController.h */,
-				4CB8861D2ABA2CA900968B0F /* OSLibraryController.m */,
+				4CB8861C2ABA2CA900968B0F /* LibraryController.h */,
+				4CB8861D2ABA2CA900968B0F /* LibraryController.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -418,7 +418,7 @@
 				4C0119B92AC5AC5E004A94C4 /* DetailsController.m in Sources */,
 				4C0119A82AC5AC14004A94C4 /* SidebarController.m in Sources */,
 				4CBF17512AB5F176001F7984 /* AppDelegate.m in Sources */,
-				4CB8861E2ABA2CA900968B0F /* OSLibraryController.m in Sources */,
+				4CB8861E2ABA2CA900968B0F /* LibraryController.m in Sources */,
 				4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */,
 				4C0119FC2AC5B12E004A94C4 /* GridViewController.m in Sources */,
 				4C0119B22AC5AC51004A94C4 /* ItemsDisplayController.m in Sources */,
@@ -430,7 +430,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CBF17632AB5F177001F7984 /* OldSkoolTests.m in Sources */,
-				4CB8861F2ABA2CA900968B0F /* OSLibraryController.m in Sources */,
+				4CB8861F2ABA2CA900968B0F /* LibraryController.m in Sources */,
 				4C011A0E2AC5D178004A94C4 /* ItemExtension.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -448,7 +448,7 @@
 				4C0119A92AC5AC14004A94C4 /* SidebarController.m in Sources */,
 				4CBF176D2AB5F177001F7984 /* OldSkoolUITests.m in Sources */,
 				4CBF176F2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m in Sources */,
-				4CB886202ABA2CA900968B0F /* OSLibraryController.m in Sources */,
+				4CB886202ABA2CA900968B0F /* LibraryController.m in Sources */,
 				4C0119FD2AC5B12E004A94C4 /* GridViewController.m in Sources */,
 				4C0119B32AC5AC51004A94C4 /* ItemsDisplayController.m in Sources */,
 			);

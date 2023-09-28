@@ -1,18 +1,18 @@
 //
 //  AppDelegate.h
-//  OldSkool
+//  Bothlin
 //
 //  Created by Michael Dales on 16/09/2023.
 //
 
 #import <Cocoa/Cocoa.h>
 
-@class OSLibraryController;
+@class LibraryController;
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 @property (readonly, strong) NSPersistentContainer *persistentContainer;
-@property (readonly, strong) OSLibraryController *libraryController;
+@property (readonly, strong) LibraryController *libraryController;
 
 @end
 

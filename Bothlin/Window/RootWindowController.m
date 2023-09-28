@@ -10,7 +10,7 @@
 #import "ItemsDisplayController.h"
 #import "DetailsController.h"
 #import "AppDelegate.h"
-#import "OSLibraryController.h"
+#import "LibraryController.h"
 
 NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIdentifier";
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
@@ -73,7 +73,7 @@ NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIde
             NSArray<NSURL *> *urls = [panel URLs];
 
             AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-            OSLibraryController *library = appDelegate.libraryController;
+            LibraryController *library = appDelegate.libraryController;
 
             // This is async, so returns immediately
             __weak typeof(self) weakSelf = self;

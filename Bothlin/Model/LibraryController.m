@@ -1,24 +1,24 @@
 //
-//  OSLibraryController.m
-//  OldSkool
+//  LibraryController.m
+//  Bothlin
 //
 //  Created by Michael Dales on 19/09/2023.
 //
 
-#import "OSLibraryController.h"
+#import "LibraryController.h"
 #import "OSLibraryViewItem.h"
 #import "AppDelegate.h"
 #import "Item+CoreDataClass.h"
 #import "ItemExtension.h"
 
-@interface OSLibraryController ()
+@interface LibraryController ()
 
 @property (strong, nonatomic, readonly) dispatch_queue_t workQ;
 @property (strong, nonatomic, readonly) NSManagedObjectContext *context;
 
 @end
 
-@implementation OSLibraryController
+@implementation LibraryController
 
 - (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator *)store {
     self = [super init];
