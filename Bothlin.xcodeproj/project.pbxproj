@@ -7,10 +7,34 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C0119A02AC5AA45004A94C4 /* RootWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C01199E2AC5AA45004A94C4 /* RootWindowController.m */; };
+		4C0119A12AC5AA45004A94C4 /* RootWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C01199E2AC5AA45004A94C4 /* RootWindowController.m */; };
+		4C0119A22AC5AA45004A94C4 /* RootWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C01199F2AC5AA45004A94C4 /* RootWindowController.xib */; };
+		4C0119A32AC5AA45004A94C4 /* RootWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C01199F2AC5AA45004A94C4 /* RootWindowController.xib */; };
+		4C0119A82AC5AC14004A94C4 /* SidebarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C0119A62AC5AC14004A94C4 /* SidebarController.m */; };
+		4C0119A92AC5AC14004A94C4 /* SidebarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C0119A62AC5AC14004A94C4 /* SidebarController.m */; };
+		4C0119AA2AC5AC14004A94C4 /* SidebarController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C0119A72AC5AC14004A94C4 /* SidebarController.xib */; };
+		4C0119AB2AC5AC14004A94C4 /* SidebarController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C0119A72AC5AC14004A94C4 /* SidebarController.xib */; };
+		4C0119B22AC5AC51004A94C4 /* ItemsDisplayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C0119B02AC5AC51004A94C4 /* ItemsDisplayController.m */; };
+		4C0119B32AC5AC51004A94C4 /* ItemsDisplayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C0119B02AC5AC51004A94C4 /* ItemsDisplayController.m */; };
+		4C0119B42AC5AC51004A94C4 /* ItemsDisplayController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C0119B12AC5AC51004A94C4 /* ItemsDisplayController.xib */; };
+		4C0119B52AC5AC51004A94C4 /* ItemsDisplayController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C0119B12AC5AC51004A94C4 /* ItemsDisplayController.xib */; };
+		4C0119B92AC5AC5E004A94C4 /* DetailsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C0119B72AC5AC5E004A94C4 /* DetailsController.m */; };
+		4C0119BA2AC5AC5E004A94C4 /* DetailsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C0119B72AC5AC5E004A94C4 /* DetailsController.m */; };
+		4C0119BB2AC5AC5E004A94C4 /* DetailsController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C0119B82AC5AC5E004A94C4 /* DetailsController.xib */; };
+		4C0119BC2AC5AC5E004A94C4 /* DetailsController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C0119B82AC5AC5E004A94C4 /* DetailsController.xib */; };
+		4C0119FC2AC5B12E004A94C4 /* GridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C0119FA2AC5B12E004A94C4 /* GridViewController.m */; };
+		4C0119FD2AC5B12E004A94C4 /* GridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C0119FA2AC5B12E004A94C4 /* GridViewController.m */; };
+		4C0119FE2AC5B12E004A94C4 /* GridViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C0119FB2AC5B12E004A94C4 /* GridViewController.xib */; };
+		4C0119FF2AC5B12E004A94C4 /* GridViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C0119FB2AC5B12E004A94C4 /* GridViewController.xib */; };
+		4C011A032AC5B14B004A94C4 /* SingleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A012AC5B14B004A94C4 /* SingleViewController.m */; };
+		4C011A042AC5B14B004A94C4 /* SingleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A012AC5B14B004A94C4 /* SingleViewController.m */; };
+		4C011A052AC5B14B004A94C4 /* SingleViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C011A022AC5B14B004A94C4 /* SingleViewController.xib */; };
+		4C011A062AC5B14B004A94C4 /* SingleViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C011A022AC5B14B004A94C4 /* SingleViewController.xib */; };
+		4C011A0D2AC5D178004A94C4 /* ItemExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A0C2AC5D178004A94C4 /* ItemExtension.m */; };
+		4C011A0E2AC5D178004A94C4 /* ItemExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A0C2AC5D178004A94C4 /* ItemExtension.m */; };
+		4C011A0F2AC5D178004A94C4 /* ItemExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A0C2AC5D178004A94C4 /* ItemExtension.m */; };
 		4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
-		4C9002342AB9A92500F924A4 /* OSRootController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9002332AB9A92500F924A4 /* OSRootController.m */; };
-		4C9002352AB9A92500F924A4 /* OSRootController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9002332AB9A92500F924A4 /* OSRootController.m */; };
-		4C9002362AB9A92500F924A4 /* OSRootController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9002332AB9A92500F924A4 /* OSRootController.m */; };
 		4CB8861E2ABA2CA900968B0F /* OSLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* OSLibraryController.m */; };
 		4CB8861F2ABA2CA900968B0F /* OSLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* OSLibraryController.m */; };
 		4CB886202ABA2CA900968B0F /* OSLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* OSLibraryController.m */; };
@@ -46,8 +70,26 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		4C9002322AB9A92500F924A4 /* OSRootController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSRootController.h; sourceTree = "<group>"; };
-		4C9002332AB9A92500F924A4 /* OSRootController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSRootController.m; sourceTree = "<group>"; };
+		4C01199D2AC5AA45004A94C4 /* RootWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RootWindowController.h; sourceTree = "<group>"; };
+		4C01199E2AC5AA45004A94C4 /* RootWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RootWindowController.m; sourceTree = "<group>"; };
+		4C01199F2AC5AA45004A94C4 /* RootWindowController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RootWindowController.xib; sourceTree = "<group>"; };
+		4C0119A52AC5AC13004A94C4 /* SidebarController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SidebarController.h; sourceTree = "<group>"; };
+		4C0119A62AC5AC14004A94C4 /* SidebarController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SidebarController.m; sourceTree = "<group>"; };
+		4C0119A72AC5AC14004A94C4 /* SidebarController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SidebarController.xib; sourceTree = "<group>"; };
+		4C0119AF2AC5AC51004A94C4 /* ItemsDisplayController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ItemsDisplayController.h; sourceTree = "<group>"; };
+		4C0119B02AC5AC51004A94C4 /* ItemsDisplayController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ItemsDisplayController.m; sourceTree = "<group>"; };
+		4C0119B12AC5AC51004A94C4 /* ItemsDisplayController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ItemsDisplayController.xib; sourceTree = "<group>"; };
+		4C0119B62AC5AC5E004A94C4 /* DetailsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetailsController.h; sourceTree = "<group>"; };
+		4C0119B72AC5AC5E004A94C4 /* DetailsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetailsController.m; sourceTree = "<group>"; };
+		4C0119B82AC5AC5E004A94C4 /* DetailsController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DetailsController.xib; sourceTree = "<group>"; };
+		4C0119F92AC5B12E004A94C4 /* GridViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GridViewController.h; sourceTree = "<group>"; };
+		4C0119FA2AC5B12E004A94C4 /* GridViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GridViewController.m; sourceTree = "<group>"; };
+		4C0119FB2AC5B12E004A94C4 /* GridViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GridViewController.xib; sourceTree = "<group>"; };
+		4C011A002AC5B14B004A94C4 /* SingleViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SingleViewController.h; sourceTree = "<group>"; };
+		4C011A012AC5B14B004A94C4 /* SingleViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SingleViewController.m; sourceTree = "<group>"; };
+		4C011A022AC5B14B004A94C4 /* SingleViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SingleViewController.xib; sourceTree = "<group>"; };
+		4C011A0B2AC5D178004A94C4 /* ItemExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ItemExtension.h; sourceTree = "<group>"; };
+		4C011A0C2AC5D178004A94C4 /* ItemExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ItemExtension.m; sourceTree = "<group>"; };
 		4C9D91F12AC2C9B400E42251 /* Bothlin.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Bothlin.entitlements; sourceTree = "<group>"; };
 		4CB8861C2ABA2CA900968B0F /* OSLibraryController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSLibraryController.h; sourceTree = "<group>"; };
 		4CB8861D2ABA2CA900968B0F /* OSLibraryController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSLibraryController.m; sourceTree = "<group>"; };
@@ -93,23 +135,68 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4CB886212ABA2CAE00968B0F /* Controllers */ = {
+		4C01199C2AC5AA18004A94C4 /* Window */ = {
 			isa = PBXGroup;
 			children = (
-				4CB8861C2ABA2CA900968B0F /* OSLibraryController.h */,
-				4CB8861D2ABA2CA900968B0F /* OSLibraryController.m */,
-				4C9002322AB9A92500F924A4 /* OSRootController.h */,
-				4C9002332AB9A92500F924A4 /* OSRootController.m */,
+				4C01199F2AC5AA45004A94C4 /* RootWindowController.xib */,
+				4C01199D2AC5AA45004A94C4 /* RootWindowController.h */,
+				4C01199E2AC5AA45004A94C4 /* RootWindowController.m */,
 			);
-			path = Controllers;
+			path = Window;
+			sourceTree = "<group>";
+		};
+		4C0119A42AC5ABF0004A94C4 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				4C0119AE2AC5AC31004A94C4 /* Detail */,
+				4C0119AD2AC5AC28004A94C4 /* Main */,
+				4C0119AC2AC5AC1A004A94C4 /* Sidebar */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		4C0119AC2AC5AC1A004A94C4 /* Sidebar */ = {
+			isa = PBXGroup;
+			children = (
+				4C0119A52AC5AC13004A94C4 /* SidebarController.h */,
+				4C0119A62AC5AC14004A94C4 /* SidebarController.m */,
+				4C0119A72AC5AC14004A94C4 /* SidebarController.xib */,
+			);
+			path = Sidebar;
+			sourceTree = "<group>";
+		};
+		4C0119AD2AC5AC28004A94C4 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				4C0119B12AC5AC51004A94C4 /* ItemsDisplayController.xib */,
+				4C0119AF2AC5AC51004A94C4 /* ItemsDisplayController.h */,
+				4C0119B02AC5AC51004A94C4 /* ItemsDisplayController.m */,
+				4C0119FB2AC5B12E004A94C4 /* GridViewController.xib */,
+				4C0119F92AC5B12E004A94C4 /* GridViewController.h */,
+				4C0119FA2AC5B12E004A94C4 /* GridViewController.m */,
+				4C011A022AC5B14B004A94C4 /* SingleViewController.xib */,
+				4C011A002AC5B14B004A94C4 /* SingleViewController.h */,
+				4C011A012AC5B14B004A94C4 /* SingleViewController.m */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		4C0119AE2AC5AC31004A94C4 /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				4C0119B62AC5AC5E004A94C4 /* DetailsController.h */,
+				4C0119B72AC5AC5E004A94C4 /* DetailsController.m */,
+				4C0119B82AC5AC5E004A94C4 /* DetailsController.xib */,
+			);
+			path = Detail;
 			sourceTree = "<group>";
 		};
 		4CB886222ABACB7A00968B0F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4CB886252ABACBA700968B0F /* OSLibraryViewItem.xib */,
 				4CB886232ABACBA700968B0F /* OSLibraryViewItem.h */,
 				4CB886242ABACBA700968B0F /* OSLibraryViewItem.m */,
-				4CB886252ABACBA700968B0F /* OSLibraryViewItem.xib */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -118,6 +205,10 @@
 			isa = PBXGroup;
 			children = (
 				4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */,
+				4C011A0B2AC5D178004A94C4 /* ItemExtension.h */,
+				4C011A0C2AC5D178004A94C4 /* ItemExtension.m */,
+				4CB8861C2ABA2CA900968B0F /* OSLibraryController.h */,
+				4CB8861D2ABA2CA900968B0F /* OSLibraryController.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -145,9 +236,10 @@
 		4CBF174E2AB5F176001F7984 /* Bothlin */ = {
 			isa = PBXGroup;
 			children = (
+				4C0119A42AC5ABF0004A94C4 /* ViewControllers */,
+				4C01199C2AC5AA18004A94C4 /* Window */,
 				4CB8862A2ABACBBA00968B0F /* Model */,
 				4CB886222ABACB7A00968B0F /* Views */,
-				4CB886212ABA2CAE00968B0F /* Controllers */,
 				4CBF174F2AB5F176001F7984 /* AppDelegate.h */,
 				4CBF17502AB5F176001F7984 /* AppDelegate.m */,
 				4CBF17522AB5F177001F7984 /* Assets.xcassets */,
@@ -279,8 +371,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CBF17532AB5F177001F7984 /* Assets.xcassets in Resources */,
+				4C0119A22AC5AA45004A94C4 /* RootWindowController.xib in Resources */,
+				4C0119AA2AC5AC14004A94C4 /* SidebarController.xib in Resources */,
+				4C0119BB2AC5AC5E004A94C4 /* DetailsController.xib in Resources */,
+				4C0119FE2AC5B12E004A94C4 /* GridViewController.xib in Resources */,
 				4CBF17562AB5F177001F7984 /* MainMenu.xib in Resources */,
 				4CB886282ABACBA700968B0F /* OSLibraryViewItem.xib in Resources */,
+				4C0119B42AC5AC51004A94C4 /* ItemsDisplayController.xib in Resources */,
+				4C011A052AC5B14B004A94C4 /* SingleViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,7 +393,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C0119AB2AC5AC14004A94C4 /* SidebarController.xib in Resources */,
 				4CB886292ABACBA700968B0F /* OSLibraryViewItem.xib in Resources */,
+				4C0119FF2AC5B12E004A94C4 /* GridViewController.xib in Resources */,
+				4C0119BC2AC5AC5E004A94C4 /* DetailsController.xib in Resources */,
+				4C011A062AC5B14B004A94C4 /* SingleViewController.xib in Resources */,
+				4C0119A32AC5AA45004A94C4 /* RootWindowController.xib in Resources */,
+				4C0119B52AC5AC51004A94C4 /* ItemsDisplayController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,12 +410,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C0119A02AC5AA45004A94C4 /* RootWindowController.m in Sources */,
 				4CB886262ABACBA700968B0F /* OSLibraryViewItem.m in Sources */,
-				4C9002342AB9A92500F924A4 /* OSRootController.m in Sources */,
+				4C011A032AC5B14B004A94C4 /* SingleViewController.m in Sources */,
+				4C011A0D2AC5D178004A94C4 /* ItemExtension.m in Sources */,
 				4CBF17582AB5F177001F7984 /* main.m in Sources */,
+				4C0119B92AC5AC5E004A94C4 /* DetailsController.m in Sources */,
+				4C0119A82AC5AC14004A94C4 /* SidebarController.m in Sources */,
 				4CBF17512AB5F176001F7984 /* AppDelegate.m in Sources */,
 				4CB8861E2ABA2CA900968B0F /* OSLibraryController.m in Sources */,
 				4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */,
+				4C0119FC2AC5B12E004A94C4 /* GridViewController.m in Sources */,
+				4C0119B22AC5AC51004A94C4 /* ItemsDisplayController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -321,7 +431,7 @@
 			files = (
 				4CBF17632AB5F177001F7984 /* OldSkoolTests.m in Sources */,
 				4CB8861F2ABA2CA900968B0F /* OSLibraryController.m in Sources */,
-				4C9002352AB9A92500F924A4 /* OSRootController.m in Sources */,
+				4C011A0E2AC5D178004A94C4 /* ItemExtension.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,12 +439,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C0119A12AC5AA45004A94C4 /* RootWindowController.m in Sources */,
 				4CB886272ABACBA700968B0F /* OSLibraryViewItem.m in Sources */,
+				4C011A042AC5B14B004A94C4 /* SingleViewController.m in Sources */,
+				4C011A0F2AC5D178004A94C4 /* ItemExtension.m in Sources */,
 				4CB886692ABB67E100968B0F /* LibraryModel.xcdatamodeld in Sources */,
-				4C9002362AB9A92500F924A4 /* OSRootController.m in Sources */,
+				4C0119BA2AC5AC5E004A94C4 /* DetailsController.m in Sources */,
+				4C0119A92AC5AC14004A94C4 /* SidebarController.m in Sources */,
 				4CBF176D2AB5F177001F7984 /* OldSkoolUITests.m in Sources */,
 				4CBF176F2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m in Sources */,
 				4CB886202ABA2CA900968B0F /* OSLibraryController.m in Sources */,
+				4C0119FD2AC5B12E004A94C4 /* GridViewController.m in Sources */,
+				4C0119B32AC5AC51004A94C4 /* ItemsDisplayController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -6,29 +6,45 @@
 //
 
 #import "AppDelegate.h"
-#import "OSRootController.h"
 #import "OSLibraryController.h"
+#import "RootWindowController.h"
 
 @interface AppDelegate ()
 
-@property (strong) IBOutlet NSWindow *window;
-@property (nonatomic, weak) IBOutlet OSRootController* rootController;
+@property (nonatomic, strong, readwrite) RootWindowController *mainWindowController;
 
 @end
 
 @implementation AppDelegate
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
++ (void)makeInitialDefaults {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSAssert(0 < paths.count, @"Expected at least one documents folder, got none");
+    NSString *documntsDirectory = paths.firstObject;
 
-//    OSLibraryController *libraryController = [[OSLibraryController alloc] initWithPath: @"/Users/michael/Pictures/Screenshots"];
-//    [libraryController loadDirectoryContents];
-//
-//    self.rootController.libraryController = libraryController;
+    NSString *defaultStorageFolder = [documntsDirectory stringByAppendingPathComponent: @"Screenshots"];
+    NSDictionary<NSString *, id> *initialDefaultValues = [NSDictionary dictionaryWithObjectsAndKeys:
+                                                         @"DefaultStorageFolder", defaultStorageFolder,
+                                                         nil];
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults registerDefaults: initialDefaultValues];
+}
+
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    [AppDelegate makeInitialDefaults];
+
+    self.mainWindowController = [[RootWindowController alloc] initWithWindowNibName: @"RootWindowController"];
+    [self.mainWindowController showWindow: nil];
+
+    // TODO: icky self use
+    NSPersistentStoreCoordinator *store = self.persistentContainer.persistentStoreCoordinator;
+    self->_libraryController = [[OSLibraryController alloc] initWithPersistentStore: store];
 }
 
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    // Insert code here to tear down your application
 }
 
 
@@ -36,32 +52,6 @@
     return YES;
 }
 
-#pragma mark - NSSplitViewDelegate
-
-
-- (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMinimumPosition ofSubviewAt:(NSInteger)dividerIndex {
-    switch (dividerIndex) {
-    case 0:
-        return 50;
-    default:
-        return proposedMinimumPosition;
-    }
-
-}
-
-- (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMaximumPosition ofSubviewAt:(NSInteger)dividerIndex {
-    switch (dividerIndex) {
-    case 0:
-        return 50;
-    default:
-        return proposedMaximumPosition;
-    }
-}
-
-- (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview {
-    NSUInteger index = [splitView.subviews indexOfObject: subview];
-    return 0 == index;
-}
 
 #pragma mark - Core Data stack
 

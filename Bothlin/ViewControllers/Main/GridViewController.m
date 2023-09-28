@@ -1,16 +1,15 @@
 //
-//  OSLibraryController.m
-//  OldSkool
+//  GridViewController.m
+//  Bothlin
 //
-//  Created by Michael Dales on 19/09/2023.
+//  Created by Michael Dales on 28/09/2023.
 //
 
-#import "OSLibraryController.h"
-#import "OSLibraryViewItem.h"
 #import "AppDelegate.h"
+#import "GridViewController.h"
 #import "Item+CoreDataClass.h"
 
-@interface OSLibraryController ()
+@interface GridViewController ()
 
 @property (strong, nonatomic, readonly) dispatch_queue_t syncQ;
 
@@ -19,13 +18,29 @@
 
 @end
 
-@implementation OSLibraryController
+@implementation GridViewController
 
-- (instancetype)init {
-    self->_syncQ = dispatch_queue_create("com.this.that.OSLibraryController.syncQ", DISPATCH_QUEUE_SERIAL);
-    self->_contents = [[NSArray alloc] init];
+- (instancetype)initWithNibName:(NSNibName)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (nil != self) {
+        self->_syncQ = dispatch_queue_create("com.digitalflapjack.GridViewController.syncQ", DISPATCH_QUEUE_SERIAL);
+        self->_contents = [[NSArray alloc] init];
+    }
     return self;
 }
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+    NSError *error = nil;
+    [self reloadData: &error];
+    if (nil != error) {
+        NSLog(@"Failed to load data: %@", error.localizedDescription);
+    }
+    [self.collectionView reloadData];
+}
+
+#pragma mark - Data management
 
 - (BOOL)reloadData: (NSError **)error {
     AppDelegate *appDelegate = (AppDelegate *)([NSApplication sharedApplication].delegate);
@@ -54,77 +69,12 @@
         strongSelf.contents = result;
     });
 
+    [self.collectionView reloadData];
+
     return TRUE;
 }
 
-- (void)importDirectoryContentsAtURL: (NSURL*)url
-                               error: (NSError**)error {
-    NSFileManager *fm = [NSFileManager defaultManager];
-    AppDelegate *appDelegate = (AppDelegate *)([NSApplication sharedApplication].delegate);
-    NSManagedObjectContext *context = appDelegate.persistentContainer.viewContext;
-
-    NSError *innerError = nil;
-    NSArray<NSString *> *files = [fm contentsOfDirectoryAtPath: url.path
-                                             error: &innerError];
-    if (nil != innerError) {
-        if (nil != error) {
-            *error = innerError;
-        }
-        return;
-    }
-
-    // we have filenames, so now I need full paths
-    NSMutableArray<NSURL *> *fullNames = [NSMutableArray arrayWithCapacity: files.count];
-    for (NSString* filename in files) {
-        NSURL *fullPathURL = [url URLByAppendingPathComponent: filename];
-        [fullNames addObject: fullPathURL];
-        NSError *error = nil;
-        NSData *bookmark = [fullPathURL bookmarkDataWithOptions: NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess
-                                 includingResourceValuesForKeys: nil
-                                                  relativeToURL: nil
-                                                          error: &error];
-        if (nil != error) {
-            NSLog(@"failed to make bookmark: %@", error.localizedDescription);
-            continue;
-        }
-        NSAssert(nil != bookmark, @"Bookmark for %@ nil despite no error", fullPathURL);
-
-        Item *item = [NSEntityDescription insertNewObjectForEntityForName: @"Item"
-                                                   inManagedObjectContext: context];
-        item.name = filename;
-        item.path = fullPathURL.path;
-        item.bookmark = bookmark;
-        item.added = [NSDate now];
-        item.type = [filename pathExtension];  // TODO: this should be mime type one day
-
-        NSDictionary<NSFileAttributeKey, id> *attributes = [fm attributesOfItemAtPath: fullPathURL.path
-                                                                                error: &error];
-        if (nil != error) {
-            NSLog(@"Failed to stat item: %@", error.localizedDescription);
-            item.created = [NSDate now];
-        } else {
-            NSDate *creationDate = [attributes objectForKey: NSFileCreationDate];
-            if (nil != creationDate) {
-                item.created = creationDate;
-            } else {
-                item.created = [NSDate now];
-            }
-        }
-    }
-
-    innerError = nil;
-    BOOL success = [context save: &innerError];
-    if (nil != innerError) {
-        NSAssert(NO == success, @"Got error and success from saving.");
-        if (nil != error) {
-            *error = innerError;
-        }
-        return;
-    }
-    NSAssert(YES == success, @"Got no success and error from saving.");
-}
-
-#pragma mark NSCollectionViewDataSource
+#pragma mark - NSCollectionViewDataSource
 
 - (NSInteger)numberOfSectionsInCollectionView:(NSCollectionView *)collectionView {
     return 1;
@@ -144,7 +94,7 @@
     dispatch_sync(self.syncQ, ^{
         item = [self.contents objectAtIndex: indexPath.item];
     });
-    
+
     BOOL isStale = NO;
     NSError *error = nil;
     NSURL *path = [NSURL URLByResolvingBookmarkData: item.bookmark
@@ -173,18 +123,18 @@
     return viewItem;
 }
 
-#pragma mark NSCollectionViewDelegate
+#pragma mark - NSCollectionViewDelegate
 
 - (void)collectionView:(NSCollectionView *)collectionView didSelectItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
     for (NSIndexPath *index in indexPaths) {
-        NSLog(@"%ld %ld -> selected", (long)index.section, (long)index.item);
+//        NSLog(@"%ld %ld -> selected", (long)index.section, (long)index.item);
     }
 }
 
 
 - (void)collectionView:(NSCollectionView *)collectionView didDeselectItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
     for (NSIndexPath *index in indexPaths) {
-        NSLog(@"%ld %ld -> deselected", (long)index.section, (long)index.item);
+//        NSLog(@"%ld %ld -> deselected", (long)index.section, (long)index.item);
     }
 }
 

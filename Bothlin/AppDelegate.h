@@ -7,11 +7,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface AppDelegate : NSObject <NSApplicationDelegate, NSSplitViewDelegate>
+@class OSLibraryController;
+
+@interface AppDelegate : NSObject <NSApplicationDelegate>
 
 @property (readonly, strong) NSPersistentContainer *persistentContainer;
-
-@property (weak, nonatomic) IBOutlet NSSplitView *toolbarSplitView;
+@property (readonly, strong) OSLibraryController *libraryController;
 
 @end
 
