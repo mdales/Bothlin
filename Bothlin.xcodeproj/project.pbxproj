@@ -35,6 +35,8 @@
 		4C011A0E2AC5D178004A94C4 /* ItemExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A0C2AC5D178004A94C4 /* ItemExtension.m */; };
 		4C011A0F2AC5D178004A94C4 /* ItemExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A0C2AC5D178004A94C4 /* ItemExtension.m */; };
 		4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
+		4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
+		4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
 		4CB8861E2ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
 		4CB8861F2ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
 		4CB886202ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
@@ -90,6 +92,8 @@
 		4C011A022AC5B14B004A94C4 /* SingleViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SingleViewController.xib; sourceTree = "<group>"; };
 		4C011A0B2AC5D178004A94C4 /* ItemExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ItemExtension.h; sourceTree = "<group>"; };
 		4C011A0C2AC5D178004A94C4 /* ItemExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ItemExtension.m; sourceTree = "<group>"; };
+		4C7F5F452AC6B1E5000E9BD9 /* ToolbarProgressView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ToolbarProgressView.h; sourceTree = "<group>"; };
+		4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ToolbarProgressView.m; sourceTree = "<group>"; };
 		4C9D91F12AC2C9B400E42251 /* Bothlin.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Bothlin.entitlements; sourceTree = "<group>"; };
 		4CB8861C2ABA2CA900968B0F /* LibraryController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryController.h; sourceTree = "<group>"; };
 		4CB8861D2ABA2CA900968B0F /* LibraryController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryController.m; sourceTree = "<group>"; };
@@ -197,6 +201,8 @@
 				4CB886252ABACBA700968B0F /* OSLibraryViewItem.xib */,
 				4CB886232ABACBA700968B0F /* OSLibraryViewItem.h */,
 				4CB886242ABACBA700968B0F /* OSLibraryViewItem.m */,
+				4C7F5F452AC6B1E5000E9BD9 /* ToolbarProgressView.h */,
+				4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -410,6 +416,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
 				4C0119A02AC5AA45004A94C4 /* RootWindowController.m in Sources */,
 				4CB886262ABACBA700968B0F /* OSLibraryViewItem.m in Sources */,
 				4C011A032AC5B14B004A94C4 /* SingleViewController.m in Sources */,
@@ -439,6 +446,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
 				4C0119A12AC5AA45004A94C4 /* RootWindowController.m in Sources */,
 				4CB886272ABACBA700968B0F /* OSLibraryViewItem.m in Sources */,
 				4C011A042AC5B14B004A94C4 /* SingleViewController.m in Sources */,

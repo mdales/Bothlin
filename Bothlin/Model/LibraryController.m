@@ -32,6 +32,7 @@
     return self;
 }
 
+
 - (void)importURLs: (NSArray<NSURL *> *)urls
           callback: (void (^)(BOOL success, NSError *error)) callback {
     if (nil == urls) {
@@ -44,6 +45,14 @@
     __weak typeof(self) weakSelf = self;
     dispatch_async(self.workQ, ^{
         __strong typeof(self) strongSelf = weakSelf;
+        if (nil == strongSelf) {
+            if (nil != callback) {
+                callback(NO, [NSError errorWithDomain: NSPOSIXErrorDomain
+                                                 code: ESTALE // kinda...
+                                             userInfo: nil]);
+            }
+            return;
+        }
         NSError *error = nil;
         BOOL success = [strongSelf innerImportURLs: urls
                                              error: &error];

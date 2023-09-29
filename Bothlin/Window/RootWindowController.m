@@ -11,9 +11,11 @@
 #import "DetailsController.h"
 #import "AppDelegate.h"
 #import "LibraryController.h"
+#import "ToolbarProgressView.h"
 
 NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIdentifier";
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
+NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarItemIdentifier";
 
 @interface RootWindowController ()
 
@@ -21,6 +23,7 @@ NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIde
 @property (nonatomic, strong, readonly) ItemsDisplayController *itemsDisplay;
 @property (nonatomic, strong, readonly) DetailsController *details;
 @property (nonatomic, strong, readonly) NSSplitViewController *splitViewController;
+@property (nonatomic, strong, readonly) ToolbarProgressView *progressView;
 
 @end
 
@@ -33,6 +36,7 @@ NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIde
         self->_itemsDisplay = [[ItemsDisplayController alloc] initWithNibName: @"ItemsDisplayController" bundle: nil];
         self->_details = [[DetailsController alloc] initWithNibName: @"DetailsController" bundle: nil];
         self->_splitViewController = [[NSSplitViewController alloc] init];
+        self->_progressView = [[ToolbarProgressView alloc] initWithFrame: NSMakeRect(0.0, 0.0, 250.0, 28.0)];
     }
     return self;
 }
@@ -81,6 +85,10 @@ NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIde
                        callback: ^(BOOL success, NSError *error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     __strong typeof(self) strongSelf = weakSelf;
+                    if (nil == strongSelf) {
+                        return;
+                    }
+
                     if (nil != error) {
                         NSAssert(NO == success, @"Got error and success from saving.");
                         NSAlert *alert = [NSAlert alertWithError: error];
@@ -119,6 +127,7 @@ NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIde
             NSToolbarFlexibleSpaceItemIdentifier,
             kImportToolbarItemIdentifier,
             NSToolbarSidebarTrackingSeparatorItemIdentifier,
+            kProgressToolbarItemIdentifier,
             NSToolbarFlexibleSpaceItemIdentifier,
             kSearchToolbarItemIdentifier,
             nil];
@@ -148,6 +157,21 @@ NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIde
         NSMenuItem *menu = [[NSMenuItem alloc] init];
         menu.submenu = nil;
         menu.title = @"import";
+        item.menuFormRepresentation = menu;
+
+        return item;
+    } else if ([itemIdentifier compare: kProgressToolbarItemIdentifier] == NSOrderedSame) {
+        NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier: itemIdentifier];
+        item.title = @"Progress";
+        item.paletteLabel = @"Progress";
+        item.toolTip = @"Import progress";
+        item.target = self;
+        item.action = @selector(import:);
+        item.view = self.progressView;
+
+        NSMenuItem *menu = [[NSMenuItem alloc] init];
+        menu.submenu = nil;
+        menu.title = @"progress";
         item.menuFormRepresentation = menu;
 
         return item;

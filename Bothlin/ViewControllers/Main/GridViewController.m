@@ -66,6 +66,9 @@
     __weak typeof(self) weakSelf = self;
     dispatch_async(self.syncQ, ^{
         __strong typeof(self) strongSelf = weakSelf;
+        if (nil == strongSelf) {
+            return;
+        }
         strongSelf.contents = result;
     });
 
