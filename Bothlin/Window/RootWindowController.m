@@ -66,7 +66,7 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 
 #pragma mark - Custom behaviour
 
-- (void)import: (id)sender {
+- (IBAction)import: (id)sender {
     NSOpenPanel* panel = [NSOpenPanel openPanel];
     panel.canChooseFiles = YES;
     panel.canChooseDirectories = YES;

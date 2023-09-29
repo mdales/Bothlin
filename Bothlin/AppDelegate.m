@@ -53,6 +53,14 @@
 }
 
 
+#pragma mark - Menu items
+
+// It's a downside of using an NSWindowController with its own xib that you can't connect up the menu items more directly
+- (IBAction)import: (id)sender {
+    [self.mainWindowController import: sender];
+}
+
+
 #pragma mark - Core Data stack
 
 @synthesize persistentContainer = _persistentContainer;

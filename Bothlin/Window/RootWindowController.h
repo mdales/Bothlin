@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RootWindowController : NSWindowController <NSToolbarDelegate>
 
+- (IBAction)import: (id)sender;
+
 @end
 
 NS_ASSUME_NONNULL_END
