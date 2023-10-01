@@ -7,9 +7,11 @@
         <attribute name="added" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="bookmark" attributeType="Binary"/>
         <attribute name="created" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="deletedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="notes" attributeType="String" defaultValueString=""/>
         <attribute name="path" attributeType="String"/>
+        <attribute name="thumbnailPath" optional="YES" attributeType="String"/>
         <attribute name="type" attributeType="String"/>
     </entity>
     <entity name="Tag" representedClassName="Tag" syncable="YES" codeGenerationType="class">

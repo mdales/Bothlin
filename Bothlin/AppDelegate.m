@@ -35,12 +35,12 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     [AppDelegate makeInitialDefaults];
 
-    self.mainWindowController = [[RootWindowController alloc] initWithWindowNibName: @"RootWindowController"];
-    [self.mainWindowController showWindow: nil];
-
     // TODO: icky self use
     NSPersistentStoreCoordinator *store = self.persistentContainer.persistentStoreCoordinator;
     self->_libraryController = [[LibraryController alloc] initWithPersistentStore: store];
+
+    self.mainWindowController = [[RootWindowController alloc] initWithWindowNibName: @"RootWindowController"];
+    [self.mainWindowController showWindow: nil];
 }
 
 

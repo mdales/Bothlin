@@ -10,11 +10,21 @@
 #import "AppDelegate.h"
 #import "Item+CoreDataClass.h"
 #import "ItemExtension.h"
+#import "Helpers.h"
+#import "NSURL+SecureAccess.h"
+
 
 @interface LibraryController ()
 
-@property (strong, nonatomic, readonly) dispatch_queue_t workQ;
+// Queue used for core data work
+@property (strong, nonatomic, readonly) dispatch_queue_t dataQ;
 @property (strong, nonatomic, readonly) NSManagedObjectContext *context;
+
+// Queue used for thumbnail processing
+@property (strong, nonatomic, readonly) dispatch_queue_t thumbnailWorkerQ;
+
+// Only access on thumbnailWorkerQ
+@property (strong, nonatomic, readonly) NSMutableArray<NSManagedObjectID *> *thumbnailTaskList;
 
 @end
 
@@ -23,29 +33,55 @@
 - (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator *)store {
     self = [super init];
     if (nil != self) {
-        self->_workQ = dispatch_queue_create("com.this.that.OSLibraryController.workQ", DISPATCH_QUEUE_SERIAL);
+        self->_dataQ = dispatch_queue_create("com.digitalflapjack.LibraryController.dataQ", DISPATCH_QUEUE_SERIAL);
 
         NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType: NSPrivateQueueConcurrencyType];
         context.persistentStoreCoordinator = store;
         self->_context = context;
+
+        self->_thumbnailWorkerQ = dispatch_queue_create("com.digitalflapjack.thumbnailWorkerQ", DISPATCH_QUEUE_SERIAL);
+        self->_thumbnailTaskList = [NSMutableArray array];
     }
     return self;
 }
 
 
-- (void)importURLs: (NSArray<NSURL *> *)urls
-          callback: (void (^)(BOOL success, NSError *error)) callback {
+- (void)importURLs:(NSArray<NSURL *> *)urls
+          callback:(void (^)(BOOL success, NSError *error)) callback {
     if (nil == urls) {
-        return;
-    }
-    if (0 == urls.count) {
+        if (nil != callback) {
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                callback(NO, [NSError errorWithDomain: NSPOSIXErrorDomain
+                                                  code: EINVAL
+                                              userInfo: nil]);
+            });
+        }
         return;
     }
 
-    __weak typeof(self) weakSelf = self;
-    dispatch_async(self.workQ, ^{
-        __strong typeof(self) strongSelf = weakSelf;
-        if (nil == strongSelf) {
+    // filter out things like .DS_store
+    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        NSURL *url = (NSURL*)evaluatedObject;
+        NSString *lastPathComponent = [url lastPathComponent];
+        NSArray<NSString *> *knownSkip = @[@".DS_Store", @"desktop.ini"];
+        NSInteger index = [knownSkip indexOfObject: lastPathComponent];
+        return index == NSNotFound;
+    }];
+    NSArray *filteredURLs = [urls filteredArrayUsingPredicate: predicate];
+
+    if (0 == filteredURLs.count) {
+        if (nil != callback) {
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                callback(YES, nil);
+            });
+        }
+        return;
+    }
+
+    @weakify(self);
+    dispatch_async(self.dataQ, ^{
+        @strongify(self);
+        if (nil == self) {
             if (nil != callback) {
                 callback(NO, [NSError errorWithDomain: NSPOSIXErrorDomain
                                                  code: ESTALE // kinda...
@@ -54,49 +90,226 @@
             return;
         }
         NSError *error = nil;
-        BOOL success = [strongSelf innerImportURLs: urls
-                                             error: &error];
+        BOOL success = [self innerImportURLs: filteredURLs
+                                       error: &error];
+
+        @weakify(self);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+            if (nil == self.delegate) {
+                return;
+            }
+            [self.delegate libraryDidUpdate];
+        });
+
         if (nil != callback) {
             callback(success, error);
         }
     });
 }
 
+- (BOOL)generateThumbnailForItemWithID:(NSManagedObjectID *)itemID
+                                 error:(NSError **)error {
+    if (nil == itemID) {
+        return YES;
+    }
+    dispatch_assert_queue(self.thumbnailWorkerQ);
+    dispatch_assert_queue_not(self.dataQ);
 
-- (BOOL)innerImportURLs: (NSArray<NSURL *> *)urls
-                  error: (NSError **)error {
-    NSAssert(nil != urls, @"URLs is nil");
-    dispatch_assert_queue(self.workQ);
-
-    for (NSURL *url in urls) {
-        NSError *innerError = nil;
-        [Item importItemsAtURL: url
-                     inContext: self.context
-                         error: &innerError];
+    __block NSURL *secureURL = nil;
+    __block NSError *innerError = nil;
+    dispatch_sync(self.dataQ, ^{
+        Item *item = [self.context existingObjectWithID: itemID
+                                                  error: &innerError];
         if (nil != innerError) {
-            if (nil != error) {
-                *error = innerError;
-            }
-            return NO;
+            NSAssert(nil == item, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
+            return;
         }
+        NSAssert(nil != item, @"Got no error but also no item fetching object with ID %@", itemID);
+        
+        secureURL = [item decodeSecureURL: &innerError];
+        if (nil != innerError) {
+            NSAssert(nil == secureURL, @"Got error and value");
+            return;
+        }
+        NSAssert(nil != secureURL, @"Got no error and no value");
+
+    });
+    if (nil != innerError) {
+        if (nil != error) {
+            *error = innerError;
+        }
+        return NO;
     }
 
-    if (YES == self.context.hasChanges) {
-        __block BOOL success = YES;
-        __block NSError *innerError = nil;
-        [self.context performBlockAndWait: ^{
-            success = [self.context save: &innerError];
-        }];
-        if (nil != innerError) {
-            NSAssert(NO == success, @"Got error and success from saving.");
-            if (nil != error) {
-                *error = innerError;
-            }
-            return NO;
+    NSString *filename = [NSString stringWithFormat: @"%@.png", [[NSUUID UUID] UUIDString]];
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSArray<NSURL *> *paths = [fm URLsForDirectory:NSDocumentDirectory
+                                         inDomains:NSUserDomainMask];
+    NSAssert(0 < paths.count, @"No document directory found!");
+    NSURL *docsDirectory = [paths lastObject];
+    NSURL *thumbnailFile = [docsDirectory URLByAppendingPathComponent: filename];
+    [secureURL secureAccessWithBlock: ^(NSURL *url, BOOL canAccess) {
+        if (NO == canAccess) {
+            innerError = [NSError errorWithDomain: NSPOSIXErrorDomain
+                                             code: EACCES
+                                         userInfo: @{@"URL": url}];
+            return;
         }
-        NSAssert(YES == success, @"Got no success and error from saving.");
+        
+        CFURLRef cfurl = (__bridge_retained CFURLRef)url;
+        CGImageSourceRef source = CGImageSourceCreateWithURL(cfurl, NULL);
+        if (NULL == source) {
+            innerError = [NSError errorWithDomain: NSPOSIXErrorDomain
+                                             code: ESTALE
+                                         userInfo: nil];
+            return;
+        }
+
+        size_t index = CGImageSourceGetPrimaryImageIndex(source);
+
+        int imageSize = 400;
+        CFNumberRef thumbnailSize = CFNumberCreate(NULL, kCFNumberIntType, &imageSize);
+        CFDictionaryRef   myOptions = NULL;
+        CFStringRef       myKeys[3];
+        CFTypeRef         myValues[3];
+        myKeys[0] = kCGImageSourceCreateThumbnailWithTransform;
+        myValues[0] = (CFTypeRef)kCFBooleanTrue;
+        myKeys[1] = kCGImageSourceCreateThumbnailFromImageAlways;
+        myValues[1] = (CFTypeRef)kCFBooleanTrue;
+        myKeys[2] = kCGImageSourceThumbnailMaxPixelSize;
+        myValues[2] = (CFTypeRef)thumbnailSize;
+        myOptions = CFDictionaryCreate(NULL, (const void **) myKeys,
+                                       (const void **) myValues, 2,
+                                       &kCFTypeDictionaryKeyCallBacks,
+                                       & kCFTypeDictionaryValueCallBacks);
+        CGImageRef cgImage = CGImageSourceCreateThumbnailAtIndex(source, index, myOptions);
+        CFRelease(myOptions);
+        CFRelease(thumbnailSize);
+
+        if (NULL == cgImage) {
+            innerError = [NSError errorWithDomain: NSPOSIXErrorDomain
+                                             code: ENODEV
+                                         userInfo: nil];
+            CFRelease(source);
+            return;
+        }
+
+        CFURLRef cfdesturl = (__bridge_retained CFURLRef)thumbnailFile;
+        CGImageDestinationRef destination = CGImageDestinationCreateWithURL(cfdesturl, kUTTypePNG, 1, NULL);
+        if (NULL == destination) {
+            innerError = [NSError errorWithDomain: NSPOSIXErrorDomain
+                                             code: ENOLCK
+                                         userInfo: @{@"URL": thumbnailFile}];
+            CGImageRelease(cgImage);
+            CFRelease(source);
+            return;
+        }
+
+        CGImageDestinationAddImage(destination, cgImage, NULL);
+
+        if (!CGImageDestinationFinalize(destination)) {
+            NSLog(@"Failed to write image to %@", thumbnailFile);
+        }
+
+        CFRelease(destination);
+        CGImageRelease(cgImage);
+        CFRelease(source);
+    }];
+    if (nil != innerError) {
+        if (nil != error) {
+            *error = innerError;
+        }
+        return NO;
     }
 
+    // now we've generated the thumbnail, we should update the record
+    dispatch_sync(self.dataQ, ^{
+        Item *item = [self.context existingObjectWithID: itemID
+                                                  error: &innerError];
+        if (nil != innerError) {
+            NSAssert(nil == item, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
+            return;
+        }
+        NSAssert(nil != item, @"Got no error but also no item fetching object with ID %@", itemID);
+
+        item.thumbnailPath = thumbnailFile.path;
+        BOOL success = [self.context save: &innerError];
+
+        @weakify(self);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+            if (nil == self.delegate) {
+                return;
+            }
+            [self.delegate libraryDidUpdate];
+        });
+    });
+
+    return YES;
+}
+
+
+- (BOOL)innerImportURLs:(NSArray<NSURL *> *)urls
+                  error:(NSError **)error {
+    if ((nil == urls) || (0 == urls.count)) {
+        return YES;
+    }
+    dispatch_assert_queue(self.dataQ);
+
+    __block NSError *innerError = nil;
+    [self.context performBlockAndWait: ^{
+        NSArray<Item *> *newItems = [NSArray array];
+        for (NSURL *url in urls) {
+            NSError *innerError = nil;
+            NSSet<Item *> *importeditems = [Item importItemsAtURL: url
+                                                        inContext: self.context
+                                                            error: &innerError];
+            if (nil != innerError) {
+                NSAssert(nil == importeditems, @"Got error making new items but still got results");
+                return;
+            }
+            NSAssert(nil != importeditems, @"Got no error adding items, but no result");
+
+            newItems = [newItems arrayByAddingObjectsFromArray: [importeditems allObjects]];
+        }
+
+        BOOL success = [self.context obtainPermanentIDsForObjects: newItems
+                                                            error: &innerError];
+        if (nil != innerError) {
+            NSAssert(NO == success, @"Got error and success from obtainPermanentIDsForObjects.");
+            return;
+        }
+        NSAssert(YES == success, @"Got no success and error from obtainPermanentIDsForObjects.");
+
+        for (Item *item in newItems) {
+            @weakify(self);
+            dispatch_async(self.thumbnailWorkerQ, ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+                NSError *error = nil;
+                [self generateThumbnailForItemWithID: item.objectID
+                                               error: &error];
+                if (nil != error) {
+                    NSLog(@"Error generating thumbnail: %@", error.localizedDescription);
+                }
+            });
+        }
+    }];
+    if (nil != innerError) {
+        if (nil != error) {
+            *error = innerError;
+        }
+        return NO;
+    }
     return YES;
 }
 

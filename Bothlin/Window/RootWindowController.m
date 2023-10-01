@@ -12,6 +12,7 @@
 #import "AppDelegate.h"
 #import "LibraryController.h"
 #import "ToolbarProgressView.h"
+#import "Helpers.h"
 
 NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIdentifier";
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
@@ -61,6 +62,17 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 
     [self.window setFrameUsingName: @"RootWindow"];
     self.windowFrameAutosaveName = @"RootWindow";
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryController *library = appDelegate.libraryController;
+    library.delegate = self;
+}
+
+#pragma mark - LibraryControllerDelegate
+
+- (void)libraryDidUpdate {
+    dispatch_assert_queue(dispatch_get_main_queue());
+    [self.itemsDisplay reloadData];
 }
 
 
@@ -80,12 +92,12 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
             LibraryController *library = appDelegate.libraryController;
 
             // This is async, so returns immediately
-            __weak typeof(self) weakSelf = self;
+            @weakify(self);
             [library importURLs: urls
                        callback: ^(BOOL success, NSError *error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    __strong typeof(self) strongSelf = weakSelf;
-                    if (nil == strongSelf) {
+                    @strongify(self);
+                    if (nil == self) {
                         return;
                     }
 
@@ -96,7 +108,7 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
                     }
                     NSAssert(YES == success, @"Got no success and error from saving.");
 
-                    [strongSelf.itemsDisplay reloadData];
+//                    [self.itemsDisplay reloadData];
                 });
             }];
         }

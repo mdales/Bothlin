@@ -7,9 +7,11 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "LibraryController.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RootWindowController : NSWindowController <NSToolbarDelegate>
+@interface RootWindowController : NSWindowController <NSToolbarDelegate, LibraryControllerDelegate>
 
 - (IBAction)import: (id)sender;
 

@@ -8,6 +8,7 @@
 #import "AppDelegate.h"
 #import "GridViewController.h"
 #import "Item+CoreDataClass.h"
+#import "Helpers.h"
 
 @interface GridViewController ()
 
@@ -47,6 +48,8 @@
     NSManagedObjectContext *context = appDelegate.persistentContainer.viewContext;
 
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName: @"Item"];
+    NSPredicate *filter = [NSPredicate predicateWithFormat: @"deletedAt == nil"];
+    [fetchRequest setPredicate: filter];
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey: @"created"
                                                            ascending: YES];
     [fetchRequest setSortDescriptors: [NSArray arrayWithObject: sort]];
@@ -63,13 +66,13 @@
     }
     NSAssert(nil != result, @"Got no error and no fetch results.");
 
-    __weak typeof(self) weakSelf = self;
+    @weakify(self);
     dispatch_async(self.syncQ, ^{
-        __strong typeof(self) strongSelf = weakSelf;
-        if (nil == strongSelf) {
+        @strongify(self);
+        if (nil == self) {
             return;
         }
-        strongSelf.contents = result;
+        self.contents = result;
     });
 
     [self.collectionView reloadData];
@@ -98,30 +101,34 @@
         item = [self.contents objectAtIndex: indexPath.item];
     });
 
-    BOOL isStale = NO;
-    NSError *error = nil;
-    NSURL *path = [NSURL URLByResolvingBookmarkData: item.bookmark
-                                            options: NSURLBookmarkResolutionWithSecurityScope
-                                      relativeToURL: nil
-                                bookmarkDataIsStale: &isStale
-                                              error: &error];
 
     NSCollectionViewItem *viewItem = [collectionView makeItemWithIdentifier: @"OSLibraryViewItem" forIndexPath: indexPath];
     viewItem.textField.stringValue = item.name;
 
-    BOOL canAccess = [path startAccessingSecurityScopedResource];
-    if (canAccess) {
-        NSImage *image = [[NSImage alloc] initByReferencingURL: path];
-        // TODO: fix - if we don't copy the data we have to hold onto the security scope indefinitely
-        // but this is clearly wasteful.
-        NSImage *copyImage = [[NSImage alloc] initWithData: image.TIFFRepresentation];
-        viewItem.imageView.image = copyImage;
-
-        [path stopAccessingSecurityScopedResource];
+    NSString *thumbnailPath = item.thumbnailPath;
+    if (nil == thumbnailPath) {
+        viewItem.imageView.image = [NSImage imageWithSystemSymbolName: @"photo.artframe" accessibilityDescription: nil];
     } else {
-        // TODO: Show damaged preview thingy here
-        NSLog(@"Failed to get access");
+        NSImage *thumbnail = [[NSImage alloc] initByReferencingFile: thumbnailPath];
+        if (nil == thumbnail) {
+            thumbnail = [NSImage imageWithSystemSymbolName: @"exclamationmark.square" accessibilityDescription: nil];
+        }
+        viewItem.imageView.image = thumbnail;
     }
+
+//    BOOL canAccess = [path startAccessingSecurityScopedResource];
+//    if (canAccess) {
+//        NSImage *image = [[NSImage alloc] initByReferencingURL: path];
+//        // TODO: fix - if we don't copy the data we have to hold onto the security scope indefinitely
+//        // but this is clearly wasteful.
+//        NSImage *copyImage = [[NSImage alloc] initWithData: image.TIFFRepresentation];
+//        viewItem.imageView.image = copyImage;
+//
+//        [path stopAccessingSecurityScopedResource];
+//    } else {
+//        // TODO: Show damaged preview thingy here
+//        NSLog(@"Failed to get access");
+//    }
 
     return viewItem;
 }

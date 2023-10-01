@@ -11,10 +11,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Item (Helpers)
 
-+ (BOOL)importItemsAtURL: (NSURL *)url
-               inContext: (NSManagedObjectContext *)context
-                   error: (NSError **)error ;
++ (NSSet<Item *> *)importItemsAtURL:(NSURL *)url
+                          inContext:(NSManagedObjectContext *)context
+                              error:(NSError **)error ;
 
+- (NSURL*)decodeSecureURL:(NSError**)error;
 @end
 
 NS_ASSUME_NONNULL_END
