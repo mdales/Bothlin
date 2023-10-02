@@ -18,7 +18,7 @@
             <rect key="frame" x="0.0" y="0.0" width="727" height="507"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <scrollView wantsLayer="YES" fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wVd-Fu-Udh">
+                <scrollView wantsLayer="YES" fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wVd-Fu-Udh">
                     <rect key="frame" x="0.0" y="0.0" width="727" height="507"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <clipView key="contentView" id="ZRk-Nc-uJ2">
@@ -26,7 +26,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView selectable="YES" id="ZMD-KV-h7a">
-                                <rect key="frame" x="0.0" y="0.0" width="725" height="158"/>
+                                <rect key="frame" x="0.0" y="0.0" width="725" height="505"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="zrK-dz-NZd">
                                     <size key="itemSize" width="250" height="250"/>
@@ -40,11 +40,11 @@
                         </subviews>
                     </clipView>
                     <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="xK6-rs-pv8">
-                        <rect key="frame" x="1" y="450" width="688" height="16"/>
+                        <rect key="frame" x="-100" y="-100" width="688" height="16"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
-                    <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="mjG-Gz-YkX">
-                        <rect key="frame" x="234" y="1" width="15" height="143"/>
+                    <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="mjG-Gz-YkX">
+                        <rect key="frame" x="628" y="1" width="16" height="437"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                 </scrollView>
