@@ -75,6 +75,11 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
     [self.itemsDisplay reloadData];
 }
 
+- (void)thumbnailGenerationFailedWithError:(NSError *)error {
+    NSAssert(nil != error, @"Thumbnail generation sent nil error");
+    NSAlert *alert = [NSAlert alertWithError: error];
+    [alert runModal];
+}
 
 #pragma mark - Custom behaviour
 
@@ -106,9 +111,7 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
                         NSAlert *alert = [NSAlert alertWithError: error];
                         [alert runModal];
                     }
-                    NSAssert(YES == success, @"Got no success and error from saving.");
-
-//                    [self.itemsDisplay reloadData];
+                    NSAssert(NO != success, @"Got no success and error from saving.");
                 });
             }];
         }

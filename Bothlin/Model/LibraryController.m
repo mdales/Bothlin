@@ -13,6 +13,17 @@
 #import "Helpers.h"
 #import "NSURL+SecureAccess.h"
 
+NSString * __nonnull const LibraryControllerErrorDomain = @"com.digitalflapjack.LibraryController";
+typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
+    // code 0 means I made a mistake
+    LibraryControllerErrorURLsAreNil = 1,
+    LibraryControllerErrorSelfIsNoLongerValid,
+    LibraryControllerErrorSecurePathNotAccessible,
+    LibraryControllerErrorCouldNotOpenImage,
+    LibraryControllerErrorCouldNotGenerateThumbnail,
+    LibraryControllerErrorCouldNotCreateThumbnailFile,
+    LibraryControllerErrorCouldNotWriteThumbnailFile,
+};
 
 @interface LibraryController ()
 
@@ -51,9 +62,9 @@
     if (nil == urls) {
         if (nil != callback) {
             dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-                callback(NO, [NSError errorWithDomain: NSPOSIXErrorDomain
-                                                  code: EINVAL
-                                              userInfo: nil]);
+                callback(NO, [NSError errorWithDomain: LibraryControllerErrorDomain
+                                                 code: LibraryControllerErrorURLsAreNil
+                                             userInfo: nil]);
             });
         }
         return;
@@ -83,8 +94,8 @@
         @strongify(self);
         if (nil == self) {
             if (nil != callback) {
-                callback(NO, [NSError errorWithDomain: NSPOSIXErrorDomain
-                                                 code: ESTALE // kinda...
+                callback(NO, [NSError errorWithDomain: LibraryControllerErrorDomain
+                                                 code: LibraryControllerErrorSelfIsNoLongerValid
                                              userInfo: nil]);
             }
             return;
@@ -154,18 +165,22 @@
     NSURL *thumbnailFile = [docsDirectory URLByAppendingPathComponent: filename];
     [secureURL secureAccessWithBlock: ^(NSURL *url, BOOL canAccess) {
         if (NO == canAccess) {
-            innerError = [NSError errorWithDomain: NSPOSIXErrorDomain
-                                             code: EACCES
-                                         userInfo: @{@"URL": url}];
+            innerError = [NSError errorWithDomain: LibraryControllerErrorDomain
+                                             code: LibraryControllerErrorSecurePathNotAccessible
+                                         userInfo: @{@"URL": url, @"ID": itemID}];
             return;
         }
         
         CFURLRef cfurl = (__bridge_retained CFURLRef)url;
         CGImageSourceRef source = CGImageSourceCreateWithURL(cfurl, NULL);
         if (NULL == source) {
-            innerError = [NSError errorWithDomain: NSPOSIXErrorDomain
-                                             code: ESTALE
-                                         userInfo: nil];
+            innerError = [NSError errorWithDomain: LibraryControllerErrorDomain
+                                             code: LibraryControllerErrorCouldNotOpenImage
+                                         userInfo: @{
+                @"URL": url,
+                @"ID": itemID,
+                NSLocalizedDescriptionKey: [NSString stringWithFormat: @"Could not create image source for %@", [url lastPathComponent]]
+            }];
             return;
         }
 
@@ -173,27 +188,31 @@
 
         int imageSize = 400;
         CFNumberRef thumbnailSize = CFNumberCreate(NULL, kCFNumberIntType, &imageSize);
-        CFDictionaryRef   myOptions = NULL;
-        CFStringRef       myKeys[3];
-        CFTypeRef         myValues[3];
-        myKeys[0] = kCGImageSourceCreateThumbnailWithTransform;
-        myValues[0] = (CFTypeRef)kCFBooleanTrue;
-        myKeys[1] = kCGImageSourceCreateThumbnailFromImageAlways;
-        myValues[1] = (CFTypeRef)kCFBooleanTrue;
-        myKeys[2] = kCGImageSourceThumbnailMaxPixelSize;
-        myValues[2] = (CFTypeRef)thumbnailSize;
-        myOptions = CFDictionaryCreate(NULL, (const void **) myKeys,
-                                       (const void **) myValues, 2,
+        CFDictionaryRef options = NULL;
+        CFStringRef keys[3];
+        CFTypeRef values[3];
+        keys[0] = kCGImageSourceCreateThumbnailWithTransform;
+        values[0] = (CFTypeRef)kCFBooleanTrue;
+        keys[1] = kCGImageSourceCreateThumbnailFromImageAlways;
+        values[1] = (CFTypeRef)kCFBooleanTrue;
+        keys[2] = kCGImageSourceThumbnailMaxPixelSize;
+        values[2] = (CFTypeRef)thumbnailSize;
+        options = CFDictionaryCreate(NULL, (const void **) keys,
+                                       (const void **) values, 2,
                                        &kCFTypeDictionaryKeyCallBacks,
                                        & kCFTypeDictionaryValueCallBacks);
-        CGImageRef cgImage = CGImageSourceCreateThumbnailAtIndex(source, index, myOptions);
-        CFRelease(myOptions);
+        CGImageRef cgImage = CGImageSourceCreateThumbnailAtIndex(source, index, options);
+        CFRelease(options);
         CFRelease(thumbnailSize);
 
         if (NULL == cgImage) {
-            innerError = [NSError errorWithDomain: NSPOSIXErrorDomain
-                                             code: ENODEV
-                                         userInfo: nil];
+            innerError = [NSError errorWithDomain: LibraryControllerErrorDomain
+                                             code: LibraryControllerErrorCouldNotGenerateThumbnail
+                                         userInfo: @{
+                @"URL": url,
+                @"ID": itemID,
+                NSLocalizedDescriptionKey: [NSString stringWithFormat: @"Could not create thumbnail for %@", [url lastPathComponent]]
+            }];
             CFRelease(source);
             return;
         }
@@ -201,9 +220,12 @@
         CFURLRef cfdesturl = (__bridge_retained CFURLRef)thumbnailFile;
         CGImageDestinationRef destination = CGImageDestinationCreateWithURL(cfdesturl, kUTTypePNG, 1, NULL);
         if (NULL == destination) {
-            innerError = [NSError errorWithDomain: NSPOSIXErrorDomain
-                                             code: ENOLCK
-                                         userInfo: @{@"URL": thumbnailFile}];
+            innerError = [NSError errorWithDomain: LibraryControllerErrorDomain
+                                             code: LibraryControllerErrorCouldNotCreateThumbnailFile
+                                         userInfo: @{
+                @"URL": thumbnailFile,
+                NSLocalizedDescriptionKey: [NSString stringWithFormat: @"Could not create thumbnail file at %@", [thumbnailFile lastPathComponent]]
+            }];
             CGImageRelease(cgImage);
             CFRelease(source);
             return;
@@ -212,7 +234,12 @@
         CGImageDestinationAddImage(destination, cgImage, NULL);
 
         if (!CGImageDestinationFinalize(destination)) {
-            NSLog(@"Failed to write image to %@", thumbnailFile);
+            innerError = [NSError errorWithDomain: LibraryControllerErrorDomain
+                                             code: LibraryControllerErrorCouldNotWriteThumbnailFile
+                                         userInfo: @{
+                @"URL": thumbnailFile,
+                NSLocalizedDescriptionKey: [NSString stringWithFormat: @"Could not write thumbnail file at %@", [thumbnailFile lastPathComponent]]
+            }];
         }
 
         CFRelease(destination);
@@ -238,6 +265,11 @@
 
         item.thumbnailPath = thumbnailFile.path;
         BOOL success = [self.context save: &innerError];
+        if (nil != innerError) {
+            NSAssert(NO == success, @"Got error and success from saving.");
+            return;
+        }
+        NSAssert(NO != success, @"Got no error and no success from saving.");
 
         @weakify(self);
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -251,6 +283,12 @@
             [self.delegate libraryDidUpdate];
         });
     });
+    if (nil != innerError) {
+        if (nil != error) {
+            *error = innerError;
+        }
+        return NO;
+    }
 
     return YES;
 }
@@ -286,7 +324,7 @@
             NSAssert(NO == success, @"Got error and success from obtainPermanentIDsForObjects.");
             return;
         }
-        NSAssert(YES == success, @"Got no success and error from obtainPermanentIDsForObjects.");
+        NSAssert(NO != success, @"Got no success and error from obtainPermanentIDsForObjects.");
 
         for (Item *item in newItems) {
             @weakify(self);
@@ -300,6 +338,17 @@
                                                error: &error];
                 if (nil != error) {
                     NSLog(@"Error generating thumbnail: %@", error.localizedDescription);
+                    @weakify(self)
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        @strongify(self)
+                        if (nil == self) {
+                            return;
+                        }
+                        if (nil == self.delegate) {
+                            return;
+                        }
+                        [self.delegate thumbnailGenerationFailedWithError: error];
+                    });
                 }
             });
         }

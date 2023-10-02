@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol LibraryControllerDelegate <NSObject>
 
 - (void)libraryDidUpdate;
+- (void)thumbnailGenerationFailedWithError: (NSError *)error;
 
 @end
 
