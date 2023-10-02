@@ -34,9 +34,6 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
 // Queue used for thumbnail processing
 @property (strong, nonatomic, readonly) dispatch_queue_t thumbnailWorkerQ;
 
-// Only access on thumbnailWorkerQ
-@property (strong, nonatomic, readonly) NSMutableArray<NSManagedObjectID *> *thumbnailTaskList;
-
 @end
 
 @implementation LibraryController
@@ -50,8 +47,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
         context.persistentStoreCoordinator = store;
         self->_context = context;
 
-        self->_thumbnailWorkerQ = dispatch_queue_create("com.digitalflapjack.thumbnailWorkerQ", DISPATCH_QUEUE_SERIAL);
-        self->_thumbnailTaskList = [NSMutableArray array];
+        self->_thumbnailWorkerQ = dispatch_queue_create("com.digitalflapjack.thumbnailWorkerQ", DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }

@@ -13,9 +13,11 @@
 @interface GridViewController ()
 
 @property (strong, nonatomic, readonly) dispatch_queue_t syncQ;
+@property (strong, nonatomic, readonly) dispatch_queue_t thumbnailLoadQ;
 
 // Access only on syncQ
 @property (strong, nonatomic, readwrite) NSArray<Item *> *contents;
+@property (strong, nonatomic, readwrite) NSDictionary<NSManagedObjectID *, NSImage *> *thumbnailCache;
 
 @end
 
@@ -25,7 +27,9 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (nil != self) {
         self->_syncQ = dispatch_queue_create("com.digitalflapjack.GridViewController.syncQ", DISPATCH_QUEUE_SERIAL);
+        self->_thumbnailLoadQ = dispatch_queue_create("com.digitalflapjack.GridViewController.thumbnailLoadQ", DISPATCH_QUEUE_CONCURRENT);
         self->_contents = [[NSArray alloc] init];
+        self->_thumbnailCache = [[NSDictionary alloc] init];
     }
     return self;
 }
@@ -103,6 +107,9 @@
 }
 
 - (NSCollectionViewItem *)collectionView:(NSCollectionView *)collectionView itemForRepresentedObjectAtIndexPath:(NSIndexPath *)indexPath {
+    dispatch_assert_queue(dispatch_get_main_queue());
+    dispatch_assert_queue_not(self.syncQ);
+
     __block Item *item = nil;
     dispatch_sync(self.syncQ, ^{
         item = [self.contents objectAtIndex: indexPath.item];
@@ -112,16 +119,46 @@
     NSCollectionViewItem *viewItem = [collectionView makeItemWithIdentifier: @"OSLibraryViewItem" forIndexPath: indexPath];
     viewItem.textField.stringValue = item.name;
 
-    NSString *thumbnailPath = item.thumbnailPath;
-    if (nil == thumbnailPath) {
-        viewItem.imageView.image = [NSImage imageWithSystemSymbolName: @"photo.artframe" accessibilityDescription: nil];
-    } else {
-        NSImage *thumbnail = [[NSImage alloc] initByReferencingFile: thumbnailPath];
-        if (nil == thumbnail) {
-            thumbnail = [NSImage imageWithSystemSymbolName: @"exclamationmark.square" accessibilityDescription: nil];
-        }
-        viewItem.imageView.image = thumbnail;
+    __block NSImage *thumbnail = nil;
+    dispatch_sync(self.syncQ, ^{
+        thumbnail = self.thumbnailCache[item.objectID];
+    });
+
+    if (nil == thumbnail) {
+        NSString *thumbnailPath = item.thumbnailPath;
+        @weakify(self);
+        dispatch_async(self.thumbnailLoadQ, ^{            
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+            NSImage *thumbnail = [[NSImage alloc] initByReferencingFile: thumbnailPath];
+            if (nil == thumbnail) {
+                thumbnail = [NSImage imageWithSystemSymbolName: @"exclamationmark.square" accessibilityDescription: nil];
+            }
+
+            dispatch_sync(self.syncQ, ^{
+                NSMutableDictionary<NSManagedObjectID *, NSImage *> *tmp = [NSMutableDictionary dictionaryWithDictionary: self.thumbnailCache];
+                tmp[item.objectID] = thumbnail;
+                self.thumbnailCache = [NSDictionary dictionaryWithDictionary: tmp];
+            });
+
+            @weakify(self);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+
+                // Ideally we'd do reloadItemsAtIndexPaths but that only works if we're not also adding items
+                [self.collectionView reloadData];
+            });
+        });
+
+        thumbnail = [NSImage imageWithSystemSymbolName: @"photo.artframe" accessibilityDescription: nil];
     }
+
+    viewItem.imageView.image = thumbnail;
 
     return viewItem;
 }
