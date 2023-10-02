@@ -101,8 +101,8 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
             return;
         }
         NSError *error = nil;
-        BOOL success = [self innerImportURLs: filteredURLs
-                                       error: &error];
+        NSSet<NSManagedObjectID *> *newItemIDs = [self innerImportURLs: filteredURLs
+                                                                 error: &error];
 
         @weakify(self);
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -113,11 +113,11 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
             if (nil == self.delegate) {
                 return;
             }
-            [self.delegate libraryDidUpdate];
+            [self.delegate libraryDidUpdate: @{NSInsertedObjectsKey: newItemIDs.allObjects}];
         });
 
         if (nil != callback) {
-            callback(success, error);
+            callback(YES, error);
         }
     });
 }
@@ -280,7 +280,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
             if (nil == self.delegate) {
                 return;
             }
-            [self.delegate libraryDidUpdate];
+            [self.delegate libraryDidUpdate: @{NSUpdatedObjectsKey: @[itemID]}];
         });
     });
     if (nil != innerError) {
@@ -294,14 +294,15 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
 }
 
 
-- (BOOL)innerImportURLs:(NSArray<NSURL *> *)urls
-                  error:(NSError **)error {
+- (NSSet<NSManagedObjectID *> *)innerImportURLs: (NSArray<NSURL *> *)urls
+                                          error: (NSError **)error {
     if ((nil == urls) || (0 == urls.count)) {
-        return YES;
+        return [NSSet set];
     }
     dispatch_assert_queue(self.dataQ);
 
     __block NSError *innerError = nil;
+    __block NSSet<NSManagedObjectID *> *newItemIDs = nil;
     [self.context performBlockAndWait: ^{
         NSArray<Item *> *newItems = [NSArray array];
         for (NSURL *url in urls) {
@@ -326,7 +327,10 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
         }
         NSAssert(NO != success, @"Got no success and error from obtainPermanentIDsForObjects.");
 
+        NSMutableSet<NSManagedObjectID *> *newIDs = [NSMutableSet setWithCapacity: newItems.count];
         for (Item *item in newItems) {
+            [newIDs addObject: item.objectID];
+
             @weakify(self);
             dispatch_async(self.thumbnailWorkerQ, ^{
                 @strongify(self);
@@ -352,14 +356,17 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
                 }
             });
         }
+
+        newItemIDs = [NSSet setWithSet: newIDs];
     }];
     if (nil != innerError) {
         if (nil != error) {
             *error = innerError;
         }
-        return NO;
+        return nil;
     }
-    return YES;
+    NSAssert(nil != newItemIDs, @"Expected item ID list");
+    return newItemIDs;
 }
 
 

@@ -52,7 +52,7 @@
     [fetchRequest setPredicate: filter];
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey: @"created"
                                                            ascending: YES];
-    [fetchRequest setSortDescriptors: [NSArray arrayWithObject: sort]];
+    [fetchRequest setSortDescriptors: @[sort]];
 
     NSError *innerError = nil;
     NSArray<Item *> *result = [context executeFetchRequest: fetchRequest
@@ -62,7 +62,7 @@
         if (nil != error) {
             *error = innerError;
         }
-        return FALSE;
+        return NO;
     }
     NSAssert(nil != result, @"Got no error and no fetch results.");
 
@@ -73,11 +73,18 @@
             return;
         }
         self.contents = result;
+
+        @weakify(self);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+            [self.collectionView reloadData];
+        });
     });
 
-    [self.collectionView reloadData];
-
-    return TRUE;
+    return YES;
 }
 
 #pragma mark - NSCollectionViewDataSource
@@ -115,20 +122,6 @@
         }
         viewItem.imageView.image = thumbnail;
     }
-
-//    BOOL canAccess = [path startAccessingSecurityScopedResource];
-//    if (canAccess) {
-//        NSImage *image = [[NSImage alloc] initByReferencingURL: path];
-//        // TODO: fix - if we don't copy the data we have to hold onto the security scope indefinitely
-//        // but this is clearly wasteful.
-//        NSImage *copyImage = [[NSImage alloc] initWithData: image.TIFFRepresentation];
-//        viewItem.imageView.image = copyImage;
-//
-//        [path stopAccessingSecurityScopedResource];
-//    } else {
-//        // TODO: Show damaged preview thingy here
-//        NSLog(@"Failed to get access");
-//    }
 
     return viewItem;
 }

@@ -70,8 +70,14 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 
 #pragma mark - LibraryControllerDelegate
 
-- (void)libraryDidUpdate {
+- (void)libraryDidUpdate: (NSDictionary *)changeNotificationData {
     dispatch_assert_queue(dispatch_get_main_queue());
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    NSManagedObjectContext *viewContext = appDelegate.persistentContainer.viewContext;
+    [NSManagedObjectContext mergeChangesFromRemoteContextSave: changeNotificationData
+                                                 intoContexts: @[viewContext]];
+
     [self.itemsDisplay reloadData];
 }
 
