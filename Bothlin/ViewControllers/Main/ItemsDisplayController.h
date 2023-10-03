@@ -7,9 +7,13 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class GridViewController;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ItemsDisplayController : NSViewController
+
+@property (nonatomic, strong, readonly) GridViewController *gridViewController;
 
 - (void)reloadData;
 

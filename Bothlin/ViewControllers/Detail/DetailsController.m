@@ -6,8 +6,20 @@
 //
 
 #import "DetailsController.h"
+#import "Item+CoreDataClass.h"
+
+NSString * __nonnull const kPropertyColumnIdentifier = @"PropertyColumn";
+NSString * __nonnull const kValueColumnIdentifier = @"ValueColumn";
+NSString * __nonnull const kPropertyCellIdentifier = @"PropertyCell";
+NSString * __nonnull const kValueCellIdentifier = @"ValueCell";
+
+NSArray * __nonnull const kMainInfoTitles = @[@"Name", @"Created", @"Type"];
+NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
 
 @interface DetailsController ()
+
+// Only access on mainQ
+@property (nonatomic, strong, readwrite) Item *item;
 
 @end
 
@@ -15,7 +27,59 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do view setup here.
+}
+
+- (void)setItemForDisplay: (Item *)item {
+    self.item = item;
+    [self.detailsView reloadData];
+}
+
+#pragma mark - NSOutlineViewDataSource
+
+- (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
+    if (nil == item) {
+        return [kMainInfoTitles count];
+    }
+    return 0;
+}
+
+- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
+    return kMainInfoTitles[index];
+}
+
+
+#pragma mark - NSOutlineViewDelegate
+
+- (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
+    if ([tableColumn.identifier compare: kPropertyColumnIdentifier] == NSOrderedSame) {
+        NSTableCellView *view = [outlineView makeViewWithIdentifier: kPropertyCellIdentifier owner: self];
+        view.textField.stringValue = item;
+
+        return view;
+
+
+    } else if ([tableColumn.identifier compare: kValueColumnIdentifier] == NSOrderedSame) {
+        NSTableCellView *view = [outlineView makeViewWithIdentifier: kValueCellIdentifier owner: self];
+        if (nil == self.item) {
+            view.textField.stringValue = @"";
+        } else {
+            // TODO: make robust!
+            NSInteger index = [kMainInfoTitles indexOfObject: item];
+            NSString *property = kMainInfoProperties[index];
+            id value = [self.item valueForKey: property];
+            if ([value isKindOfClass: [NSString class]]) {
+                view.textField.stringValue = value;
+            } else {
+                view.textField.stringValue = [NSString stringWithFormat: @"%@", value];
+            }
+        }
+
+        return view;
+
+    } else {
+        NSAssert(NO, @"Got unexpected table column: %@", tableColumn.identifier);
+    }
+    return nil;
 }
 
 @end

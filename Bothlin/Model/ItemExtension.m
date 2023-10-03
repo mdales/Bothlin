@@ -26,7 +26,7 @@
     }
 
     // we have filenames, so now I need full paths
-    NSMutableArray<NSURL *> *fullNames = [NSMutableArray arrayWithCapacity: files.count];
+    NSMutableArray<NSURL *> *fullNames = [NSMutableArray arrayWithCapacity: [files count]];
     for (NSString* filename in files) {
         NSURL *fullPathURL = [url URLByAppendingPathComponent: filename];
         [fullNames addObject: fullPathURL];
@@ -93,7 +93,10 @@
         if (nil != error) {
             *error = [NSError errorWithDomain: NSPOSIXErrorDomain
                                          code: ESTALE
-                                     userInfo: [NSDictionary dictionaryWithObjectsAndKeys: @"ID", self.objectID, @"Path", decoded, nil]];
+                                     userInfo: @{
+                @"ID": self.objectID,
+                @"Path": decoded
+            }];
         }
         return nil;
     }

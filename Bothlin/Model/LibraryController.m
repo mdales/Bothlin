@@ -76,7 +76,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
     }];
     NSArray *filteredURLs = [urls filteredArrayUsingPredicate: predicate];
 
-    if (0 == filteredURLs.count) {
+    if (0 == [filteredURLs count]) {
         if (nil != callback) {
             dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
                 callback(YES, nil);
@@ -156,7 +156,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
     NSFileManager *fm = [NSFileManager defaultManager];
     NSArray<NSURL *> *paths = [fm URLsForDirectory:NSDocumentDirectory
                                          inDomains:NSUserDomainMask];
-    NSAssert(0 < paths.count, @"No document directory found!");
+    NSAssert(0 < [paths count], @"No document directory found!");
     NSURL *docsDirectory = [paths lastObject];
     NSURL *thumbnailFile = [docsDirectory URLByAppendingPathComponent: filename];
     [secureURL secureAccessWithBlock: ^(NSURL *url, BOOL canAccess) {
@@ -292,7 +292,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
 
 - (NSSet<NSManagedObjectID *> *)innerImportURLs: (NSArray<NSURL *> *)urls
                                           error: (NSError **)error {
-    if ((nil == urls) || (0 == urls.count)) {
+    if ((nil == urls) || (0 == [urls count])) {
         return [NSSet set];
     }
     dispatch_assert_queue(self.dataQ);
@@ -323,7 +323,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
         }
         NSAssert(NO != success, @"Got no success and error from obtainPermanentIDsForObjects.");
 
-        NSMutableSet<NSManagedObjectID *> *newIDs = [NSMutableSet setWithCapacity: newItems.count];
+        NSMutableSet<NSManagedObjectID *> *newIDs = [NSMutableSet setWithCapacity: [newItems count]];
         for (Item *item in newItems) {
             [newIDs addObject: item.objectID];
 

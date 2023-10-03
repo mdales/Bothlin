@@ -19,13 +19,11 @@
 
 + (void)makeInitialDefaults {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSAssert(0 < paths.count, @"Expected at least one documents folder, got none");
+    NSAssert(0 < [paths count], @"Expected at least one documents folder, got none");
     NSString *documntsDirectory = paths.firstObject;
 
     NSString *defaultStorageFolder = [documntsDirectory stringByAppendingPathComponent: @"Screenshots"];
-    NSDictionary<NSString *, id> *initialDefaultValues = [NSDictionary dictionaryWithObjectsAndKeys:
-                                                         @"DefaultStorageFolder", defaultStorageFolder,
-                                                         nil];
+    NSDictionary<NSString *, id> *initialDefaultValues = @{@"DefaultStorageFolder": defaultStorageFolder};
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults registerDefaults: initialDefaultValues];

@@ -56,12 +56,14 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 
     NSSplitViewItem *detailsItem = [NSSplitViewItem splitViewItemWithViewController: self.details];
     [self.splitViewController addSplitViewItem: detailsItem];
-    detailsItem.maximumThickness = 220.0;
+    detailsItem.maximumThickness = 300.0;
 
     self.contentViewController = self.splitViewController;
 
     [self.window setFrameUsingName: @"RootWindow"];
     self.windowFrameAutosaveName = @"RootWindow";
+
+    self.itemsDisplay.gridViewController.delegate = self;
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryController *library = appDelegate.libraryController;
@@ -85,6 +87,12 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
     NSAssert(nil != error, @"Thumbnail generation sent nil error");
     NSAlert *alert = [NSAlert alertWithError: error];
     [alert runModal];
+}
+
+#pragma mark - GridViewControllerDelegate
+
+- (void)gridViewControllerSelectionDidChange: (Item *)item {
+    [self.details setItemForDisplay: item];
 }
 
 #pragma mark - Custom behaviour

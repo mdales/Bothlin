@@ -194,9 +194,9 @@
 		4C0119AE2AC5AC31004A94C4 /* Detail */ = {
 			isa = PBXGroup;
 			children = (
+				4C0119B82AC5AC5E004A94C4 /* DetailsController.xib */,
 				4C0119B62AC5AC5E004A94C4 /* DetailsController.h */,
 				4C0119B72AC5AC5E004A94C4 /* DetailsController.m */,
-				4C0119B82AC5AC5E004A94C4 /* DetailsController.xib */,
 			);
 			path = Detail;
 			sourceTree = "<group>";

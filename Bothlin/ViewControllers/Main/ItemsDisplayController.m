@@ -11,7 +11,6 @@
 
 @interface ItemsDisplayController ()
 
-@property (nonatomic, strong, readonly) GridViewController *gridViewController;
 @property (nonatomic, strong, readonly) SingleViewController *singleViewController;
 
 @end

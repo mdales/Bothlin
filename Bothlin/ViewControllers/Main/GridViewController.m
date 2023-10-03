@@ -100,7 +100,7 @@
 - (NSInteger)collectionView:(NSCollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     __block NSInteger count = 0;
     dispatch_sync(self.syncQ, ^{
-        count = self.contents.count;
+        count = [self.contents count];
     });
 
     return count;
@@ -127,7 +127,8 @@
     if (nil == thumbnail) {
         NSString *thumbnailPath = item.thumbnailPath;
         @weakify(self);
-        dispatch_async(self.thumbnailLoadQ, ^{            
+        @weakify(viewItem);
+        dispatch_async(self.thumbnailLoadQ, ^{
             @strongify(self);
             if (nil == self) {
                 return;
@@ -143,15 +144,12 @@
                 self.thumbnailCache = [NSDictionary dictionaryWithDictionary: tmp];
             });
 
-            @weakify(self);
             dispatch_async(dispatch_get_main_queue(), ^{
-                @strongify(self);
-                if (nil == self) {
+                @strongify(viewItem);
+                if (nil == viewItem) {
                     return;
                 }
-
-                // Ideally we'd do reloadItemsAtIndexPaths but that only works if we're not also adding items
-                [self.collectionView reloadData];
+                viewItem.imageView.image = thumbnail;
             });
         });
 
@@ -166,17 +164,25 @@
 #pragma mark - NSCollectionViewDelegate
 
 - (void)collectionView:(NSCollectionView *)collectionView didSelectItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
-    for (NSIndexPath *index in indexPaths) {
-//        NSLog(@"%ld %ld -> selected", (long)index.section, (long)index.item);
+    NSAssert(1 == [indexPaths count], @"User selected more/less than one item: %lu", [indexPaths count]);
+    NSIndexPath *indexPath = [indexPaths anyObject];
+
+    __block Item *item = nil;
+    dispatch_sync(self.syncQ, ^{
+        item = self.contents[indexPath.item];
+    });
+
+    self.selectedItem = item;
+    if (nil != self.delegate) {
+        [self.delegate gridViewControllerSelectionDidChange: item];
     }
 }
 
-
-- (void)collectionView:(NSCollectionView *)collectionView didDeselectItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
-    for (NSIndexPath *index in indexPaths) {
-//        NSLog(@"%ld %ld -> deselected", (long)index.section, (long)index.item);
-    }
-}
+//- (void)collectionView:(NSCollectionView *)collectionView didDeselectItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
+//    NSAssert(1 == indexPaths.count, @"User deselected more/less than one item: %lu", indexPaths.count);
+//    NSIndexPath *indexPath = [indexPaths anyObject];
+//
+//}
 
 //- (void)collectionView:(NSCollectionView *)collectionView didChangeItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths toHighlightState:(NSCollectionViewItemHighlightState)highlightState {
 //    for (NSIndexPath *index in indexPaths) {

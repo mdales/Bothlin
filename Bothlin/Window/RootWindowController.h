@@ -8,10 +8,11 @@
 #import <Cocoa/Cocoa.h>
 
 #import "LibraryController.h"
+#import "GridViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RootWindowController : NSWindowController <NSToolbarDelegate, LibraryControllerDelegate>
+@interface RootWindowController : NSWindowController <NSToolbarDelegate, LibraryControllerDelegate, GridViewControllerDelegate>
 
 - (IBAction)import: (id)sender;
 

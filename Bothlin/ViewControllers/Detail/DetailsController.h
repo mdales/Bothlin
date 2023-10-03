@@ -7,9 +7,16 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class Item;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface DetailsController : NSViewController
+@interface DetailsController : NSViewController <NSOutlineViewDataSource, NSOutlineViewDelegate>
+
+// Only access from mainQ
+@property (nonatomic, weak, readwrite) IBOutlet NSOutlineView *detailsView;
+
+- (void)setItemForDisplay: (Item *)item;
 
 @end
 
