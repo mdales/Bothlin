@@ -43,10 +43,10 @@
 		4CB8861E2ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
 		4CB8861F2ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
 		4CB886202ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
-		4CB886262ABACBA700968B0F /* OSLibraryViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886242ABACBA700968B0F /* OSLibraryViewItem.m */; };
-		4CB886272ABACBA700968B0F /* OSLibraryViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886242ABACBA700968B0F /* OSLibraryViewItem.m */; };
-		4CB886282ABACBA700968B0F /* OSLibraryViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CB886252ABACBA700968B0F /* OSLibraryViewItem.xib */; };
-		4CB886292ABACBA700968B0F /* OSLibraryViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CB886252ABACBA700968B0F /* OSLibraryViewItem.xib */; };
+		4CB886262ABACBA700968B0F /* LibraryGridViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886242ABACBA700968B0F /* LibraryGridViewItem.m */; };
+		4CB886272ABACBA700968B0F /* LibraryGridViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886242ABACBA700968B0F /* LibraryGridViewItem.m */; };
+		4CB886282ABACBA700968B0F /* LibraryGridViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CB886252ABACBA700968B0F /* LibraryGridViewItem.xib */; };
+		4CB886292ABACBA700968B0F /* LibraryGridViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CB886252ABACBA700968B0F /* LibraryGridViewItem.xib */; };
 		4CB886692ABB67E100968B0F /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
 		4CBF17512AB5F176001F7984 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBF17502AB5F176001F7984 /* AppDelegate.m */; };
 		4CBF17532AB5F177001F7984 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CBF17522AB5F177001F7984 /* Assets.xcassets */; };
@@ -103,9 +103,9 @@
 		4C9D91F12AC2C9B400E42251 /* Bothlin.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Bothlin.entitlements; sourceTree = "<group>"; };
 		4CB8861C2ABA2CA900968B0F /* LibraryController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryController.h; sourceTree = "<group>"; };
 		4CB8861D2ABA2CA900968B0F /* LibraryController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryController.m; sourceTree = "<group>"; };
-		4CB886232ABACBA700968B0F /* OSLibraryViewItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSLibraryViewItem.h; sourceTree = "<group>"; };
-		4CB886242ABACBA700968B0F /* OSLibraryViewItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSLibraryViewItem.m; sourceTree = "<group>"; };
-		4CB886252ABACBA700968B0F /* OSLibraryViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = OSLibraryViewItem.xib; sourceTree = "<group>"; };
+		4CB886232ABACBA700968B0F /* LibraryGridViewItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryGridViewItem.h; sourceTree = "<group>"; };
+		4CB886242ABACBA700968B0F /* LibraryGridViewItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryGridViewItem.m; sourceTree = "<group>"; };
+		4CB886252ABACBA700968B0F /* LibraryGridViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LibraryGridViewItem.xib; sourceTree = "<group>"; };
 		4CB886672ABB67E100968B0F /* LibraryModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LibraryModel.xcdatamodel; sourceTree = "<group>"; };
 		4CBF174C2AB5F176001F7984 /* Bothlin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bothlin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CBF174F2AB5F176001F7984 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -178,12 +178,10 @@
 		4C0119AD2AC5AC28004A94C4 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				4CE9563F2ACD4BAF00A3615E /* Grid view */,
 				4C3A50D02ACB27550080327C /* ItemsDisplayController.xib */,
 				4C0119AF2AC5AC51004A94C4 /* ItemsDisplayController.h */,
 				4C0119B02AC5AC51004A94C4 /* ItemsDisplayController.m */,
-				4C0119FB2AC5B12E004A94C4 /* GridViewController.xib */,
-				4C0119F92AC5B12E004A94C4 /* GridViewController.h */,
-				4C0119FA2AC5B12E004A94C4 /* GridViewController.m */,
 				4C011A022AC5B14B004A94C4 /* SingleViewController.xib */,
 				4C011A002AC5B14B004A94C4 /* SingleViewController.h */,
 				4C011A012AC5B14B004A94C4 /* SingleViewController.m */,
@@ -214,9 +212,6 @@
 		4CB886222ABACB7A00968B0F /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				4CB886252ABACBA700968B0F /* OSLibraryViewItem.xib */,
-				4CB886232ABACBA700968B0F /* OSLibraryViewItem.h */,
-				4CB886242ABACBA700968B0F /* OSLibraryViewItem.m */,
 				4C7F5F452AC6B1E5000E9BD9 /* ToolbarProgressView.h */,
 				4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */,
 			);
@@ -288,6 +283,19 @@
 				4CBF176E2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m */,
 			);
 			path = BothlinUITests;
+			sourceTree = "<group>";
+		};
+		4CE9563F2ACD4BAF00A3615E /* Grid view */ = {
+			isa = PBXGroup;
+			children = (
+				4C0119FB2AC5B12E004A94C4 /* GridViewController.xib */,
+				4C0119F92AC5B12E004A94C4 /* GridViewController.h */,
+				4C0119FA2AC5B12E004A94C4 /* GridViewController.m */,
+				4CB886252ABACBA700968B0F /* LibraryGridViewItem.xib */,
+				4CB886232ABACBA700968B0F /* LibraryGridViewItem.h */,
+				4CB886242ABACBA700968B0F /* LibraryGridViewItem.m */,
+			);
+			path = "Grid view";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -400,7 +408,7 @@
 				4C0119BB2AC5AC5E004A94C4 /* DetailsController.xib in Resources */,
 				4C0119FE2AC5B12E004A94C4 /* GridViewController.xib in Resources */,
 				4CBF17562AB5F177001F7984 /* MainMenu.xib in Resources */,
-				4CB886282ABACBA700968B0F /* OSLibraryViewItem.xib in Resources */,
+				4CB886282ABACBA700968B0F /* LibraryGridViewItem.xib in Resources */,
 				4C011A052AC5B14B004A94C4 /* SingleViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -418,7 +426,7 @@
 			files = (
 				4C3A50D22ACB27550080327C /* ItemsDisplayController.xib in Resources */,
 				4C0119AB2AC5AC14004A94C4 /* SidebarController.xib in Resources */,
-				4CB886292ABACBA700968B0F /* OSLibraryViewItem.xib in Resources */,
+				4CB886292ABACBA700968B0F /* LibraryGridViewItem.xib in Resources */,
 				4C0119FF2AC5B12E004A94C4 /* GridViewController.xib in Resources */,
 				4C0119BC2AC5AC5E004A94C4 /* DetailsController.xib in Resources */,
 				4C011A062AC5B14B004A94C4 /* SingleViewController.xib in Resources */,
@@ -436,7 +444,7 @@
 				4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
 				4C37FBCE2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
 				4C0119A02AC5AA45004A94C4 /* RootWindowController.m in Sources */,
-				4CB886262ABACBA700968B0F /* OSLibraryViewItem.m in Sources */,
+				4CB886262ABACBA700968B0F /* LibraryGridViewItem.m in Sources */,
 				4C011A032AC5B14B004A94C4 /* SingleViewController.m in Sources */,
 				4C011A0D2AC5D178004A94C4 /* ItemExtension.m in Sources */,
 				4CBF17582AB5F177001F7984 /* main.m in Sources */,
@@ -468,7 +476,7 @@
 				4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
 				4C37FBD02AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
 				4C0119A12AC5AA45004A94C4 /* RootWindowController.m in Sources */,
-				4CB886272ABACBA700968B0F /* OSLibraryViewItem.m in Sources */,
+				4CB886272ABACBA700968B0F /* LibraryGridViewItem.m in Sources */,
 				4C011A042AC5B14B004A94C4 /* SingleViewController.m in Sources */,
 				4C011A0F2AC5D178004A94C4 /* ItemExtension.m in Sources */,
 				4CB886692ABB67E100968B0F /* LibraryModel.xcdatamodeld in Sources */,

@@ -115,8 +115,7 @@
         item = [self.contents objectAtIndex: indexPath.item];
     });
 
-
-    NSCollectionViewItem *viewItem = [collectionView makeItemWithIdentifier: @"OSLibraryViewItem" forIndexPath: indexPath];
+    NSCollectionViewItem *viewItem = [collectionView makeItemWithIdentifier: @"LibraryGridViewItem" forIndexPath: indexPath];
     viewItem.textField.stringValue = item.name;
 
     __block NSImage *thumbnail = nil;

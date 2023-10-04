@@ -6,7 +6,7 @@
 //
 
 #import "LibraryController.h"
-#import "OSLibraryViewItem.h"
+#import "LibraryGridViewItem.h"
 #import "AppDelegate.h"
 #import "Item+CoreDataClass.h"
 #import "ItemExtension.h"
