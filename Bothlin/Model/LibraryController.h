@@ -11,8 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol LibraryControllerDelegate <NSObject>
 
-- (void)libraryDidUpdate: (NSDictionary *)changeNotificationData;
-- (void)thumbnailGenerationFailedWithError: (NSError *)error;
+- (void)libraryDidUpdate:(NSDictionary *)changeNotificationData;
+- (void)thumbnailGenerationFailedWithError:(NSError *)error;
 
 @end
 
@@ -21,10 +21,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak, readwrite) id<LibraryControllerDelegate> delegate;
 
-- (instancetype)initWithPersistentStore: (NSPersistentStoreCoordinator *)store;
+- (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator *)store;
 
-- (void)importURLs: (NSArray<NSURL *> *)urls
-          callback: (void (^)(BOOL success, NSError *error)) callback;
+- (void)importURLs:(NSArray<NSURL *> *)urls
+          callback:(void (^)(BOOL success, NSError *error)) callback;
 
 @end
 

@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readwrite) id<GridViewControllerDelegate> delegate;
 @property (nonatomic, strong, readwrite) Item *selectedItem;
 
-- (BOOL)reloadData: (NSError **)error;
+- (BOOL)reloadData:(NSError **)error;
 
 @end
 

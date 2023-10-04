@@ -38,7 +38,7 @@
     [super viewDidLoad];
 
     NSError *error = nil;
-    [self reloadData: &error];
+    [self reloadData:&error];
     if (nil != error) {
         NSLog(@"Failed to load data: %@", error.localizedDescription);
     }
@@ -47,20 +47,20 @@
 
 #pragma mark - Data management
 
-- (BOOL)reloadData: (NSError **)error {
+- (BOOL)reloadData:(NSError **)error {
     AppDelegate *appDelegate = (AppDelegate *)([NSApplication sharedApplication].delegate);
     NSManagedObjectContext *context = appDelegate.persistentContainer.viewContext;
 
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName: @"Item"];
-    NSPredicate *filter = [NSPredicate predicateWithFormat: @"deletedAt == nil"];
-    [fetchRequest setPredicate: filter];
-    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey: @"created"
-                                                           ascending: YES];
-    [fetchRequest setSortDescriptors: @[sort]];
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
+    NSPredicate *filter = [NSPredicate predicateWithFormat:@"deletedAt == nil"];
+    [fetchRequest setPredicate:filter];
+    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"created"
+                                                           ascending:YES];
+    [fetchRequest setSortDescriptors:@[sort]];
 
     NSError *innerError = nil;
-    NSArray<Item *> *result = [context executeFetchRequest: fetchRequest
-                                                     error: &innerError];
+    NSArray<Item *> *result = [context executeFetchRequest:fetchRequest
+                                                     error:&innerError];
     if (nil != innerError) {
         NSAssert(nil == result, @"Got error and fetch results.");
         if (nil != error) {
@@ -112,10 +112,10 @@
 
     __block Item *item = nil;
     dispatch_sync(self.syncQ, ^{
-        item = [self.contents objectAtIndex: (NSUInteger)indexPath.item];
+        item = [self.contents objectAtIndex:(NSUInteger)indexPath.item];
     });
 
-    LibraryGridViewItem *viewItem = [collectionView makeItemWithIdentifier: @"LibraryGridViewItem" forIndexPath: indexPath];
+    LibraryGridViewItem *viewItem = [collectionView makeItemWithIdentifier:@"LibraryGridViewItem" forIndexPath:indexPath];
     viewItem.delegate = self;
     viewItem.textField.stringValue = item.name;
 
@@ -133,15 +133,15 @@
             if (nil == self) {
                 return;
             }
-            NSImage *thumbnail = [[NSImage alloc] initByReferencingFile: thumbnailPath];
+            NSImage *thumbnail = [[NSImage alloc] initByReferencingFile:thumbnailPath];
             if (nil == thumbnail) {
-                thumbnail = [NSImage imageWithSystemSymbolName: @"exclamationmark.square" accessibilityDescription: nil];
+                thumbnail = [NSImage imageWithSystemSymbolName:@"exclamationmark.square" accessibilityDescription:nil];
             }
 
             dispatch_sync(self.syncQ, ^{
-                NSMutableDictionary<NSManagedObjectID *, NSImage *> *tmp = [NSMutableDictionary dictionaryWithDictionary: self.thumbnailCache];
+                NSMutableDictionary<NSManagedObjectID *, NSImage *> *tmp = [NSMutableDictionary dictionaryWithDictionary:self.thumbnailCache];
                 tmp[item.objectID] = thumbnail;
-                self.thumbnailCache = [NSDictionary dictionaryWithDictionary: tmp];
+                self.thumbnailCache = [NSDictionary dictionaryWithDictionary:tmp];
             });
 
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -153,7 +153,7 @@
             });
         });
 
-        thumbnail = [NSImage imageWithSystemSymbolName: @"photo.artframe" accessibilityDescription: nil];
+        thumbnail = [NSImage imageWithSystemSymbolName:@"photo.artframe" accessibilityDescription:nil];
     }
 
     viewItem.imageView.image = thumbnail;
@@ -174,8 +174,8 @@
 
     self.selectedItem = item;
     if (nil != self.delegate) {
-        [self.delegate gridViewController: self
-                       selectionDidChange: item];
+        [self.delegate gridViewController:self
+                       selectionDidChange:item];
     }
 }
 

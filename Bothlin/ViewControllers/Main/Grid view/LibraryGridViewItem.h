@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak, readwrite) id<LibraryGridViewItemDelegate> delegate;
 
-- (void)setItem: (Item *)item;
+- (void)setItem:(Item *)item;
 
 @end
 

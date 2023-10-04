@@ -31,13 +31,13 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 @implementation RootWindowController
 
 - (instancetype)initWithWindowNibName:(NSNibName)windowNibName {
-    self = [super initWithWindowNibName: windowNibName];
+    self = [super initWithWindowNibName:windowNibName];
     if (nil != self) {
-        self->_sidebar = [[SidebarController alloc] initWithNibName: @"SidebarController" bundle: nil];
-        self->_itemsDisplay = [[ItemsDisplayController alloc] initWithNibName: @"ItemsDisplayController" bundle: nil];
-        self->_details = [[DetailsController alloc] initWithNibName: @"DetailsController" bundle: nil];
+        self->_sidebar = [[SidebarController alloc] initWithNibName:@"SidebarController" bundle:nil];
+        self->_itemsDisplay = [[ItemsDisplayController alloc] initWithNibName:@"ItemsDisplayController" bundle:nil];
+        self->_details = [[DetailsController alloc] initWithNibName:@"DetailsController" bundle:nil];
         self->_splitViewController = [[NSSplitViewController alloc] init];
-        self->_progressView = [[ToolbarProgressView alloc] initWithFrame: NSMakeRect(0.0, 0.0, 250.0, 28.0)];
+        self->_progressView = [[ToolbarProgressView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 250.0, 28.0)];
     }
     return self;
 }
@@ -45,22 +45,22 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 - (void)windowDidLoad {
     [super windowDidLoad];
     
-    NSSplitViewItem *sidebarItem = [NSSplitViewItem sidebarWithViewController: self.sidebar];
-    [self.splitViewController addSplitViewItem: sidebarItem];
+    NSSplitViewItem *sidebarItem = [NSSplitViewItem sidebarWithViewController:self.sidebar];
+    [self.splitViewController addSplitViewItem:sidebarItem];
     sidebarItem.minimumThickness = 100.0;
     sidebarItem.maximumThickness = 250.0;
 
-    NSSplitViewItem *mainItem = [NSSplitViewItem splitViewItemWithViewController: self.itemsDisplay];
-    [self.splitViewController addSplitViewItem: mainItem];
+    NSSplitViewItem *mainItem = [NSSplitViewItem splitViewItemWithViewController:self.itemsDisplay];
+    [self.splitViewController addSplitViewItem:mainItem];
     mainItem.minimumThickness = 220.0;
 
-    NSSplitViewItem *detailsItem = [NSSplitViewItem splitViewItemWithViewController: self.details];
-    [self.splitViewController addSplitViewItem: detailsItem];
+    NSSplitViewItem *detailsItem = [NSSplitViewItem splitViewItemWithViewController:self.details];
+    [self.splitViewController addSplitViewItem:detailsItem];
     detailsItem.maximumThickness = 300.0;
 
     self.contentViewController = self.splitViewController;
 
-    [self.window setFrameUsingName: @"RootWindow"];
+    [self.window setFrameUsingName:@"RootWindow"];
     self.windowFrameAutosaveName = @"RootWindow";
 
     self.itemsDisplay.gridViewController.delegate = self;
@@ -72,28 +72,28 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 
 #pragma mark - LibraryControllerDelegate
 
-- (void)libraryDidUpdate: (NSDictionary *)changeNotificationData {
+- (void)libraryDidUpdate:(NSDictionary *)changeNotificationData {
     dispatch_assert_queue(dispatch_get_main_queue());
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     NSManagedObjectContext *viewContext = appDelegate.persistentContainer.viewContext;
-    [NSManagedObjectContext mergeChangesFromRemoteContextSave: changeNotificationData
-                                                 intoContexts: @[viewContext]];
+    [NSManagedObjectContext mergeChangesFromRemoteContextSave:changeNotificationData
+                                                 intoContexts:@[viewContext]];
 
     [self.itemsDisplay reloadData];
 }
 
 - (void)thumbnailGenerationFailedWithError:(NSError *)error {
     NSAssert(nil != error, @"Thumbnail generation sent nil error");
-    NSAlert *alert = [NSAlert alertWithError: error];
+    NSAlert *alert = [NSAlert alertWithError:error];
     [alert runModal];
 }
 
 #pragma mark - GridViewControllerDelegate
 
-- (void)gridViewController: (GridViewController *)gridViewController
-        selectionDidChange: (Item *)item {
-    [self.details setItemForDisplay: item];
+- (void)gridViewController:(GridViewController *)gridViewController
+        selectionDidChange:(Item *)item {
+    [self.details setItemForDisplay:item];
 }
 
 - (void)gridViewController:(nonnull GridViewController *)gridViewController 
@@ -104,13 +104,13 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 
 #pragma mark - Custom behaviour
 
-- (IBAction)import: (id)sender {
+- (IBAction)import:(id)sender {
     NSOpenPanel* panel = [NSOpenPanel openPanel];
     panel.canChooseFiles = YES;
     panel.canChooseDirectories = YES;
     panel.canCreateDirectories = NO;
     
-    [panel beginSheetModalForWindow: self.window completionHandler: ^(NSInteger result) {
+    [panel beginSheetModalForWindow:self.window completionHandler:^(NSInteger result) {
         if (NSModalResponseOK == result) {
             NSArray<NSURL *> *urls = [panel URLs];
             
@@ -119,8 +119,8 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
             
             // This is async, so returns immediately
             @weakify(self);
-            [library importURLs: urls
-                       callback: ^(BOOL success, NSError *error) {
+            [library importURLs:urls
+                       callback:^(BOOL success, NSError *error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     @strongify(self);
                     if (nil == self) {
@@ -129,7 +129,7 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
                     
                     if (nil != error) {
                         NSAssert(NO == success, @"Got error and success from saving.");
-                        NSAlert *alert = [NSAlert alertWithError: error];
+                        NSAlert *alert = [NSAlert alertWithError:error];
                         [alert runModal];
                     }
                     NSAssert(NO != success, @"Got no success and error from saving.");
@@ -159,34 +159,34 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 #pragma mark - NSToolbarDelegate
 
 - (NSArray<NSToolbarIdentifier> *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
-    return [NSArray arrayWithObjects:
-            NSToolbarFlexibleSpaceItemIdentifier,
-            kImportToolbarItemIdentifier,
-            NSToolbarSidebarTrackingSeparatorItemIdentifier,
-            kProgressToolbarItemIdentifier,
-            NSToolbarFlexibleSpaceItemIdentifier,
-            kSearchToolbarItemIdentifier,
-            nil];
+    return @[
+        NSToolbarFlexibleSpaceItemIdentifier,
+        kImportToolbarItemIdentifier,
+        NSToolbarSidebarTrackingSeparatorItemIdentifier,
+        kProgressToolbarItemIdentifier,
+        NSToolbarFlexibleSpaceItemIdentifier,
+        kSearchToolbarItemIdentifier
+    ];
 }
 
 - (NSArray<NSToolbarIdentifier> *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar {
-    return [NSArray arrayWithObjects:
-            kImportToolbarItemIdentifier,
-            NSToolbarFlexibleSpaceItemIdentifier,
-            kSearchToolbarItemIdentifier,
-            nil];
+    return @[
+        kImportToolbarItemIdentifier,
+        NSToolbarFlexibleSpaceItemIdentifier,
+        kSearchToolbarItemIdentifier,
+    ];
 }
 
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSToolbarItemIdentifier)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag {
     
-    if ([itemIdentifier compare: kSearchToolbarItemIdentifier] == NSOrderedSame) {
-        return [[NSSearchToolbarItem alloc] initWithItemIdentifier: itemIdentifier];
-    } else if ([itemIdentifier compare: kImportToolbarItemIdentifier] == NSOrderedSame) {
-        NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier: itemIdentifier];
+    if ([itemIdentifier compare:kSearchToolbarItemIdentifier] == NSOrderedSame) {
+        return [[NSSearchToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+    } else if ([itemIdentifier compare:kImportToolbarItemIdentifier] == NSOrderedSame) {
+        NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
         item.title = @"Import";
         item.paletteLabel = @"Import";
         item.toolTip = @"Import files";
-        item.image = [NSImage imageWithSystemSymbolName: @"plus" accessibilityDescription: nil];
+        item.image = [NSImage imageWithSystemSymbolName:@"plus" accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(import:);
         
@@ -196,8 +196,8 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
         item.menuFormRepresentation = menu;
         
         return item;
-    } else if ([itemIdentifier compare: kProgressToolbarItemIdentifier] == NSOrderedSame) {
-        NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier: itemIdentifier];
+    } else if ([itemIdentifier compare:kProgressToolbarItemIdentifier] == NSOrderedSame) {
+        NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
         item.title = @"Progress";
         item.paletteLabel = @"Progress";
         item.toolTip = @"Import progress";
@@ -212,7 +212,7 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
         
         return item;
     } else {
-        return [[NSToolbarItem alloc] initWithItemIdentifier: itemIdentifier];
+        return [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
     }
 }
 

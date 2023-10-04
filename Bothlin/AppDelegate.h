@@ -14,7 +14,7 @@
 @property (readonly, nonatomic, strong) NSPersistentContainer *persistentContainer;
 @property (readonly, nonatomic, strong) LibraryController *libraryController;
 
-- (IBAction)import: (id)sender;
+- (IBAction)import:(id)sender;
 
 @end
 

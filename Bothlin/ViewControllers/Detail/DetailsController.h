@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Only access from mainQ
 @property (nonatomic, weak, readwrite) IBOutlet NSOutlineView *detailsView;
 
-- (void)setItemForDisplay: (Item *)item;
+- (void)setItemForDisplay:(Item *)item;
 
 @end
 

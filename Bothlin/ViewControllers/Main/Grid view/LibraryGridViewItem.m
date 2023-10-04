@@ -24,19 +24,19 @@
     [self.view addGestureRecognizer:doubleClickGesture];
 }
 
-- (void)setItem: (Item *)item {
+- (void)setItem:(Item *)item {
     
 }
 
-- (void)setSelected: (BOOL)value {
-    [super setSelected: value];
+- (void)setSelected:(BOOL)value {
+    [super setSelected:value];
     NSColor *bgColor = value ? [NSColor selectedControlColor] : [NSColor clearColor];
     self.view.layer.backgroundColor = bgColor.CGColor;
 }
 
 - (void)onDoubleClick:(NSGestureRecognizer *)sender {
     dispatch_assert_queue(dispatch_get_main_queue());
-    [self.delegate gridViewItemWasDoubleClicked: self];
+    [self.delegate gridViewItemWasDoubleClicked:self];
 }
 
 

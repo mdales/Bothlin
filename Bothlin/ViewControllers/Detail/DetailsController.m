@@ -29,7 +29,7 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
     [super viewDidLoad];
 }
 
-- (void)setItemForDisplay: (Item *)item {
+- (void)setItemForDisplay:(Item *)item {
     self.item = item;
     [self.detailsView reloadData];
 }
@@ -51,26 +51,26 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
 #pragma mark - NSOutlineViewDelegate
 
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
-    if ([tableColumn.identifier compare: kPropertyColumnIdentifier] == NSOrderedSame) {
-        NSTableCellView *view = [outlineView makeViewWithIdentifier: kPropertyCellIdentifier owner: self];
+    if ([tableColumn.identifier compare:kPropertyColumnIdentifier] == NSOrderedSame) {
+        NSTableCellView *view = [outlineView makeViewWithIdentifier:kPropertyCellIdentifier owner:self];
         view.textField.stringValue = item;
 
         return view;
 
 
-    } else if ([tableColumn.identifier compare: kValueColumnIdentifier] == NSOrderedSame) {
-        NSTableCellView *view = [outlineView makeViewWithIdentifier: kValueCellIdentifier owner: self];
+    } else if ([tableColumn.identifier compare:kValueColumnIdentifier] == NSOrderedSame) {
+        NSTableCellView *view = [outlineView makeViewWithIdentifier:kValueCellIdentifier owner:self];
         if (nil == self.item) {
             view.textField.stringValue = @"";
         } else {
             // TODO: make robust!
-            NSUInteger index = [kMainInfoTitles indexOfObject: item];
+            NSUInteger index = [kMainInfoTitles indexOfObject:item];
             NSString *property = kMainInfoProperties[index];
-            id value = [self.item valueForKey: property];
-            if ([value isKindOfClass: [NSString class]]) {
+            id value = [self.item valueForKey:property];
+            if ([value isKindOfClass:[NSString class]]) {
                 view.textField.stringValue = value;
             } else {
-                view.textField.stringValue = [NSString stringWithFormat: @"%@", value];
+                view.textField.stringValue = [NSString stringWithFormat:@"%@", value];
             }
         }
 

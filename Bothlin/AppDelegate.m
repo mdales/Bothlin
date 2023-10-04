@@ -22,11 +22,11 @@
     NSAssert(0 < [paths count], @"Expected at least one documents folder, got none");
     NSString *documntsDirectory = paths.firstObject;
 
-    NSString *defaultStorageFolder = [documntsDirectory stringByAppendingPathComponent: @"Screenshots"];
-    NSDictionary<NSString *, id> *initialDefaultValues = @{@"DefaultStorageFolder": defaultStorageFolder};
+    NSString *defaultStorageFolder = [documntsDirectory stringByAppendingPathComponent:@"Screenshots"];
+    NSDictionary<NSString *, id> *initialDefaultValues = @{@"DefaultStorageFolder":defaultStorageFolder};
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults registerDefaults: initialDefaultValues];
+    [defaults registerDefaults:initialDefaultValues];
 }
 
 
@@ -35,10 +35,10 @@
 
     // TODO: icky self use
     NSPersistentStoreCoordinator *store = self.persistentContainer.persistentStoreCoordinator;
-    self->_libraryController = [[LibraryController alloc] initWithPersistentStore: store];
+    self->_libraryController = [[LibraryController alloc] initWithPersistentStore:store];
 
-    self.mainWindowController = [[RootWindowController alloc] initWithWindowNibName: @"RootWindowController"];
-    [self.mainWindowController showWindow: nil];
+    self.mainWindowController = [[RootWindowController alloc] initWithWindowNibName:@"RootWindowController"];
+    [self.mainWindowController showWindow:nil];
 }
 
 
@@ -54,8 +54,8 @@
 #pragma mark - Menu items
 
 // It's a downside of using an NSWindowController with its own xib that you can't connect up the menu items more directly
-- (IBAction)import: (id)sender {
-    [self.mainWindowController import: sender];
+- (IBAction)import:(id)sender {
+    [self.mainWindowController import:sender];
 }
 
 

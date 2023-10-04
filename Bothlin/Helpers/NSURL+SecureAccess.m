@@ -10,7 +10,7 @@
 @implementation NSURL (SecureAccess)
 
 
-- (void)secureAccessWithBlock: (void (^)(NSURL *url, BOOL canAccess))block {
+- (void)secureAccessWithBlock:(void (^)(NSURL *url, BOOL canAccess))block {
     if (nil == block) {
         return;
     }

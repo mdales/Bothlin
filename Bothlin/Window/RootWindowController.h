@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RootWindowController : NSWindowController <NSToolbarDelegate, LibraryControllerDelegate, GridViewControllerDelegate>
 
-- (IBAction)import: (id)sender;
+- (IBAction)import:(id)sender;
 
 @end
 

@@ -43,7 +43,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
     if (nil != self) {
         self->_dataQ = dispatch_queue_create("com.digitalflapjack.LibraryController.dataQ", DISPATCH_QUEUE_SERIAL);
 
-        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType: NSPrivateQueueConcurrencyType];
+        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         context.persistentStoreCoordinator = store;
         self->_context = context;
 
@@ -58,9 +58,9 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
     if (nil == urls) {
         if (nil != callback) {
             dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-                callback(NO, [NSError errorWithDomain: LibraryControllerErrorDomain
-                                                 code: LibraryControllerErrorURLsAreNil
-                                             userInfo: nil]);
+                callback(NO, [NSError errorWithDomain:LibraryControllerErrorDomain
+                                                 code:LibraryControllerErrorURLsAreNil
+                                             userInfo:nil]);
             });
         }
         return;
@@ -71,10 +71,10 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
         NSURL *url = (NSURL*)evaluatedObject;
         NSString *lastPathComponent = [url lastPathComponent];
         NSArray<NSString *> *knownSkip = @[@".DS_Store", @"desktop.ini"];
-        NSUInteger index = [knownSkip indexOfObject: lastPathComponent];
+        NSUInteger index = [knownSkip indexOfObject:lastPathComponent];
         return index == NSNotFound;
     }];
-    NSArray *filteredURLs = [urls filteredArrayUsingPredicate: predicate];
+    NSArray *filteredURLs = [urls filteredArrayUsingPredicate:predicate];
 
     if (0 == [filteredURLs count]) {
         if (nil != callback) {
@@ -90,15 +90,15 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
         @strongify(self);
         if (nil == self) {
             if (nil != callback) {
-                callback(NO, [NSError errorWithDomain: LibraryControllerErrorDomain
-                                                 code: LibraryControllerErrorSelfIsNoLongerValid
-                                             userInfo: nil]);
+                callback(NO, [NSError errorWithDomain:LibraryControllerErrorDomain
+                                                 code:LibraryControllerErrorSelfIsNoLongerValid
+                                             userInfo:nil]);
             }
             return;
         }
         NSError *error = nil;
-        NSSet<NSManagedObjectID *> *newItemIDs = [self innerImportURLs: filteredURLs
-                                                                 error: &error];
+        NSSet<NSManagedObjectID *> *newItemIDs = [self innerImportURLs:filteredURLs
+                                                                 error:&error];
 
         @weakify(self);
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -109,7 +109,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
             if (nil == self.delegate) {
                 return;
             }
-            [self.delegate libraryDidUpdate: @{NSInsertedObjectsKey: newItemIDs.allObjects}];
+            [self.delegate libraryDidUpdate:@{NSInsertedObjectsKey: newItemIDs.allObjects}];
         });
 
         if (nil != callback) {
@@ -129,15 +129,15 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
     __block NSURL *secureURL = nil;
     __block NSError *innerError = nil;
     dispatch_sync(self.dataQ, ^{
-        Item *item = [self.context existingObjectWithID: itemID
-                                                  error: &innerError];
+        Item *item = [self.context existingObjectWithID:itemID
+                                                  error:&innerError];
         if (nil != innerError) {
             NSAssert(nil == item, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
             return;
         }
         NSAssert(nil != item, @"Got no error but also no item fetching object with ID %@", itemID);
         
-        secureURL = [item decodeSecureURL: &innerError];
+        secureURL = [item decodeSecureURL:&innerError];
         if (nil != innerError) {
             NSAssert(nil == secureURL, @"Got error and value");
             return;
@@ -152,30 +152,30 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
         return NO;
     }
 
-    NSString *filename = [NSString stringWithFormat: @"%@.png", [[NSUUID UUID] UUIDString]];
+    NSString *filename = [NSString stringWithFormat:@"%@.png", [[NSUUID UUID] UUIDString]];
     NSFileManager *fm = [NSFileManager defaultManager];
     NSArray<NSURL *> *paths = [fm URLsForDirectory:NSDocumentDirectory
                                          inDomains:NSUserDomainMask];
     NSAssert(0 < [paths count], @"No document directory found!");
     NSURL *docsDirectory = [paths lastObject];
-    NSURL *thumbnailFile = [docsDirectory URLByAppendingPathComponent: filename];
+    NSURL *thumbnailFile = [docsDirectory URLByAppendingPathComponent:filename];
     [secureURL secureAccessWithBlock: ^(NSURL *url, BOOL canAccess) {
         if (NO == canAccess) {
-            innerError = [NSError errorWithDomain: LibraryControllerErrorDomain
-                                             code: LibraryControllerErrorSecurePathNotAccessible
-                                         userInfo: @{@"URL": url, @"ID": itemID}];
+            innerError = [NSError errorWithDomain:LibraryControllerErrorDomain
+                                             code:LibraryControllerErrorSecurePathNotAccessible
+                                         userInfo:@{@"URL": url, @"ID": itemID}];
             return;
         }
         
         CFURLRef cfurl = (__bridge_retained CFURLRef)url;
         CGImageSourceRef source = CGImageSourceCreateWithURL(cfurl, NULL);
         if (NULL == source) {
-            innerError = [NSError errorWithDomain: LibraryControllerErrorDomain
-                                             code: LibraryControllerErrorCouldNotOpenImage
-                                         userInfo: @{
+            innerError = [NSError errorWithDomain:LibraryControllerErrorDomain
+                                             code:LibraryControllerErrorCouldNotOpenImage
+                                         userInfo:@{
                 @"URL": url,
                 @"ID": itemID,
-                NSLocalizedDescriptionKey: [NSString stringWithFormat: @"Could not create image source for %@", [url lastPathComponent]]
+                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Could not create image source for %@", [url lastPathComponent]]
             }];
             return;
         }
@@ -202,12 +202,12 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
         CFRelease(thumbnailSize);
 
         if (NULL == cgImage) {
-            innerError = [NSError errorWithDomain: LibraryControllerErrorDomain
-                                             code: LibraryControllerErrorCouldNotGenerateThumbnail
-                                         userInfo: @{
+            innerError = [NSError errorWithDomain:LibraryControllerErrorDomain
+                                             code:LibraryControllerErrorCouldNotGenerateThumbnail
+                                         userInfo:@{
                 @"URL": url,
                 @"ID": itemID,
-                NSLocalizedDescriptionKey: [NSString stringWithFormat: @"Could not create thumbnail for %@", [url lastPathComponent]]
+                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Could not create thumbnail for %@", [url lastPathComponent]]
             }];
             CFRelease(source);
             return;
@@ -216,11 +216,11 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
         CFURLRef cfdesturl = (__bridge_retained CFURLRef)thumbnailFile;
         CGImageDestinationRef destination = CGImageDestinationCreateWithURL(cfdesturl, kUTTypePNG, 1, NULL);
         if (NULL == destination) {
-            innerError = [NSError errorWithDomain: LibraryControllerErrorDomain
-                                             code: LibraryControllerErrorCouldNotCreateThumbnailFile
-                                         userInfo: @{
+            innerError = [NSError errorWithDomain:LibraryControllerErrorDomain
+                                             code:LibraryControllerErrorCouldNotCreateThumbnailFile
+                                         userInfo:@{
                 @"URL": thumbnailFile,
-                NSLocalizedDescriptionKey: [NSString stringWithFormat: @"Could not create thumbnail file at %@", [thumbnailFile lastPathComponent]]
+                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Could not create thumbnail file at %@", [thumbnailFile lastPathComponent]]
             }];
             CGImageRelease(cgImage);
             CFRelease(source);
@@ -230,11 +230,11 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
         CGImageDestinationAddImage(destination, cgImage, NULL);
 
         if (!CGImageDestinationFinalize(destination)) {
-            innerError = [NSError errorWithDomain: LibraryControllerErrorDomain
-                                             code: LibraryControllerErrorCouldNotWriteThumbnailFile
-                                         userInfo: @{
+            innerError = [NSError errorWithDomain:LibraryControllerErrorDomain
+                                             code:LibraryControllerErrorCouldNotWriteThumbnailFile
+                                         userInfo:@{
                 @"URL": thumbnailFile,
-                NSLocalizedDescriptionKey: [NSString stringWithFormat: @"Could not write thumbnail file at %@", [thumbnailFile lastPathComponent]]
+                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Could not write thumbnail file at %@", [thumbnailFile lastPathComponent]]
             }];
         }
 
@@ -251,8 +251,8 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
 
     // now we've generated the thumbnail, we should update the record
     dispatch_sync(self.dataQ, ^{
-        Item *item = [self.context existingObjectWithID: itemID
-                                                  error: &innerError];
+        Item *item = [self.context existingObjectWithID:itemID
+                                                  error:&innerError];
         if (nil != innerError) {
             NSAssert(nil == item, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
             return;
@@ -260,7 +260,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
         NSAssert(nil != item, @"Got no error but also no item fetching object with ID %@", itemID);
 
         item.thumbnailPath = thumbnailFile.path;
-        BOOL success = [self.context save: &innerError];
+        BOOL success = [self.context save:&innerError];
         if (nil != innerError) {
             NSAssert(NO == success, @"Got error and success from saving.");
             return;
@@ -276,7 +276,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
             if (nil == self.delegate) {
                 return;
             }
-            [self.delegate libraryDidUpdate: @{NSUpdatedObjectsKey: @[itemID]}];
+            [self.delegate libraryDidUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
         });
     });
     if (nil != innerError) {
@@ -290,8 +290,8 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
 }
 
 
-- (NSSet<NSManagedObjectID *> *)innerImportURLs: (NSArray<NSURL *> *)urls
-                                          error: (NSError **)error {
+- (NSSet<NSManagedObjectID *> *)innerImportURLs:(NSArray<NSURL *> *)urls
+                                          error:(NSError **)error {
     if ((nil == urls) || (0 == [urls count])) {
         return [NSSet set];
     }
@@ -299,33 +299,33 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
 
     __block NSError *innerError = nil;
     __block NSSet<NSManagedObjectID *> *newItemIDs = nil;
-    [self.context performBlockAndWait: ^{
+    [self.context performBlockAndWait:^{
         NSArray<Item *> *newItems = [NSArray array];
         for (NSURL *url in urls) {
             NSError *innerError = nil;
-            NSSet<Item *> *importeditems = [Item importItemsAtURL: url
-                                                        inContext: self.context
-                                                            error: &innerError];
+            NSSet<Item *> *importeditems = [Item importItemsAtURL:url
+                                                        inContext:self.context
+                                                            error:&innerError];
             if (nil != innerError) {
                 NSAssert(nil == importeditems, @"Got error making new items but still got results");
                 return;
             }
             NSAssert(nil != importeditems, @"Got no error adding items, but no result");
 
-            newItems = [newItems arrayByAddingObjectsFromArray: [importeditems allObjects]];
+            newItems = [newItems arrayByAddingObjectsFromArray:[importeditems allObjects]];
         }
 
-        BOOL success = [self.context obtainPermanentIDsForObjects: newItems
-                                                            error: &innerError];
+        BOOL success = [self.context obtainPermanentIDsForObjects:newItems
+                                                            error:&innerError];
         if (nil != innerError) {
             NSAssert(NO == success, @"Got error and success from obtainPermanentIDsForObjects.");
             return;
         }
         NSAssert(NO != success, @"Got no success and error from obtainPermanentIDsForObjects.");
 
-        NSMutableSet<NSManagedObjectID *> *newIDs = [NSMutableSet setWithCapacity: [newItems count]];
+        NSMutableSet<NSManagedObjectID *> *newIDs = [NSMutableSet setWithCapacity:[newItems count]];
         for (Item *item in newItems) {
-            [newIDs addObject: item.objectID];
+            [newIDs addObject:item.objectID];
 
             @weakify(self);
             dispatch_async(self.thumbnailWorkerQ, ^{
@@ -334,8 +334,8 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
                     return;
                 }
                 NSError *error = nil;
-                [self generateThumbnailForItemWithID: item.objectID
-                                               error: &error];
+                [self generateThumbnailForItemWithID:item.objectID
+                                               error:&error];
                 if (nil != error) {
                     NSLog(@"Error generating thumbnail: %@", error.localizedDescription);
                     @weakify(self)
@@ -347,13 +347,13 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
                         if (nil == self.delegate) {
                             return;
                         }
-                        [self.delegate thumbnailGenerationFailedWithError: error];
+                        [self.delegate thumbnailGenerationFailedWithError:error];
                     });
                 }
             });
         }
 
-        newItemIDs = [NSSet setWithSet: newIDs];
+        newItemIDs = [NSSet setWithSet:newIDs];
     }];
     if (nil != innerError) {
         if (nil != error) {
