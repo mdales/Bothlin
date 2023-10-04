@@ -115,7 +115,8 @@
         item = [self.contents objectAtIndex: (NSUInteger)indexPath.item];
     });
 
-    NSCollectionViewItem *viewItem = [collectionView makeItemWithIdentifier: @"LibraryGridViewItem" forIndexPath: indexPath];
+    LibraryGridViewItem *viewItem = [collectionView makeItemWithIdentifier: @"LibraryGridViewItem" forIndexPath: indexPath];
+    viewItem.delegate = self;
     viewItem.textField.stringValue = item.name;
 
     __block NSImage *thumbnail = nil;
@@ -173,20 +174,16 @@
 
     self.selectedItem = item;
     if (nil != self.delegate) {
-        [self.delegate gridViewControllerSelectionDidChange: item];
+        [self.delegate gridViewController: self
+                       selectionDidChange: item];
     }
 }
 
-//- (void)collectionView:(NSCollectionView *)collectionView didDeselectItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
-//    NSAssert(1 == indexPaths.count, @"User deselected more/less than one item: %lu", indexPaths.count);
-//    NSIndexPath *indexPath = [indexPaths anyObject];
-//
-//}
+#pragma mark - LibraryGridViewItemDelegate
 
-//- (void)collectionView:(NSCollectionView *)collectionView didChangeItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths toHighlightState:(NSCollectionViewItemHighlightState)highlightState {
-//    for (NSIndexPath *index in indexPaths) {
-//        NSLog(@"%ld %ld -> %ld", (long)index.section, (long)index.item, (long)highlightState);
-//    }
-//}
+- (void)gridViewItemWasDoubleClicked:(LibraryGridViewItem *)gridViewItem {
+    NSLog(@"double clicked");
+}
+
 
 @end

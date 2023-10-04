@@ -91,9 +91,16 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 
 #pragma mark - GridViewControllerDelegate
 
-- (void)gridViewControllerSelectionDidChange: (Item *)item {
+- (void)gridViewController: (GridViewController *)gridViewController
+        selectionDidChange: (Item *)item {
     [self.details setItemForDisplay: item];
 }
+
+- (void)gridViewController:(nonnull GridViewController *)gridViewController 
+         doubleClickedItem:(nonnull Item *)item {
+    
+}
+
 
 #pragma mark - Custom behaviour
 
@@ -102,14 +109,14 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
     panel.canChooseFiles = YES;
     panel.canChooseDirectories = YES;
     panel.canCreateDirectories = NO;
-
+    
     [panel beginSheetModalForWindow: self.window completionHandler: ^(NSInteger result) {
         if (NSModalResponseOK == result) {
             NSArray<NSURL *> *urls = [panel URLs];
-
+            
             AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
             LibraryController *library = appDelegate.libraryController;
-
+            
             // This is async, so returns immediately
             @weakify(self);
             [library importURLs: urls
@@ -119,7 +126,7 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
                     if (nil == self) {
                         return;
                     }
-
+                    
                     if (nil != error) {
                         NSAssert(NO == success, @"Got error and success from saving.");
                         NSAlert *alert = [NSAlert alertWithError: error];
@@ -171,7 +178,7 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 }
 
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSToolbarItemIdentifier)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag {
-
+    
     if ([itemIdentifier compare: kSearchToolbarItemIdentifier] == NSOrderedSame) {
         return [[NSSearchToolbarItem alloc] initWithItemIdentifier: itemIdentifier];
     } else if ([itemIdentifier compare: kImportToolbarItemIdentifier] == NSOrderedSame) {
@@ -182,12 +189,12 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
         item.image = [NSImage imageWithSystemSymbolName: @"plus" accessibilityDescription: nil];
         item.target = self;
         item.action = @selector(import:);
-
+        
         NSMenuItem *menu = [[NSMenuItem alloc] init];
         menu.submenu = nil;
         menu.title = @"import";
         item.menuFormRepresentation = menu;
-
+        
         return item;
     } else if ([itemIdentifier compare: kProgressToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier: itemIdentifier];
@@ -197,16 +204,17 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
         item.target = self;
         item.action = @selector(import:);
         item.view = self.progressView;
-
+        
         NSMenuItem *menu = [[NSMenuItem alloc] init];
         menu.submenu = nil;
         menu.title = @"progress";
         item.menuFormRepresentation = menu;
-
+        
         return item;
     } else {
         return [[NSToolbarItem alloc] initWithItemIdentifier: itemIdentifier];
     }
 }
+
 
 @end

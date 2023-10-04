@@ -24,6 +24,10 @@
     [self.view addGestureRecognizer:doubleClickGesture];
 }
 
+- (void)setItem: (Item *)item {
+    
+}
+
 - (void)setSelected: (BOOL)value {
     [super setSelected: value];
     NSColor *bgColor = value ? [NSColor selectedControlColor] : [NSColor clearColor];
@@ -31,7 +35,8 @@
 }
 
 - (void)onDoubleClick:(NSGestureRecognizer *)sender {
-    NSLog(@"double click");
+    dispatch_assert_queue(dispatch_get_main_queue());
+    [self.delegate gridViewItemWasDoubleClicked: self];
 }
 
 

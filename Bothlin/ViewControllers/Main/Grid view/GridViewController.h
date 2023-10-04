@@ -7,17 +7,25 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "LibraryGridViewItem.h"
+
 @class Item;
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class GridViewController;
+
 @protocol GridViewControllerDelegate <NSObject>
 
-- (void)gridViewControllerSelectionDidChange: (Item *)selectedItem;
+- (void)gridViewController:(GridViewController *)gridViewController
+        selectionDidChange:(Item *)selectedItem;
+
+- (void)gridViewController:(GridViewController *)gridViewController
+         doubleClickedItem:(Item *)item;
 
 @end
 
-@interface GridViewController : NSViewController <NSCollectionViewDelegate, NSCollectionViewDataSource>
+@interface GridViewController : NSViewController <NSCollectionViewDelegate, NSCollectionViewDataSource, LibraryGridViewItemDelegate>
 
 // Only access on mainQ
 @property (nonatomic, weak, readwrite) IBOutlet NSCollectionView *collectionView;
