@@ -11,8 +11,8 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-@property (readonly, strong) NSPersistentContainer *persistentContainer;
-@property (readonly, strong) LibraryController *libraryController;
+@property (readonly, nonatomic, strong) NSPersistentContainer *persistentContainer;
+@property (readonly, nonatomic, strong) LibraryController *libraryController;
 
 - (IBAction)import: (id)sender;
 

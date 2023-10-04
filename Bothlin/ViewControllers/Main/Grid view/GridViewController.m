@@ -98,12 +98,12 @@
 }
 
 - (NSInteger)collectionView:(NSCollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    __block NSInteger count = 0;
+    __block NSUInteger count = 0;
     dispatch_sync(self.syncQ, ^{
         count = [self.contents count];
     });
 
-    return count;
+    return (NSInteger)count;
 }
 
 - (NSCollectionViewItem *)collectionView:(NSCollectionView *)collectionView itemForRepresentedObjectAtIndexPath:(NSIndexPath *)indexPath {
@@ -112,7 +112,7 @@
 
     __block Item *item = nil;
     dispatch_sync(self.syncQ, ^{
-        item = [self.contents objectAtIndex: indexPath.item];
+        item = [self.contents objectAtIndex: (NSUInteger)indexPath.item];
     });
 
     NSCollectionViewItem *viewItem = [collectionView makeItemWithIdentifier: @"LibraryGridViewItem" forIndexPath: indexPath];
@@ -168,7 +168,7 @@
 
     __block Item *item = nil;
     dispatch_sync(self.syncQ, ^{
-        item = self.contents[indexPath.item];
+        item = self.contents[(NSUInteger)indexPath.item];
     });
 
     self.selectedItem = item;

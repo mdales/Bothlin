@@ -67,11 +67,11 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
     }
 
     // filter out things like .DS_store
-    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject, __unused NSDictionary<NSString *,id> * _Nullable bindings) {
         NSURL *url = (NSURL*)evaluatedObject;
         NSString *lastPathComponent = [url lastPathComponent];
         NSArray<NSString *> *knownSkip = @[@".DS_Store", @"desktop.ini"];
-        NSInteger index = [knownSkip indexOfObject: lastPathComponent];
+        NSUInteger index = [knownSkip indexOfObject: lastPathComponent];
         return index == NSNotFound;
     }];
     NSArray *filteredURLs = [urls filteredArrayUsingPredicate: predicate];

@@ -12,13 +12,13 @@
 
 #define weakify(_x) \
     _start_with_at() \
-    __weak typeof(_x) weak##_x = _x;
+    __weak __typeof__(_x) weak##_x = _x;
 
 #define strongify(_x) \
     _start_with_at() \
     _Pragma("clang diagnostic push") \
     _Pragma("clang diagnostic ignored \"-Wshadow\"") \
-    __strong typeof(_x) _x = weak##_x; \
+    __strong __typeof__(_x) _x = weak##_x; \
     _Pragma("clang diagnostic pop") 
 
 

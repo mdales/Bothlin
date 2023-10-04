@@ -38,13 +38,13 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
     if (nil == item) {
-        return [kMainInfoTitles count];
+        return (NSInteger)[kMainInfoTitles count];
     }
     return 0;
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
-    return kMainInfoTitles[index];
+    return kMainInfoTitles[(NSUInteger)index];
 }
 
 
@@ -64,7 +64,7 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
             view.textField.stringValue = @"";
         } else {
             // TODO: make robust!
-            NSInteger index = [kMainInfoTitles indexOfObject: item];
+            NSUInteger index = [kMainInfoTitles indexOfObject: item];
             NSString *property = kMainInfoProperties[index];
             id value = [self.item valueForKey: property];
             if ([value isKindOfClass: [NSString class]]) {
