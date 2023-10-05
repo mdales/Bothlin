@@ -17,6 +17,7 @@
 NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIdentifier";
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
 NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarItemIdentifier";
+NSString * __nonnull const kItemDisplayStyleItemIdentifier = @"ItemDisplayStyleItemIdentifier";
 
 @interface RootWindowController ()
 
@@ -139,6 +140,10 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
     }];
 }
 
+- (IBAction)toggleViewStyle:(id)sender {
+
+}
+
 - (void)toggleSidebar {
     NSSplitViewItem *firstView = self.splitViewController.splitViewItems.firstObject;
     if (nil == firstView) {
@@ -163,8 +168,9 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
         NSToolbarFlexibleSpaceItemIdentifier,
         kImportToolbarItemIdentifier,
         NSToolbarSidebarTrackingSeparatorItemIdentifier,
-        kProgressToolbarItemIdentifier,
+//        kProgressToolbarItemIdentifier,
         NSToolbarFlexibleSpaceItemIdentifier,
+        kItemDisplayStyleItemIdentifier,
         kSearchToolbarItemIdentifier
     ];
 }
@@ -174,6 +180,7 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
         kImportToolbarItemIdentifier,
         NSToolbarFlexibleSpaceItemIdentifier,
         kSearchToolbarItemIdentifier,
+        kItemDisplayStyleItemIdentifier,
     ];
 }
 
@@ -190,11 +197,6 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
         item.target = self;
         item.action = @selector(import:);
         
-        NSMenuItem *menu = [[NSMenuItem alloc] init];
-        menu.submenu = nil;
-        menu.title = @"import";
-        item.menuFormRepresentation = menu;
-        
         return item;
     } else if ([itemIdentifier compare:kProgressToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
@@ -205,12 +207,28 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
         item.action = @selector(import:);
         item.view = self.progressView;
         
-        NSMenuItem *menu = [[NSMenuItem alloc] init];
-        menu.submenu = nil;
-        menu.title = @"progress";
-        item.menuFormRepresentation = menu;
-        
         return item;
+    } else if ([itemIdentifier compare:kItemDisplayStyleItemIdentifier] == NSOrderedSame) {
+
+        NSArray<NSString *> *titles = @[
+            @"Grid",
+            @"Single"
+        ];
+
+        NSArray<NSImage *> *images = @[
+            [NSImage imageWithSystemSymbolName:@"square.grid.2x2" accessibilityDescription:nil],
+            [NSImage imageWithSystemSymbolName:@"square" accessibilityDescription:nil]
+        ];
+
+        NSToolbarItemGroup *group = [NSToolbarItemGroup groupWithItemIdentifier:itemIdentifier
+                                                                         images:images
+                                                                  selectionMode:NSToolbarItemGroupSelectionModeSelectOne
+                                                                         labels:titles
+                                                                         target:self
+                                                                         action:@selector(toggleViewStyle:)];
+        group.selectedIndex = 0;
+
+        return group;
     } else {
         return [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
     }

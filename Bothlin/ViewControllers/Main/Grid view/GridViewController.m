@@ -133,7 +133,10 @@
             if (nil == self) {
                 return;
             }
-            NSImage *thumbnail = [[NSImage alloc] initByReferencingFile:thumbnailPath];
+            NSImage *thumbnail = nil;
+            if (nil != thumbnailPath) {
+                thumbnail = [[NSImage alloc] initByReferencingFile:thumbnailPath];
+            }
             if (nil == thumbnail) {
                 thumbnail = [NSImage imageWithSystemSymbolName:@"exclamationmark.square" accessibilityDescription:nil];
             }
