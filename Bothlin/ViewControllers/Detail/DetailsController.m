@@ -70,7 +70,10 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
             if ([value isKindOfClass:[NSString class]]) {
                 view.textField.stringValue = value;
             } else {
-                view.textField.stringValue = [NSString stringWithFormat:@"%@", value];
+                NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+                [formatter setDateStyle:NSDateFormatterShortStyle];
+                [formatter setTimeStyle:NSDateFormatterShortStyle];
+                view.textField.stringValue = [formatter stringFromDate:value];
             }
         }
 

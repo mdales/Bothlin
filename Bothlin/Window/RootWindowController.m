@@ -18,6 +18,10 @@ NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIde
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
 NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarItemIdentifier";
 NSString * __nonnull const kItemDisplayStyleItemIdentifier = @"ItemDisplayStyleItemIdentifier";
+NSString * __nonnull const kShareToolbarItemIdentifier = @"ShareToolbarItemIdentifier";
+NSString * __nonnull const kDeleteToolbarItemIdentifier = @"DeleteToolbarItemIdentifier";
+NSString * __nonnull const kToggleDetailViewToolbarItemIdentifier = @"ToggleDetailViewToolbarItemIdentifier";
+NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarItemIdentifier";
 
 @interface RootWindowController ()
 
@@ -140,6 +144,8 @@ NSString * __nonnull const kItemDisplayStyleItemIdentifier = @"ItemDisplayStyleI
     }];
 }
 
+#pragma mark - Toolbar items
+
 - (IBAction)toggleViewStyle:(id)sender {
     [self.itemsDisplay toggleView];
 }
@@ -152,12 +158,21 @@ NSString * __nonnull const kItemDisplayStyleItemIdentifier = @"ItemDisplayStyleI
     firstView.collapsed = !firstView.collapsed;
 }
 
-- (void)toggleDetails {
+- (void)toggleDetails:(id)sender {
     NSSplitViewItem *lastView = self.splitViewController.splitViewItems.lastObject;
     if (nil == lastView) {
         return;
     }
     lastView.collapsed = !lastView.collapsed;
+}
+
+- (void)shareItem:(id)sender {
+}
+
+- (void)toggleFavourite:(id)sender {
+}
+
+- (void)trashItem:(id)sender {
 }
 
 
@@ -170,7 +185,14 @@ NSString * __nonnull const kItemDisplayStyleItemIdentifier = @"ItemDisplayStyleI
         NSToolbarSidebarTrackingSeparatorItemIdentifier,
 //        kProgressToolbarItemIdentifier,
         NSToolbarFlexibleSpaceItemIdentifier,
+        kShareToolbarItemIdentifier,
+        kFavouriteToolbarItemIdentifier,
+        NSToolbarSpaceItemIdentifier,
+        kDeleteToolbarItemIdentifier,
+        NSToolbarSpaceItemIdentifier,
         kItemDisplayStyleItemIdentifier,
+        NSToolbarSpaceItemIdentifier,
+        kToggleDetailViewToolbarItemIdentifier,
         kSearchToolbarItemIdentifier
     ];
 }
@@ -181,6 +203,9 @@ NSString * __nonnull const kItemDisplayStyleItemIdentifier = @"ItemDisplayStyleI
         NSToolbarFlexibleSpaceItemIdentifier,
         kSearchToolbarItemIdentifier,
         kItemDisplayStyleItemIdentifier,
+        kShareToolbarItemIdentifier,
+        kDeleteToolbarItemIdentifier,
+        kFavouriteToolbarItemIdentifier,
     ];
 }
 
@@ -206,7 +231,47 @@ NSString * __nonnull const kItemDisplayStyleItemIdentifier = @"ItemDisplayStyleI
         item.target = self;
         item.action = @selector(import:);
         item.view = self.progressView;
-        
+
+        return item;
+    } else if ([itemIdentifier compare:kToggleDetailViewToolbarItemIdentifier] == NSOrderedSame) {
+        NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+        item.title = @"Toggle Detail Panel";
+        item.paletteLabel = @"Toggle Detail Panel";
+        item.toolTip = @"Toggle Detail Panel";
+        item.image = [NSImage imageWithSystemSymbolName:@"sidebar.right" accessibilityDescription:nil];
+        item.target = self;
+        item.action = @selector(toggleDetails:);
+
+        return item;
+    } else if ([itemIdentifier compare:kShareToolbarItemIdentifier] == NSOrderedSame) {
+        NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+        item.title = @"Share";
+        item.paletteLabel = @"Share";
+        item.toolTip = @"Share";
+        item.image = [NSImage imageWithSystemSymbolName:@"square.and.arrow.up" accessibilityDescription:nil];
+        item.target = self;
+        item.action = @selector(shareItem:);
+
+        return item;
+    } else if ([itemIdentifier compare:kDeleteToolbarItemIdentifier] == NSOrderedSame) {
+        NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+        item.title = @"Move To Trash";
+        item.paletteLabel = @"Move To Trash";
+        item.toolTip = @"Move To Trash";
+        item.image = [NSImage imageWithSystemSymbolName:@"trash" accessibilityDescription:nil];
+        item.target = self;
+        item.action = @selector(trashItem:);
+
+        return item;
+    } else if ([itemIdentifier compare:kFavouriteToolbarItemIdentifier] == NSOrderedSame) {
+        NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+        item.title = @"Favourite";
+        item.paletteLabel = @"Favourite";
+        item.toolTip = @"Favourite";
+        item.image = [NSImage imageWithSystemSymbolName:@"heart" accessibilityDescription:nil];
+        item.target = self;
+        item.action = @selector(toggleFavourite:);
+
         return item;
     } else if ([itemIdentifier compare:kItemDisplayStyleItemIdentifier] == NSOrderedSame) {
 
