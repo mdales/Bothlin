@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) GridViewController *gridViewController;
 
 - (void)reloadData;
+- (void)toggleView;
 
 @end
 

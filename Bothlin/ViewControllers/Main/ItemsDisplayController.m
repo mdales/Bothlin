@@ -30,7 +30,9 @@
     [super viewDidLoad];
 
     [self addChildViewController:self.gridViewController];
+    [self addChildViewController:self.singleViewController];
 
+    // Start with grid view
     [self.gridViewController.view setFrame:self.view.frame];
     [self.view addSubview:self.gridViewController.view];
 }
@@ -43,6 +45,24 @@
 
 - (void)reloadData {
     [self.gridViewController reloadData:nil];
+}
+
+- (void)toggleView {
+    dispatch_assert_queue(dispatch_get_main_queue());
+
+    NSArray<NSView *> *subviews = [self.view subviews];
+    NSAssert(1 == [subviews count], @"Item display has more childviews than expected");
+    NSView *currentSubview = [subviews firstObject];
+
+    if (currentSubview == self.gridViewController.view) {
+        [self.singleViewController.view setFrame: self.view.frame];
+        [self.view addSubview: self.singleViewController.view];
+    } else {
+        [self.gridViewController.view setFrame:self.view.frame];
+        [self.view addSubview:self.gridViewController.view];
+    }
+
+    [currentSubview removeFromSuperview];
 }
 
 @end

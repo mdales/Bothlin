@@ -141,7 +141,7 @@ NSString * __nonnull const kItemDisplayStyleItemIdentifier = @"ItemDisplayStyleI
 }
 
 - (IBAction)toggleViewStyle:(id)sender {
-
+    [self.itemsDisplay toggleView];
 }
 
 - (void)toggleSidebar {
