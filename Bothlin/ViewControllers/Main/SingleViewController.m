@@ -20,6 +20,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    NSClickGestureRecognizer *doubleClickGesture =
+    [[NSClickGestureRecognizer alloc] initWithTarget:self
+                                              action:@selector(onDoubleClick:)];
+    [doubleClickGesture setNumberOfClicksRequired:2];
+    [doubleClickGesture setDelaysPrimaryMouseButtonEvents:NO];
+    [self.view addGestureRecognizer:doubleClickGesture];
 }
 
 - (void)viewWillAppear {
@@ -27,6 +34,11 @@
     if (nil == self.imageView.image) {
         [self loadImage];
     }
+}
+
+- (void)onDoubleClick:(NSGestureRecognizer *)sender {
+    dispatch_assert_queue(dispatch_get_main_queue());
+    [self.delegate singleViewItemWasDoubleClicked:self];
 }
 
 - (void)setItemForDisplay:(Item *)item {

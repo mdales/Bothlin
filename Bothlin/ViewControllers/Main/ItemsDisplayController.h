@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 #import "GridViewController.h"
+#import "SingleViewController.h"
 
 @class Item;
 
@@ -30,7 +31,7 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 
 @end
 
-@interface ItemsDisplayController : NSViewController <GridViewControllerDelegate>
+@interface ItemsDisplayController : NSViewController <GridViewControllerDelegate, SingleViewControllerDelegate>
 
 // Only safe on mainQ
 @property (nonatomic, weak, readwrite) id<ItemsDisplayControllerDelegate> delegate;

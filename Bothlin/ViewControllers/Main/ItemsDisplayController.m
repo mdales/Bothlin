@@ -63,6 +63,7 @@
     [super viewDidLoad];
 
     self.gridViewController.delegate = self;
+    self.singleViewController.delegate = self;
 
     [self addChildViewController:self.gridViewController];
     [self.gridViewController.view setFrame:self.view.frame];
@@ -94,6 +95,12 @@
          doubleClickedItem:(nonnull Item *)item {
     [self.singleViewController setItemForDisplay: item];
     [self setDisplayStyle:ItemsDisplayStyleSingle];
+}
+
+#pragma mark - SingleViewControllerDelegate
+
+- (void)singleViewItemWasDoubleClicked:(SingleViewController *)singleViewItem {
+    [self setDisplayStyle:ItemsDisplayStyleGrid];
 }
 
 
