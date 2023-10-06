@@ -12,6 +12,7 @@
 @interface ItemsDisplayController ()
 
 @property (nonatomic, strong, readonly) SingleViewController *singleViewController;
+@property (nonatomic, strong, readonly) GridViewController *gridViewController;
 
 @end
 
@@ -29,12 +30,17 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    self.gridViewController.delegate = self;
+
     [self addChildViewController:self.gridViewController];
+    [self.gridViewController.view setFrame:self.view.frame];
+
     [self addChildViewController:self.singleViewController];
+    [self.singleViewController.view setFrame:self.view.frame];
 
     // Start with grid view
-    [self.gridViewController.view setFrame:self.view.frame];
     [self.view addSubview:self.gridViewController.view];
+//    [self.view addSubview:self.singleViewController.view];
 }
 
 - (void)viewDidLayout {
@@ -55,8 +61,8 @@
     NSView *currentSubview = [subviews firstObject];
 
     if (currentSubview == self.gridViewController.view) {
-        [self.singleViewController.view setFrame: self.view.frame];
-        [self.view addSubview: self.singleViewController.view];
+        [self.singleViewController.view setFrame:self.view.frame];
+        [self.view addSubview:self.singleViewController.view];
     } else {
         [self.gridViewController.view setFrame:self.view.frame];
         [self.view addSubview:self.gridViewController.view];
@@ -64,5 +70,19 @@
 
     [currentSubview removeFromSuperview];
 }
+
+#pragma mark - GridViewControllerDelegate
+
+- (void)gridViewController:(GridViewController *)gridViewController
+        selectionDidChange:(Item *)item {
+    [self.delegate itemsDisplayController:self
+                       selectionDidChange:item];
+    [self.singleViewController setItemForDisplay:item];
+}
+
+- (void)gridViewController:(nonnull GridViewController *)gridViewController
+         doubleClickedItem:(nonnull Item *)item {
+}
+
 
 @end

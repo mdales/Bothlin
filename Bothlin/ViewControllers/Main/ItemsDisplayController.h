@@ -7,13 +7,24 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class GridViewController;
+#import "GridViewController.h"
+
+@class Item;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ItemsDisplayController : NSViewController
+@class ItemsDisplayController;
 
-@property (nonatomic, strong, readonly) GridViewController *gridViewController;
+@protocol ItemsDisplayControllerDelegate <NSObject>
+
+- (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
+            selectionDidChange:(Item *)selectedItem;
+
+@end
+
+@interface ItemsDisplayController : NSViewController <GridViewControllerDelegate>
+
+@property (nonatomic, weak, readwrite) id<ItemsDisplayControllerDelegate> delegate;
 
 - (void)reloadData;
 - (void)toggleView;

@@ -49,7 +49,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
 - (void)windowDidLoad {
     [super windowDidLoad];
-    
+
     NSSplitViewItem *sidebarItem = [NSSplitViewItem sidebarWithViewController:self.sidebar];
     [self.splitViewController addSplitViewItem:sidebarItem];
     sidebarItem.minimumThickness = 100.0;
@@ -68,7 +68,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [self.window setFrameUsingName:@"RootWindow"];
     self.windowFrameAutosaveName = @"RootWindow";
 
-    self.itemsDisplay.gridViewController.delegate = self;
+    self.itemsDisplay.delegate = self;
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryController *library = appDelegate.libraryController;
@@ -94,16 +94,11 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [alert runModal];
 }
 
-#pragma mark - GridViewControllerDelegate
+#pragma mark - ItemDisplayController
 
-- (void)gridViewController:(GridViewController *)gridViewController
-        selectionDidChange:(Item *)item {
-    [self.details setItemForDisplay:item];
-}
-
-- (void)gridViewController:(nonnull GridViewController *)gridViewController 
-         doubleClickedItem:(nonnull Item *)item {
-    
+- (void)itemsDisplayController:(ItemsDisplayController *)itemDisplayController
+            selectionDidChange:(Item *)selectedItem {
+    [self.details setItemForDisplay:selectedItem];
 }
 
 
