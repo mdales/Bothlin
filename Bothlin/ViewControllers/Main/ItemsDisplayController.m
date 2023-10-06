@@ -45,9 +45,15 @@
     }
 
     [intendedView setFrame:[self.view frame]];
-    [self.view addSubview:intendedView];
 
-    [currentSubview removeFromSuperview];
+    // TODO: Add photos app like transition animation
+    if (displayStyle == ItemsDisplayStyleGrid) {
+        [self.view addSubview:intendedView];
+        [[currentSubview animator] removeFromSuperview];
+    } else {
+        [self.view addSubview:intendedView];
+        [currentSubview removeFromSuperview];
+    }
 
     [self.delegate itemsDisplayController:self
                        viewStyleDidChange:displayStyle];
