@@ -75,6 +75,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     library.delegate = self;
 }
 
+
 #pragma mark - LibraryControllerDelegate
 
 - (void)libraryDidUpdate:(NSDictionary *)changeNotificationData {
@@ -87,6 +88,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
     [self.itemsDisplay reloadData];
 }
+
+
+#pragma mark -
 
 - (void)thumbnailGenerationFailedWithError:(NSError *)error {
     NSAssert(nil != error, @"Thumbnail generation sent nil error");
@@ -101,6 +105,24 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [self.details setItemForDisplay:selectedItem];
 }
 
+- (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController 
+            viewStyleDidChange:(ItemsDisplayStyle)displayStyle {
+    dispatch_assert_queue(dispatch_get_main_queue());
+
+    NSToolbar *toolbar = self.window.toolbar;
+    if (nil == toolbar) {
+        return;
+    }
+    for (NSToolbarItem *item in toolbar.items) {
+        if ([item.itemIdentifier compare: kItemDisplayStyleItemIdentifier] != NSOrderedSame) {
+            continue;
+        }
+        NSAssert([item isKindOfClass: [NSToolbarItemGroup class]], @"Expected this to be a toolbar group item");
+        NSToolbarItemGroup *group = (NSToolbarItemGroup *)item;
+        [group setSelectedIndex:displayStyle];
+        break;
+    }
+}
 
 #pragma mark - Custom behaviour
 
@@ -141,8 +163,13 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
 #pragma mark - Toolbar items
 
-- (IBAction)toggleViewStyle:(id)sender {
-    [self.itemsDisplay toggleView];
+- (IBAction)setViewStyle:(id)sender {
+    if (![sender isKindOfClass: [NSToolbarItemGroup class]]) {
+        NSAssert(NO, @"Expected toolbaritemgroup, got %@", sender);
+    }
+    NSToolbarItemGroup *group = (NSToolbarItemGroup *)sender;
+    ItemsDisplayStyle style = (ItemsDisplayStyle)[group selectedIndex];
+    [self.itemsDisplay setDisplayStyle:style];
 }
 
 - (void)toggleSidebar {
@@ -285,8 +312,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
                                                                   selectionMode:NSToolbarItemGroupSelectionModeSelectOne
                                                                          labels:titles
                                                                          target:self
-                                                                         action:@selector(toggleViewStyle:)];
-        group.selectedIndex = 0;
+                                                                         action:@selector(setViewStyle:)];
+        group.selectedIndex = self.itemsDisplay.displayStyle;
 
         return group;
     } else {

@@ -13,6 +13,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
+    ItemsDisplayStyleGrid,
+    ItemsDisplayStyleSingle
+};
+
 @class ItemsDisplayController;
 
 @protocol ItemsDisplayControllerDelegate <NSObject>
@@ -20,14 +25,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
             selectionDidChange:(Item *)selectedItem;
 
+- (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
+            viewStyleDidChange:(ItemsDisplayStyle)displayStyle;
+
 @end
 
 @interface ItemsDisplayController : NSViewController <GridViewControllerDelegate>
 
+// Only safe on mainQ
 @property (nonatomic, weak, readwrite) id<ItemsDisplayControllerDelegate> delegate;
+@property (nonatomic, readwrite) ItemsDisplayStyle displayStyle;
 
 - (void)reloadData;
-- (void)toggleView;
 
 @end
 

@@ -24,9 +24,9 @@
     [self.view addGestureRecognizer:doubleClickGesture];
 }
 
-- (void)setItem:(Item *)item {
-    
-}
+//- (void)setItem:(Item *)item {
+//    self->_item = item;
+//}
 
 - (void)setSelected:(BOOL)value {
     [super setSelected:value];

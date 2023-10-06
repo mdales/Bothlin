@@ -117,6 +117,7 @@
 
     LibraryGridViewItem *viewItem = [collectionView makeItemWithIdentifier:@"LibraryGridViewItem" forIndexPath:indexPath];
     viewItem.delegate = self;
+    viewItem.item = item;
     viewItem.textField.stringValue = item.name;
 
     __block NSImage *thumbnail = nil;
@@ -185,7 +186,8 @@
 #pragma mark - LibraryGridViewItemDelegate
 
 - (void)gridViewItemWasDoubleClicked:(LibraryGridViewItem *)gridViewItem {
-    NSLog(@"double clicked");
+    [self.delegate gridViewController:self
+                    doubleClickedItem:gridViewItem.item];
 }
 
 
