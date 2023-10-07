@@ -14,6 +14,7 @@ typedef NS_ENUM(NSInteger, SingleViewControllerErrorCode) {
     // code 0 means I made a mistake
     SingleViewControllerErrorImageOpenFailed = 1,
     SingleViewControllerErrorImageNoAccess,
+    SingleViewControllerErrorImageCreateFailed,
 };
 
 
@@ -30,7 +31,6 @@ typedef NS_ENUM(NSInteger, SingleViewControllerErrorCode) {
 
     [self.imageView setDoubleClickOpensImageEditPanel:NO];
     [self.imageView setCurrentToolMode:IKToolModeMove];
-    [self.imageView zoomImageToFit:self];
     [self.imageView setDelegate:self];
 
     NSClickGestureRecognizer *doubleClickGesture =
@@ -76,7 +76,6 @@ typedef NS_ENUM(NSInteger, SingleViewControllerErrorCode) {
 
 - (void)loadImage {
     dispatch_assert_queue(dispatch_get_main_queue());
-
     if (nil == self.item) {
         return;
     }
@@ -109,7 +108,7 @@ typedef NS_ENUM(NSInteger, SingleViewControllerErrorCode) {
         CGImageRef image = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
         if (NULL == image) {
             error = [NSError errorWithDomain:SingleViewControllerErrorDomain
-                                        code:SingleViewControllerErrorImageOpenFailed
+                                        code:SingleViewControllerErrorImageCreateFailed
                                     userInfo:@{@"URL": url}];
             CFRelease(imageSource);
             return;
@@ -119,6 +118,7 @@ typedef NS_ENUM(NSInteger, SingleViewControllerErrorCode) {
         [self.imageView setImage:image
                  imageProperties:imageProperties];
 
+        // I'm not sure what the ownership is here, but if I release the image and source here the image won't load
 //        CGImageRelease(image);
 //        CFRelease(imageSource);
     }];
