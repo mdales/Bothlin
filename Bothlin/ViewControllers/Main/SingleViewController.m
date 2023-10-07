@@ -118,9 +118,10 @@ typedef NS_ENUM(NSInteger, SingleViewControllerErrorCode) {
         [self.imageView setImage:image
                  imageProperties:imageProperties];
 
-        // I'm not sure what the ownership is here, but if I release the image and source here the image won't load
-//        CGImageRelease(image);
-//        CFRelease(imageSource);
+        // TODO: I'm not sure what the ownership is here, but if I release the image and source here the image won't load
+        // Do I need to release them when I unset the image in the image view, or does IKImageView do that?
+        // CGImageRelease(image);
+        // CFRelease(imageSource);
     }];
     if (nil != error) {
         // TODO: Alert user

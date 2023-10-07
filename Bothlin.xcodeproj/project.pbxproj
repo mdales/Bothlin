@@ -56,6 +56,8 @@
 		4CBF176D2AB5F177001F7984 /* OldSkoolUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBF176C2AB5F177001F7984 /* OldSkoolUITests.m */; };
 		4CBF176F2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBF176E2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m */; };
 		4CFB4D382AD08D98006F6F7E /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CFB4D372AD08D98006F6F7E /* Quartz.framework */; };
+		4CFB4D3B2AD18119006F6F7E /* DragTargetView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CFB4D3A2AD18119006F6F7E /* DragTargetView.m */; };
+		4CFB4D3C2AD18119006F6F7E /* DragTargetView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CFB4D3A2AD18119006F6F7E /* DragTargetView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -120,6 +122,8 @@
 		4CBF176C2AB5F177001F7984 /* OldSkoolUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OldSkoolUITests.m; sourceTree = "<group>"; };
 		4CBF176E2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OldSkoolUITestsLaunchTests.m; sourceTree = "<group>"; };
 		4CFB4D372AD08D98006F6F7E /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
+		4CFB4D392AD18119006F6F7E /* DragTargetView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetView.h; sourceTree = "<group>"; };
+		4CFB4D3A2AD18119006F6F7E /* DragTargetView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DragTargetView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -298,6 +302,8 @@
 				4CB886252ABACBA700968B0F /* LibraryGridViewItem.xib */,
 				4CB886232ABACBA700968B0F /* LibraryGridViewItem.h */,
 				4CB886242ABACBA700968B0F /* LibraryGridViewItem.m */,
+				4CFB4D392AD18119006F6F7E /* DragTargetView.h */,
+				4CFB4D3A2AD18119006F6F7E /* DragTargetView.m */,
 			);
 			path = "Grid view";
 			sourceTree = "<group>";
@@ -466,6 +472,7 @@
 				4CB8861E2ABA2CA900968B0F /* LibraryController.m in Sources */,
 				4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */,
 				4C0119FC2AC5B12E004A94C4 /* GridViewController.m in Sources */,
+				4CFB4D3B2AD18119006F6F7E /* DragTargetView.m in Sources */,
 				4C0119B22AC5AC51004A94C4 /* ItemsDisplayController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -498,6 +505,7 @@
 				4CBF176F2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m in Sources */,
 				4CB886202ABA2CA900968B0F /* LibraryController.m in Sources */,
 				4C0119FD2AC5B12E004A94C4 /* GridViewController.m in Sources */,
+				4CFB4D3C2AD18119006F6F7E /* DragTargetView.m in Sources */,
 				4C0119B32AC5AC51004A94C4 /* ItemsDisplayController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

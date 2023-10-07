@@ -9,6 +9,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="GridViewController">
             <connections>
                 <outlet property="collectionView" destination="ZMD-KV-h7a" id="vgc-bo-pGP"/>
+                <outlet property="dragTargetView" destination="zH8-ez-kPS" id="qs5-cn-oqY"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
@@ -18,36 +19,42 @@
             <rect key="frame" x="0.0" y="0.0" width="727" height="507"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <scrollView wantsLayer="YES" fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wVd-Fu-Udh">
+                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zH8-ez-kPS" customClass="DragTargetView">
                     <rect key="frame" x="0.0" y="0.0" width="727" height="507"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                    <clipView key="contentView" id="ZRk-Nc-uJ2">
-                        <rect key="frame" x="1" y="1" width="725" height="505"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <collectionView selectable="YES" id="ZMD-KV-h7a">
-                                <rect key="frame" x="0.0" y="0.0" width="725" height="505"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="zrK-dz-NZd">
-                                    <size key="itemSize" width="250" height="250"/>
-                                </collectionViewFlowLayout>
-                                <color key="primaryBackgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                <connections>
-                                    <outlet property="dataSource" destination="-2" id="HIP-hr-8MD"/>
-                                    <outlet property="delegate" destination="-2" id="fXr-2t-Dgq"/>
-                                </connections>
-                            </collectionView>
-                        </subviews>
-                    </clipView>
-                    <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="xK6-rs-pv8">
-                        <rect key="frame" x="-100" y="-100" width="688" height="16"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </scroller>
-                    <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="mjG-Gz-YkX">
-                        <rect key="frame" x="628" y="1" width="16" height="437"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </scroller>
-                </scrollView>
+                    <subviews>
+                        <scrollView wantsLayer="YES" fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wVd-Fu-Udh">
+                            <rect key="frame" x="0.0" y="0.0" width="727" height="507"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <clipView key="contentView" drawsBackground="NO" id="ZRk-Nc-uJ2">
+                                <rect key="frame" x="1" y="1" width="725" height="505"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <collectionView selectable="YES" id="ZMD-KV-h7a">
+                                        <rect key="frame" x="0.0" y="0.0" width="725" height="505"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                        <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="zrK-dz-NZd">
+                                            <size key="itemSize" width="250" height="250"/>
+                                        </collectionViewFlowLayout>
+                                        <color key="primaryBackgroundColor" red="0.59607843137254901" green="0.59607843137254901" blue="0.61568627450980395" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <connections>
+                                            <outlet property="dataSource" destination="-2" id="HIP-hr-8MD"/>
+                                            <outlet property="delegate" destination="-2" id="fXr-2t-Dgq"/>
+                                        </connections>
+                                    </collectionView>
+                                </subviews>
+                            </clipView>
+                            <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="xK6-rs-pv8">
+                                <rect key="frame" x="-100" y="-100" width="688" height="16"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                            </scroller>
+                            <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="mjG-Gz-YkX">
+                                <rect key="frame" x="680" y="1" width="16" height="423"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                            </scroller>
+                        </scrollView>
+                    </subviews>
+                </customView>
             </subviews>
             <point key="canvasLocation" x="262.5" y="271.5"/>
         </customView>

@@ -37,6 +37,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    self.dragTargetView.delegate = self;
+
     NSError *error = nil;
     [self reloadData:&error];
     if (nil != error) {
@@ -183,6 +185,7 @@
     }
 }
 
+
 #pragma mark - LibraryGridViewItemDelegate
 
 - (void)gridViewItemWasDoubleClicked:(LibraryGridViewItem *)gridViewItem {
@@ -190,5 +193,18 @@
                     doubleClickedItem:gridViewItem.item];
 }
 
+
+#pragma mark - DragTargetViewDelegate
+
+- (BOOL)dragTargetView:(DragTargetView *)dragTargetView handleDrag:(id<NSDraggingInfo> _Nonnull)dragInfo {
+    NSPasteboard *pasteboard = dragInfo.draggingPasteboard;
+    if (nil == pasteboard) {
+        return NO;
+    }
+    NSArray<NSURL *> *objects = [pasteboard readObjectsForClasses:@[[NSURL class]]
+                                                          options:nil];
+    NSLog(@"%@", objects);
+    return YES;
+}
 
 @end

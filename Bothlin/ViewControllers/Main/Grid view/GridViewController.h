@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 #import "LibraryGridViewItem.h"
+#import "DragTargetView.h"
 
 @class Item;
 
@@ -25,10 +26,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface GridViewController : NSViewController <NSCollectionViewDelegate, NSCollectionViewDataSource, LibraryGridViewItemDelegate>
+@interface GridViewController : NSViewController <NSCollectionViewDelegate, NSCollectionViewDataSource, LibraryGridViewItemDelegate, DragTargetViewDelegate>
 
 // Only access on mainQ
 @property (nonatomic, weak, readwrite) IBOutlet NSCollectionView *collectionView;
+@property (nonatomic, weak, readwrite) IBOutlet DragTargetView *dragTargetView;
 @property (nonatomic, weak, readwrite) id<GridViewControllerDelegate> delegate;
 @property (nonatomic, strong, readwrite) Item *selectedItem;
 
