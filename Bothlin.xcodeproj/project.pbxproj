@@ -55,6 +55,7 @@
 		4CBF17632AB5F177001F7984 /* OldSkoolTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBF17622AB5F177001F7984 /* OldSkoolTests.m */; };
 		4CBF176D2AB5F177001F7984 /* OldSkoolUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBF176C2AB5F177001F7984 /* OldSkoolUITests.m */; };
 		4CBF176F2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBF176E2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m */; };
+		4CFB4D382AD08D98006F6F7E /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CFB4D372AD08D98006F6F7E /* Quartz.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -118,6 +119,7 @@
 		4CBF17682AB5F177001F7984 /* BothlinUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BothlinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CBF176C2AB5F177001F7984 /* OldSkoolUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OldSkoolUITests.m; sourceTree = "<group>"; };
 		4CBF176E2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OldSkoolUITestsLaunchTests.m; sourceTree = "<group>"; };
+		4CFB4D372AD08D98006F6F7E /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +127,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CFB4D382AD08D98006F6F7E /* Quartz.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -237,6 +240,7 @@
 				4CBF17612AB5F177001F7984 /* BothlinTests */,
 				4CBF176B2AB5F177001F7984 /* BothlinUITests */,
 				4CBF174D2AB5F176001F7984 /* Products */,
+				4CFB4D362AD08D98006F6F7E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -296,6 +300,14 @@
 				4CB886242ABACBA700968B0F /* LibraryGridViewItem.m */,
 			);
 			path = "Grid view";
+			sourceTree = "<group>";
+		};
+		4CFB4D362AD08D98006F6F7E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4CFB4D372AD08D98006F6F7E /* Quartz.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

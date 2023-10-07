@@ -6,6 +6,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <Quartz/Quartz.h>
+
 
 @class Item;
 @class SingleViewController;
@@ -21,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SingleViewController : NSViewController
 
 @property (nonatomic, weak, readwrite) id<SingleViewControllerDelegate> delegate;
-@property (nonatomic, weak, readwrite) IBOutlet NSImageView *imageView;
+@property (nonatomic, weak, readwrite) IBOutlet IKImageView *imageView;
 
 - (void)setItemForDisplay:(Item *)item;
 
