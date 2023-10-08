@@ -27,7 +27,11 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                            <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW"/>
+                            <menuItem title="Settings…" keyEquivalent="," id="BOF-NM-1cW">
+                                <connections>
+                                    <action selector="settings:" target="Voe-Tx-rLC" id="AoX-Sy-3Uv"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
                             <menuItem title="Services" id="NMo-om-nkz">
                                 <modifierMask key="keyEquivalentModifierMask"/>
@@ -67,6 +71,12 @@
                             <menuItem title="Import..." keyEquivalent="i" id="d2v-o9-GXV">
                                 <connections>
                                     <action selector="import:" target="Voe-Tx-rLC" id="syG-JO-Klr"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="269-Cx-ejh"/>
+                            <menuItem title="Close Window" keyEquivalent="w" id="dSw-6c-Hpg">
+                                <connections>
+                                    <action selector="performClose:" target="-1" id="PU7-zg-IIu"/>
                                 </connections>
                             </menuItem>
                         </items>

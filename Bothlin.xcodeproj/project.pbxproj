@@ -58,6 +58,10 @@
 		4CFB4D382AD08D98006F6F7E /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CFB4D372AD08D98006F6F7E /* Quartz.framework */; };
 		4CFB4D3B2AD18119006F6F7E /* DragTargetView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CFB4D3A2AD18119006F6F7E /* DragTargetView.m */; };
 		4CFB4D3C2AD18119006F6F7E /* DragTargetView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CFB4D3A2AD18119006F6F7E /* DragTargetView.m */; };
+		4CFB4D412AD2FAE4006F6F7E /* SettingsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CFB4D3F2AD2FAE4006F6F7E /* SettingsWindowController.m */; };
+		4CFB4D422AD2FAE4006F6F7E /* SettingsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CFB4D3F2AD2FAE4006F6F7E /* SettingsWindowController.m */; };
+		4CFB4D432AD2FAE4006F6F7E /* SettingsWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CFB4D402AD2FAE4006F6F7E /* SettingsWindowController.xib */; };
+		4CFB4D442AD2FAE4006F6F7E /* SettingsWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CFB4D402AD2FAE4006F6F7E /* SettingsWindowController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -124,6 +128,9 @@
 		4CFB4D372AD08D98006F6F7E /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		4CFB4D392AD18119006F6F7E /* DragTargetView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetView.h; sourceTree = "<group>"; };
 		4CFB4D3A2AD18119006F6F7E /* DragTargetView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DragTargetView.m; sourceTree = "<group>"; };
+		4CFB4D3E2AD2FAE4006F6F7E /* SettingsWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingsWindowController.h; sourceTree = "<group>"; };
+		4CFB4D3F2AD2FAE4006F6F7E /* SettingsWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsWindowController.m; sourceTree = "<group>"; };
+		4CFB4D402AD2FAE4006F6F7E /* SettingsWindowController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SettingsWindowController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -261,6 +268,7 @@
 		4CBF174E2AB5F176001F7984 /* Bothlin */ = {
 			isa = PBXGroup;
 			children = (
+				4CFB4D3D2AD2FAB2006F6F7E /* Settings */,
 				4C37FBCA2AC8347E006839A3 /* Helpers */,
 				4C0119A42AC5ABF0004A94C4 /* ViewControllers */,
 				4C01199C2AC5AA18004A94C4 /* Window */,
@@ -314,6 +322,16 @@
 				4CFB4D372AD08D98006F6F7E /* Quartz.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4CFB4D3D2AD2FAB2006F6F7E /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				4CFB4D402AD2FAE4006F6F7E /* SettingsWindowController.xib */,
+				4CFB4D3E2AD2FAE4006F6F7E /* SettingsWindowController.h */,
+				4CFB4D3F2AD2FAE4006F6F7E /* SettingsWindowController.m */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -425,6 +443,7 @@
 				4C0119AA2AC5AC14004A94C4 /* SidebarController.xib in Resources */,
 				4C0119BB2AC5AC5E004A94C4 /* DetailsController.xib in Resources */,
 				4C0119FE2AC5B12E004A94C4 /* GridViewController.xib in Resources */,
+				4CFB4D432AD2FAE4006F6F7E /* SettingsWindowController.xib in Resources */,
 				4CBF17562AB5F177001F7984 /* MainMenu.xib in Resources */,
 				4CB886282ABACBA700968B0F /* LibraryGridViewItem.xib in Resources */,
 				4C011A052AC5B14B004A94C4 /* SingleViewController.xib in Resources */,
@@ -444,6 +463,7 @@
 			files = (
 				4C3A50D22ACB27550080327C /* ItemsDisplayController.xib in Resources */,
 				4C0119AB2AC5AC14004A94C4 /* SidebarController.xib in Resources */,
+				4CFB4D442AD2FAE4006F6F7E /* SettingsWindowController.xib in Resources */,
 				4CB886292ABACBA700968B0F /* LibraryGridViewItem.xib in Resources */,
 				4C0119FF2AC5B12E004A94C4 /* GridViewController.xib in Resources */,
 				4C0119BC2AC5AC5E004A94C4 /* DetailsController.xib in Resources */,
@@ -461,6 +481,7 @@
 			files = (
 				4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
 				4C37FBCE2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
+				4CFB4D412AD2FAE4006F6F7E /* SettingsWindowController.m in Sources */,
 				4C0119A02AC5AA45004A94C4 /* RootWindowController.m in Sources */,
 				4CB886262ABACBA700968B0F /* LibraryGridViewItem.m in Sources */,
 				4C011A032AC5B14B004A94C4 /* SingleViewController.m in Sources */,
@@ -494,6 +515,7 @@
 			files = (
 				4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
 				4C37FBD02AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
+				4CFB4D422AD2FAE4006F6F7E /* SettingsWindowController.m in Sources */,
 				4C0119A12AC5AA45004A94C4 /* RootWindowController.m in Sources */,
 				4CB886272ABACBA700968B0F /* LibraryGridViewItem.m in Sources */,
 				4C011A042AC5B14B004A94C4 /* SingleViewController.m in Sources */,

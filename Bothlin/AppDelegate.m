@@ -8,10 +8,12 @@
 #import "AppDelegate.h"
 #import "LibraryController.h"
 #import "RootWindowController.h"
+#import "SettingsWindowController.h"
 
 @interface AppDelegate ()
 
 @property (nonatomic, strong, readwrite) RootWindowController *mainWindowController;
+@property (nonatomic, strong, readwrite) SettingsWindowController *settingsWindowController;
 
 @end
 
@@ -23,7 +25,9 @@
     NSString *documntsDirectory = paths.firstObject;
 
     NSString *defaultStorageFolder = [documntsDirectory stringByAppendingPathComponent:@"Screenshots"];
-    NSDictionary<NSString *, id> *initialDefaultValues = @{@"DefaultStorageFolder":defaultStorageFolder};
+    NSDictionary<NSString *, id> *initialDefaultValues = @{
+        @"DefaultStorageFolder": defaultStorageFolder,
+    };
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults registerDefaults:initialDefaultValues];
@@ -56,6 +60,14 @@
 // It's a downside of using an NSWindowController with its own xib that you can't connect up the menu items more directly
 - (IBAction)import:(id)sender {
     [self.mainWindowController import:sender];
+}
+
+
+- (IBAction)settings:(id)sender {
+    if (nil == self.settingsWindowController) {
+        self.settingsWindowController = [[SettingsWindowController alloc] initWithWindowNibName:@"SettingsWindowController"];
+    }
+    [self.settingsWindowController showWindow:nil];
 }
 
 

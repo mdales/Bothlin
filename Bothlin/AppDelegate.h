@@ -15,6 +15,7 @@
 @property (readonly, nonatomic, strong) LibraryController *libraryController;
 
 - (IBAction)import:(id)sender;
+- (IBAction)settings:(id)sender;
 
 @end
 
