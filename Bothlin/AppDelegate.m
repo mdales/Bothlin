@@ -10,6 +10,10 @@
 #import "RootWindowController.h"
 #import "SettingsWindowController.h"
 
+NSString * __nonnull const kUserDefaultsUsingDefaultStorage = @"kUserDefaultsUsingDefaultStorage";
+NSString * __nonnull const kUserDefaultsDefaultStoragePath = @"kUserDefaultsDefaultStoragePath";
+NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCustomStoragePath";
+
 @interface AppDelegate ()
 
 @property (nonatomic, strong, readwrite) RootWindowController *mainWindowController;
@@ -20,13 +24,38 @@
 @implementation AppDelegate
 
 + (void)makeInitialDefaults {
+    NSFileManager *fm = [NSFileManager defaultManager];
+
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSAssert(0 < [paths count], @"Expected at least one documents folder, got none");
     NSString *documntsDirectory = paths.firstObject;
+    NSString *defaultStorageFolderPath = [documntsDirectory stringByAppendingPathComponent:@"Screenshots"];
+    NSURL *defaultStorageURL = [NSURL fileURLWithPath:defaultStorageFolderPath];
 
-    NSString *defaultStorageFolder = [documntsDirectory stringByAppendingPathComponent:@"Screenshots"];
+    NSError *error = nil;
+    BOOL success = [fm createDirectoryAtURL:defaultStorageURL
+                withIntermediateDirectories:YES
+                                 attributes:nil
+                                      error:&error];
+    if (nil != error) {
+        NSAssert(NO == success, @"got error creating directory but still success");
+        NSLog(@"Failed to create directory: %@", error);
+        return;
+    }
+    NSAssert(NO != success, @"got no error creating directory but still not a success");
+
+    NSData *defaultStorageData = [defaultStorageURL bookmarkDataWithOptions:NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess
+                                             includingResourceValuesForKeys:nil
+                                                              relativeToURL:nil
+                                                                      error:&error];
+    if (nil != error) {
+        NSLog(@"Failed to generate default bookmark URL: %@", error);
+        return;
+    }
+
     NSDictionary<NSString *, id> *initialDefaultValues = @{
-        @"DefaultStorageFolder": defaultStorageFolder,
+        kUserDefaultsUsingDefaultStorage: @(YES),
+        kUserDefaultsDefaultStoragePath: defaultStorageData,
     };
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -34,7 +63,7 @@
 }
 
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+- (void)applicationDidFinishLaunching:(NSNotification * _Nonnull)aNotification {
     [AppDelegate makeInitialDefaults];
 
     // TODO: icky self use
@@ -46,11 +75,11 @@
 }
 
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
+- (void)applicationWillTerminate:(NSNotification * _Nonnull)aNotification {
 }
 
 
-- (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app {
+- (BOOL)applicationSupportsSecureRestorableState:(NSApplication * _Nonnull)app {
     return YES;
 }
 
@@ -58,12 +87,12 @@
 #pragma mark - Menu items
 
 // It's a downside of using an NSWindowController with its own xib that you can't connect up the menu items more directly
-- (IBAction)import:(id)sender {
+- (IBAction)import:(id _Nullable)sender {
     [self.mainWindowController import:sender];
 }
 
 
-- (IBAction)settings:(id)sender {
+- (IBAction)settings:(id _Nullable)sender {
     if (nil == self.settingsWindowController) {
         self.settingsWindowController = [[SettingsWindowController alloc] initWithWindowNibName:@"SettingsWindowController"];
     }

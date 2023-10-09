@@ -25,7 +25,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="651" height="299"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7dC-Ij-4uJ">
+                    <button tag="1" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7dC-Ij-4uJ">
                         <rect key="frame" x="40" y="245" width="198" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="radio" title="In application's library folder" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="tNS-bQ-ecD">
@@ -36,7 +36,7 @@
                             <action selector="storageLocationChanged:" target="-2" id="crd-iA-qni"/>
                         </connections>
                     </button>
-                    <button tag="1" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LE3-R4-jsd">
+                    <button tag="2" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LE3-R4-jsd">
                         <rect key="frame" x="40" y="223" width="149" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="radio" title="User selected folder" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="f3u-Ro-rec">

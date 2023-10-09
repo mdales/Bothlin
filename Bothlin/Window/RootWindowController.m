@@ -132,7 +132,15 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     panel.canChooseDirectories = YES;
     panel.canCreateDirectories = NO;
     
+    // beginSheetModalForWindow is effectively async on mainQ (the block doesn't have the caller in
+    // its stack, so we need to treat it like so and weakify self).
+    @weakify(self);
     [panel beginSheetModalForWindow:self.window completionHandler:^(NSInteger result) {
+        @strongify(self);
+        if (nil == self) {
+            return;
+        }
+        
         if (NSModalResponseOK == result) {
             NSArray<NSURL *> *urls = [panel URLs];
             

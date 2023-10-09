@@ -9,13 +9,17 @@
 
 @class LibraryController;
 
+extern NSString * __nonnull const kUserDefaultsUsingDefaultStorage;
+extern NSString * __nonnull const kUserDefaultsDefaultStoragePath;
+extern NSString * __nonnull const kUserDefaultsCustomStoragePath;
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-@property (readonly, nonatomic, strong) NSPersistentContainer *persistentContainer;
-@property (readonly, nonatomic, strong) LibraryController *libraryController;
+@property (readonly, nonatomic, strong) NSPersistentContainer * _Nonnull persistentContainer;
+@property (readonly, nonatomic, strong) LibraryController * _Nonnull libraryController;
 
-- (IBAction)import:(id)sender;
-- (IBAction)settings:(id)sender;
+- (IBAction)import:(id _Nullable)sender;
+- (IBAction)settings:(id _Nullable)sender;
 
 @end
 
