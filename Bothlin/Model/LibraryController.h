@@ -21,9 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak, readwrite) id<LibraryControllerDelegate> delegate;
 
-- (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator *)store;
+- (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator * _Nonnull)store;
 
-- (void)importURLs:(NSArray<NSURL *> *)urls
+- (void)importURLs:(NSArray<NSURL *> * _Nonnull)urls
           callback:(void (^)(BOOL success, NSError *error)) callback;
 
 @end

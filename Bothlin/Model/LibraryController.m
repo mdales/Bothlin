@@ -28,24 +28,26 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
 @interface LibraryController ()
 
 // Queue used for core data work
-@property (strong, nonatomic, readonly) dispatch_queue_t dataQ;
-@property (strong, nonatomic, readonly) NSManagedObjectContext *context;
+@property (strong, nonatomic, readonly) dispatch_queue_t _Nonnull dataQ;
+@property (strong, nonatomic, readonly) NSManagedObjectContext * _Nonnull managedObjectContext;
 
 // Queue used for thumbnail processing
-@property (strong, nonatomic, readonly) dispatch_queue_t thumbnailWorkerQ;
+@property (strong, nonatomic, readonly) dispatch_queue_t _Nonnull thumbnailWorkerQ;
 
 @end
 
 @implementation LibraryController
 
-- (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator *)store {
+- (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator * _Nonnull)store {
+    NSAssert(nil != store, @"Null persistent store coordinated passed to init");
+
     self = [super init];
     if (nil != self) {
         self->_dataQ = dispatch_queue_create("com.digitalflapjack.LibraryController.dataQ", DISPATCH_QUEUE_SERIAL);
 
         NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         context.persistentStoreCoordinator = store;
-        self->_context = context;
+        self->_managedObjectContext = context;
 
         self->_thumbnailWorkerQ = dispatch_queue_create("com.digitalflapjack.thumbnailWorkerQ", DISPATCH_QUEUE_CONCURRENT);
     }
@@ -53,7 +55,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
 }
 
 
-- (void)importURLs:(NSArray<NSURL *> *)urls
+- (void)importURLs:(NSArray<NSURL *> * _Nonnull)urls
           callback:(void (^)(BOOL success, NSError *error)) callback {
     if (nil == urls) {
         if (nil != callback) {
@@ -129,7 +131,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
     __block NSURL *secureURL = nil;
     __block NSError *innerError = nil;
     dispatch_sync(self.dataQ, ^{
-        Item *item = [self.context existingObjectWithID:itemID
+        Item *item = [self.managedObjectContext existingObjectWithID:itemID
                                                   error:&innerError];
         if (nil != innerError) {
             NSAssert(nil == item, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
@@ -251,7 +253,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
 
     // now we've generated the thumbnail, we should update the record
     dispatch_sync(self.dataQ, ^{
-        Item *item = [self.context existingObjectWithID:itemID
+        Item *item = [self.managedObjectContext existingObjectWithID:itemID
                                                   error:&innerError];
         if (nil != innerError) {
             NSAssert(nil == item, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
@@ -260,7 +262,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
         NSAssert(nil != item, @"Got no error but also no item fetching object with ID %@", itemID);
 
         item.thumbnailPath = thumbnailFile.path;
-        BOOL success = [self.context save:&innerError];
+        BOOL success = [self.managedObjectContext save:&innerError];
         if (nil != innerError) {
             NSAssert(NO == success, @"Got error and success from saving.");
             return;
@@ -299,12 +301,12 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
 
     __block NSError *innerError = nil;
     __block NSSet<NSManagedObjectID *> *newItemIDs = nil;
-    [self.context performBlockAndWait:^{
+    [self.managedObjectContext performBlockAndWait:^{
         NSArray<Item *> *newItems = [NSArray array];
         for (NSURL *url in urls) {
             NSError *innerError = nil;
             NSSet<Item *> *importeditems = [Item importItemsAtURL:url
-                                                        inContext:self.context
+                                                        inContext:self.managedObjectContext
                                                             error:&innerError];
             if (nil != innerError) {
                 NSAssert(nil == importeditems, @"Got error making new items but still got results");
@@ -315,7 +317,7 @@ typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
             newItems = [newItems arrayByAddingObjectsFromArray:[importeditems allObjects]];
         }
 
-        BOOL success = [self.context obtainPermanentIDsForObjects:newItems
+        BOOL success = [self.managedObjectContext obtainPermanentIDsForObjects:newItems
                                                             error:&innerError];
         if (nil != innerError) {
             NSAssert(NO == success, @"Got error and success from obtainPermanentIDsForObjects.");
