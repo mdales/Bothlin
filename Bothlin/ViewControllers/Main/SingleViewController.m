@@ -9,10 +9,10 @@
 #import "NSURL+SecureAccess.h"
 #import "ItemExtension.h"
 
-NSString * __nonnull const SingleViewControllerErrorDomain = @"com.digitalflapjack.SingleViewController";
-typedef NS_ENUM(NSInteger, SingleViewControllerErrorCode) {
-    // code 0 means I made a mistake
-    SingleViewControllerErrorImageOpenFailed = 1,
+NSErrorDomain __nonnull const SingleViewControllerErrorDomain = @"com.digitalflapjack.SingleViewController";
+typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerErrorCode) {
+    SingleViewControllerErrorUnknown,
+    SingleViewControllerErrorImageOpenFailed,
     SingleViewControllerErrorImageNoAccess,
     SingleViewControllerErrorImageCreateFailed,
 };

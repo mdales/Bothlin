@@ -13,10 +13,10 @@
 #import "Helpers.h"
 #import "NSURL+SecureAccess.h"
 
-NSString * __nonnull const LibraryControllerErrorDomain = @"com.digitalflapjack.LibraryController";
-typedef NS_ENUM(NSInteger, LibraryControllerErrorCode) {
-    // code 0 means I made a mistake
-    LibraryControllerErrorURLsAreNil = 1,
+NSErrorDomain __nonnull const LibraryControllerErrorDomain = @"com.digitalflapjack.LibraryController";
+typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) {
+    LibraryControllerErrorUnknown, // AKA 0, AKA I made a mistake
+    LibraryControllerErrorURLsAreNil,
     LibraryControllerErrorSelfIsNoLongerValid,
     LibraryControllerErrorSecurePathNotAccessible,
     LibraryControllerErrorCouldNotOpenImage,
