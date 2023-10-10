@@ -161,6 +161,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
                         NSAssert(NO == success, @"Got error and success from saving.");
                         NSAlert *alert = [NSAlert alertWithError:error];
                         [alert runModal];
+                        return;
                     }
                     NSAssert(NO != success, @"Got no success and error from saving.");
                 });

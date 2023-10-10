@@ -28,8 +28,8 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
 
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSAssert(0 < [paths count], @"Expected at least one documents folder, got none");
-    NSString *documntsDirectory = paths.firstObject;
-    NSString *defaultStorageFolderPath = [documntsDirectory stringByAppendingPathComponent:@"Screenshots"];
+    NSString *documentsDirectory = paths.firstObject;
+    NSString *defaultStorageFolderPath = [documentsDirectory stringByAppendingPathComponent:@"Screenshots"];
     NSURL *defaultStorageURL = [NSURL fileURLWithPath:defaultStorageFolderPath];
 
     NSError *error = nil;
@@ -37,6 +37,19 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
                 withIntermediateDirectories:YES
                                  attributes:nil
                                       error:&error];
+    if (nil != error) {
+        NSAssert(NO == success, @"got error creating directory but still success");
+        NSLog(@"Failed to create directory: %@", error);
+        return;
+    }
+    NSAssert(NO != success, @"got no error creating directory but still not a success");
+
+    NSString *thumbnailsStorageFolderPath = [documentsDirectory stringByAppendingPathComponent:@"Thumbnails"];
+    NSURL *thumbnailsStorageURL = [NSURL fileURLWithPath:thumbnailsStorageFolderPath];
+    success = [fm createDirectoryAtURL:thumbnailsStorageURL
+           withIntermediateDirectories:YES
+                            attributes:nil
+                                 error:&error];
     if (nil != error) {
         NSAssert(NO == success, @"got error creating directory but still success");
         NSLog(@"Failed to create directory: %@", error);

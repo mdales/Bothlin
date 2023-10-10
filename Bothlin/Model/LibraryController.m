@@ -101,6 +101,14 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
         NSError *error = nil;
         NSSet<NSManagedObjectID *> *newItemIDs = [self innerImportURLs:filteredURLs
                                                                  error:&error];
+        if (nil != error) {
+            NSAssert(nil == newItemIDs, @"Got error and new items to insert");
+            if (nil != callback) {
+                callback(NO, error);
+            }
+            return;
+        }
+        NSAssert(nil != newItemIDs, @"Got no error and not new items to insert");
 
         @weakify(self);
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -304,7 +312,6 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
     [self.managedObjectContext performBlockAndWait:^{
         NSArray<Item *> *newItems = [NSArray array];
         for (NSURL *url in urls) {
-            NSError *innerError = nil;
             NSSet<Item *> *importeditems = [Item importItemsAtURL:url
                                                         inContext:self.managedObjectContext
                                                             error:&innerError];

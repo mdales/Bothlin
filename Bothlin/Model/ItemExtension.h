@@ -7,15 +7,11 @@
 
 #import "Item+CoreDataClass.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface Item (Helpers)
 
-+ (NSSet<Item *> *)importItemsAtURL:(NSURL *)url
-                          inContext:(NSManagedObjectContext *)context
-                              error:(NSError **)error ;
++ (NSSet<Item *> * _Nullable)importItemsAtURL:(NSURL * _Nonnull)url
+                          inContext:(NSManagedObjectContext * _Nonnull)context
+                              error:(NSError * _Nullable * _Nullable)error ;
 
-- (NSURL*)decodeSecureURL:(NSError**)error;
+- (NSURL* _Nullable)decodeSecureURL:(NSError * _Nullable * _Nullable)error;
 @end
-
-NS_ASSUME_NONNULL_END
