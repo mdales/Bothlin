@@ -29,6 +29,9 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 - (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
             viewStyleDidChange:(ItemsDisplayStyle)displayStyle;
 
+- (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
+         didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs;
+
 @end
 
 @interface ItemsDisplayController : NSViewController <GridViewControllerDelegate, SingleViewControllerDelegate>

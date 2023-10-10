@@ -124,6 +124,34 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     }
 }
 
+- (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController 
+         didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs {
+    dispatch_assert_queue(dispatch_get_main_queue());
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryController *library = appDelegate.libraryController;
+
+    // This is async, so returns immediately
+    @weakify(self);
+    [library importURLs:[URLs allObjects]
+               callback:^(BOOL success, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+
+            if (nil != error) {
+                NSAssert(NO == success, @"Got error and success from saving.");
+                NSAlert *alert = [NSAlert alertWithError:error];
+                [alert runModal];
+                return;
+            }
+            NSAssert(NO != success, @"Got no success and error from saving.");
+        });
+    }];
+}
+
 #pragma mark - Custom behaviour
 
 - (IBAction)import:(id)sender {

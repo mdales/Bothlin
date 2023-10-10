@@ -103,6 +103,13 @@
     [self setDisplayStyle:ItemsDisplayStyleSingle];
 }
 
+- (void)gridViewController:(GridViewController *)gridViewController 
+     didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs {
+    dispatch_assert_queue(dispatch_get_main_queue());
+    [self.delegate itemsDisplayController:self
+                    didReceiveDroppedURLs:URLs];
+}
+
 #pragma mark - SingleViewControllerDelegate
 
 - (void)singleViewItemWasDoubleClicked:(SingleViewController *)singleViewItem {

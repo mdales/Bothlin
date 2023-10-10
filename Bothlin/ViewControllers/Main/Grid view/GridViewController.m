@@ -197,13 +197,20 @@
 #pragma mark - DragTargetViewDelegate
 
 - (BOOL)dragTargetView:(DragTargetView *)dragTargetView handleDrag:(id<NSDraggingInfo> _Nonnull)dragInfo {
+    dispatch_assert_queue(dispatch_get_main_queue());
+    if (nil == self.delegate) {
+        return NO;
+    }
+
     NSPasteboard *pasteboard = dragInfo.draggingPasteboard;
     if (nil == pasteboard) {
         return NO;
     }
     NSArray<NSURL *> *objects = [pasteboard readObjectsForClasses:@[[NSURL class]]
                                                           options:nil];
-    NSLog(@"%@", objects);
+    [self.delegate gridViewController:self
+                didReceiveDroppedURLs:[NSSet setWithArray:objects]];
+    
     return YES;
 }
 

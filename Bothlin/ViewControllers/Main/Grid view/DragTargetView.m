@@ -28,11 +28,11 @@
     return [self.delegate dragTargetView:self handleDrag:sender];
 }
 
-- (void)drawRect:(NSRect)dirtyRect {
-    [super drawRect:dirtyRect];
-    NSBezierPath *path = [NSBezierPath bezierPathWithRect:dirtyRect];
-    [[NSColor redColor] setFill];
-    [path fill];
-}
+//- (void)drawRect:(NSRect)dirtyRect {
+//    [super drawRect:dirtyRect];
+//    NSBezierPath *path = [NSBezierPath bezierPathWithRect:dirtyRect];
+//    [[NSColor redColor] setFill];
+//    [path fill];
+//}
 
 @end

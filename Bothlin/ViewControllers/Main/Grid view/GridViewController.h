@@ -24,6 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)gridViewController:(GridViewController *)gridViewController
          doubleClickedItem:(Item *)item;
 
+- (void)gridViewController:(GridViewController *)gridViewController
+     didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs;
+
 @end
 
 @interface GridViewController : NSViewController <NSCollectionViewDelegate, NSCollectionViewDataSource, LibraryGridViewItemDelegate, DragTargetViewDelegate>

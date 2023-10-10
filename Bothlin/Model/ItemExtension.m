@@ -114,11 +114,14 @@
         }
         NSAssert(NO != copySuccess, @"No error but copy failed");
 
-        NSError *error = nil;
-        NSData *bookmark = [targetURL bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
-                               includingResourceValuesForKeys:nil
-                                                relativeToURL:nil
-                                                        error:&error];
+        __block NSError *error = nil;
+        __block NSData *bookmark = nil;
+        [storageDirectory secureAccessWithBlock:^(__unused NSURL * _Nonnull url, __unused BOOL canAccess) {
+            bookmark = [targetURL bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
+                           includingResourceValuesForKeys:nil
+                                            relativeToURL:nil
+                                                    error:&error];
+        }];
         if (nil != error) {
             NSLog(@"failed to make bookmark: %@", error.localizedDescription);
             continue;
