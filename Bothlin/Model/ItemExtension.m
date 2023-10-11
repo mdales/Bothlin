@@ -134,7 +134,10 @@
         item.path = targetURL.path;
         item.bookmark = bookmark;
         item.added = [NSDate now];
-        item.type = [fullPathURL pathExtension];  // TODO: this should be mime type one day
+
+        // Store the UTType, which is useful for exporting later
+        NSString *uttype = (NSString *)CFBridgingRelease(UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[fullPathURL pathExtension], NULL));
+        item.type = uttype;
 
         NSDictionary<NSFileAttributeKey, id> *attributes = [fm attributesOfItemAtPath:fullPathURL.path
                                                                                 error:&error];

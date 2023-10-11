@@ -7,6 +7,7 @@
 
 #import "GridViewItem.h"
 #import "ItemExtension.h"
+#import "NSURL+SecureAccess.h"
 
 @interface GridViewItem ()
 
@@ -52,8 +53,9 @@
 #pragma mark - DragSourceViewDelegate
 
 - (id<NSPasteboardWriting>)pasteboardWriterForDragSourceView:(DragSourceView *)dragSourceView {
-    NSFilePromiseProvider *provider = [[NSFilePromiseProvider alloc] initWithFileType:(NSString*)kUTTypePNG
+    NSFilePromiseProvider *provider = [[NSFilePromiseProvider alloc] initWithFileType:self.item.type
                                                                              delegate:self];
+    provider.userInfo = self.item;
     return provider;
 }
 
@@ -66,6 +68,9 @@
         NSIndexPath *index = [self.collectionView indexPathForItem:self];
         NSIndexSet *indexSet = [[NSIndexSet alloc] initWithIndex:(NSUInteger)index.item];
         [self.collectionView setSelectionIndexes:indexSet];
+        // TODO: be less gross once you've finished replumbing
+        [self.collectionView.delegate collectionView:self.collectionView
+                          didSelectItemsAtIndexPaths:[NSSet setWithObject:index]];
     } else if (2 == count) {
         [self.delegate gridViewItemWasDoubleClicked:self];
     }
@@ -82,11 +87,36 @@
     return self.workQueue;
 }
 
-- (void)filePromiseProvider:(NSFilePromiseProvider *)filePromiseProvider writePromiseToURL:(NSURL *)url completionHandler:(void (^)(NSError * _Nullable))completionHandler {
-    NSLog(@"doing export to %@", url);
-    completionHandler([NSError errorWithDomain:NSPOSIXErrorDomain
-                                          code:ENOTRECOVERABLE
-                                      userInfo:@{}]);
+- (void)filePromiseProvider:(NSFilePromiseProvider *)filePromiseProvider writePromiseToURL:(NSURL *)destinationURL completionHandler:(void (^)(NSError * _Nullable))completionHandler {
+    Item *item = (Item*)filePromiseProvider.userInfo;
+    if (nil == item) {
+        return;
+    }
+
+    __block NSError *error = nil;
+    NSURL *sourceURL = [item decodeSecureURL:&error];
+    if (nil != error) {
+        NSAssert(nil == sourceURL, @"both both error and url");
+        completionHandler(error);
+        return;
+    }
+    NSAssert(nil != sourceURL, @"got neither error nor url");
+
+    __block BOOL success = NO;
+    [sourceURL secureAccessWithBlock:^(NSURL * _Nonnull secureURL, __unused BOOL canAccess) {
+        NSFileManager *fm = [NSFileManager defaultManager];
+        success = [fm copyItemAtURL:secureURL
+                              toURL:destinationURL
+                              error:&error];
+    }];
+    if (nil != error) {
+        NSAssert(NO == success, @"Got error and success from copy");
+        completionHandler(error);
+        return;
+    }
+    NSAssert(NO != success, @"Got no error and not succes from copy");
+
+    completionHandler(nil);
 }
 
 @end
