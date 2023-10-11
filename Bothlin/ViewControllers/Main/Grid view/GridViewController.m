@@ -117,7 +117,8 @@
         item = [self.contents objectAtIndex:(NSUInteger)indexPath.item];
     });
 
-    LibraryGridViewItem *viewItem = [collectionView makeItemWithIdentifier:@"LibraryGridViewItem" forIndexPath:indexPath];
+    GridViewItem *viewItem = [collectionView makeItemWithIdentifier:@"GridViewItem"
+                                                       forIndexPath:indexPath];
     viewItem.delegate = self;
     viewItem.item = item;
     viewItem.textField.stringValue = item.name;
@@ -186,9 +187,9 @@
 }
 
 
-#pragma mark - LibraryGridViewItemDelegate
+#pragma mark - GridViewItemDelegate
 
-- (void)gridViewItemWasDoubleClicked:(LibraryGridViewItem *)gridViewItem {
+- (void)gridViewItemWasDoubleClicked:(GridViewItem *)gridViewItem {
     [self.delegate gridViewController:self
                     doubleClickedItem:gridViewItem.item];
 }

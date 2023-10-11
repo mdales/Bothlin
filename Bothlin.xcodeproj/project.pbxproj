@@ -40,13 +40,15 @@
 		4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
 		4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
 		4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
+		4C960F3C2AD70CF70053C631 /* GridViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C960F3A2AD70CF70053C631 /* GridViewItem.m */; };
+		4C960F3D2AD70CF70053C631 /* GridViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C960F3A2AD70CF70053C631 /* GridViewItem.m */; };
+		4C960F3E2AD70CF70053C631 /* GridViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C960F3B2AD70CF70053C631 /* GridViewItem.xib */; };
+		4C960F3F2AD70CF70053C631 /* GridViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C960F3B2AD70CF70053C631 /* GridViewItem.xib */; };
+		4CA484692AD67CB60096C31F /* DragSourceView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA484682AD67CB60096C31F /* DragSourceView.m */; };
+		4CA4846A2AD67CB60096C31F /* DragSourceView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA484682AD67CB60096C31F /* DragSourceView.m */; };
 		4CB8861E2ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
 		4CB8861F2ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
 		4CB886202ABA2CA900968B0F /* LibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryController.m */; };
-		4CB886262ABACBA700968B0F /* LibraryGridViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886242ABACBA700968B0F /* LibraryGridViewItem.m */; };
-		4CB886272ABACBA700968B0F /* LibraryGridViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886242ABACBA700968B0F /* LibraryGridViewItem.m */; };
-		4CB886282ABACBA700968B0F /* LibraryGridViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CB886252ABACBA700968B0F /* LibraryGridViewItem.xib */; };
-		4CB886292ABACBA700968B0F /* LibraryGridViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CB886252ABACBA700968B0F /* LibraryGridViewItem.xib */; };
 		4CB886692ABB67E100968B0F /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
 		4CBF17512AB5F176001F7984 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBF17502AB5F176001F7984 /* AppDelegate.m */; };
 		4CBF17532AB5F177001F7984 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CBF17522AB5F177001F7984 /* Assets.xcassets */; };
@@ -107,12 +109,14 @@
 		4C3A50D02ACB27550080327C /* ItemsDisplayController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ItemsDisplayController.xib; sourceTree = "<group>"; };
 		4C7F5F452AC6B1E5000E9BD9 /* ToolbarProgressView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ToolbarProgressView.h; sourceTree = "<group>"; };
 		4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ToolbarProgressView.m; sourceTree = "<group>"; };
+		4C960F392AD70CF70053C631 /* GridViewItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GridViewItem.h; sourceTree = "<group>"; };
+		4C960F3A2AD70CF70053C631 /* GridViewItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GridViewItem.m; sourceTree = "<group>"; };
+		4C960F3B2AD70CF70053C631 /* GridViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GridViewItem.xib; sourceTree = "<group>"; };
 		4C9D91F12AC2C9B400E42251 /* Bothlin.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Bothlin.entitlements; sourceTree = "<group>"; };
+		4CA484672AD67CB60096C31F /* DragSourceView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragSourceView.h; sourceTree = "<group>"; };
+		4CA484682AD67CB60096C31F /* DragSourceView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DragSourceView.m; sourceTree = "<group>"; };
 		4CB8861C2ABA2CA900968B0F /* LibraryController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryController.h; sourceTree = "<group>"; };
 		4CB8861D2ABA2CA900968B0F /* LibraryController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryController.m; sourceTree = "<group>"; };
-		4CB886232ABACBA700968B0F /* LibraryGridViewItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryGridViewItem.h; sourceTree = "<group>"; };
-		4CB886242ABACBA700968B0F /* LibraryGridViewItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryGridViewItem.m; sourceTree = "<group>"; };
-		4CB886252ABACBA700968B0F /* LibraryGridViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LibraryGridViewItem.xib; sourceTree = "<group>"; };
 		4CB886672ABB67E100968B0F /* LibraryModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LibraryModel.xcdatamodel; sourceTree = "<group>"; };
 		4CBF174C2AB5F176001F7984 /* Bothlin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bothlin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CBF174F2AB5F176001F7984 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -307,11 +311,13 @@
 				4C0119FB2AC5B12E004A94C4 /* GridViewController.xib */,
 				4C0119F92AC5B12E004A94C4 /* GridViewController.h */,
 				4C0119FA2AC5B12E004A94C4 /* GridViewController.m */,
-				4CB886252ABACBA700968B0F /* LibraryGridViewItem.xib */,
-				4CB886232ABACBA700968B0F /* LibraryGridViewItem.h */,
-				4CB886242ABACBA700968B0F /* LibraryGridViewItem.m */,
 				4CFB4D392AD18119006F6F7E /* DragTargetView.h */,
 				4CFB4D3A2AD18119006F6F7E /* DragTargetView.m */,
+				4CA484672AD67CB60096C31F /* DragSourceView.h */,
+				4CA484682AD67CB60096C31F /* DragSourceView.m */,
+				4C960F3B2AD70CF70053C631 /* GridViewItem.xib */,
+				4C960F392AD70CF70053C631 /* GridViewItem.h */,
+				4C960F3A2AD70CF70053C631 /* GridViewItem.m */,
 			);
 			path = "Grid view";
 			sourceTree = "<group>";
@@ -444,8 +450,8 @@
 				4C0119BB2AC5AC5E004A94C4 /* DetailsController.xib in Resources */,
 				4C0119FE2AC5B12E004A94C4 /* GridViewController.xib in Resources */,
 				4CFB4D432AD2FAE4006F6F7E /* SettingsWindowController.xib in Resources */,
+				4C960F3E2AD70CF70053C631 /* GridViewItem.xib in Resources */,
 				4CBF17562AB5F177001F7984 /* MainMenu.xib in Resources */,
-				4CB886282ABACBA700968B0F /* LibraryGridViewItem.xib in Resources */,
 				4C011A052AC5B14B004A94C4 /* SingleViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -464,10 +470,10 @@
 				4C3A50D22ACB27550080327C /* ItemsDisplayController.xib in Resources */,
 				4C0119AB2AC5AC14004A94C4 /* SidebarController.xib in Resources */,
 				4CFB4D442AD2FAE4006F6F7E /* SettingsWindowController.xib in Resources */,
-				4CB886292ABACBA700968B0F /* LibraryGridViewItem.xib in Resources */,
 				4C0119FF2AC5B12E004A94C4 /* GridViewController.xib in Resources */,
 				4C0119BC2AC5AC5E004A94C4 /* DetailsController.xib in Resources */,
 				4C011A062AC5B14B004A94C4 /* SingleViewController.xib in Resources */,
+				4C960F3F2AD70CF70053C631 /* GridViewItem.xib in Resources */,
 				4C0119A32AC5AA45004A94C4 /* RootWindowController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -480,11 +486,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
+				4C960F3C2AD70CF70053C631 /* GridViewItem.m in Sources */,
 				4C37FBCE2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
 				4CFB4D412AD2FAE4006F6F7E /* SettingsWindowController.m in Sources */,
 				4C0119A02AC5AA45004A94C4 /* RootWindowController.m in Sources */,
-				4CB886262ABACBA700968B0F /* LibraryGridViewItem.m in Sources */,
 				4C011A032AC5B14B004A94C4 /* SingleViewController.m in Sources */,
+				4CA484692AD67CB60096C31F /* DragSourceView.m in Sources */,
 				4C011A0D2AC5D178004A94C4 /* ItemExtension.m in Sources */,
 				4CBF17582AB5F177001F7984 /* main.m in Sources */,
 				4C0119B92AC5AC5E004A94C4 /* DetailsController.m in Sources */,
@@ -514,11 +521,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
+				4C960F3D2AD70CF70053C631 /* GridViewItem.m in Sources */,
 				4C37FBD02AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
 				4CFB4D422AD2FAE4006F6F7E /* SettingsWindowController.m in Sources */,
 				4C0119A12AC5AA45004A94C4 /* RootWindowController.m in Sources */,
-				4CB886272ABACBA700968B0F /* LibraryGridViewItem.m in Sources */,
 				4C011A042AC5B14B004A94C4 /* SingleViewController.m in Sources */,
+				4CA4846A2AD67CB60096C31F /* DragSourceView.m in Sources */,
 				4C011A0F2AC5D178004A94C4 /* ItemExtension.m in Sources */,
 				4CB886692ABB67E100968B0F /* LibraryModel.xcdatamodeld in Sources */,
 				4C0119BA2AC5AC5E004A94C4 /* DetailsController.m in Sources */,
