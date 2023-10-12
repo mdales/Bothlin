@@ -9,9 +9,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NSArray (Functional)
+@interface NSArray<__covariant ObjectType> (Functional)
 
-- (NSArray *)mapUsingBlock:(id (^)(id object))block;
+- (NSArray *)mapUsingBlock:(id (^)(ObjectType object))block;
 
 @end
 
