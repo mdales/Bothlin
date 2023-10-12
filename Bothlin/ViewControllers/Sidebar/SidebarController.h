@@ -9,7 +9,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SidebarController : NSViewController
+@interface SidebarController : NSViewController <NSOutlineViewDataSource, NSOutlineViewDelegate>
+
+@property (nonatomic, weak, readwrite) IBOutlet NSOutlineView *outlineView;
 
 @end
 
