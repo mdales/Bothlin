@@ -36,6 +36,10 @@ NSArray<NSString *> * const testTags = @[
                                                           symbolName:@"shippingbox"
                                                             children:nil];
 
+        SidebarItem *favourites = [[SidebarItem alloc] initWithTitle:@"Favourites"
+                                                          symbolName:@"heart"
+                                                            children:nil];
+
         SidebarItem *groups = [[SidebarItem alloc] initWithTitle:@"Groups"
                                                       symbolName:@"folder"
                                                         children:[testGroups mapUsingBlock:^SidebarItem * _Nonnull(NSString * _Nonnull title) {
@@ -54,21 +58,22 @@ NSArray<NSString *> * const testTags = @[
 
         self->_sidebarTree = [[SidebarItem alloc] initWithTitle:@"toplevel"
                                                      symbolName:nil
-                                                       children:@[everything, groups, tags]];
+                                                       children:@[everything, favourites, groups, tags]];
     }
     return self;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do view setup here.
+
+    [self.outlineView selectRowIndexes:[[NSIndexSet alloc] initWithIndex:0]
+                  byExtendingSelection:NO];
 }
 
 
 #pragma mark - NSOutlineViewDataSource
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
-    NSLog(@"Number of child of %@", item);
     if (nil == item) {
         return (NSInteger)[self.sidebarTree.children count];
     } else if ([item isKindOfClass:[SidebarItem class]]) {
@@ -83,7 +88,6 @@ NSArray<NSString *> * const testTags = @[
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
-    NSLog(@"Need child of %@", item);
     if (nil == item) {
         if (nil != self.sidebarTree.children) {
             return [self.sidebarTree.children objectAtIndex:(NSUInteger)index];
@@ -98,7 +102,6 @@ NSArray<NSString *> * const testTags = @[
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item {
-    NSLog(@"can expand %@", item);
     if (nil == item) {
         return NO;
     } else if ([item isKindOfClass:[SidebarItem class]]) {
@@ -112,7 +115,6 @@ NSArray<NSString *> * const testTags = @[
 
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
     SidebarItem *sidebarItem = (SidebarItem *)item;
-    NSLog(@"cell for item %@", item);
     NSTableCellView *view = [outlineView makeViewWithIdentifier:@"ItemCell" owner:self];
     view.textField.stringValue = sidebarItem.title;
     view.imageView.image = sidebarItem.icon;
