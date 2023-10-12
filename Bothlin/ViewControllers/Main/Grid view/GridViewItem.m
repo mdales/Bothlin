@@ -60,7 +60,15 @@
 }
 
 - (NSImage*)draggingImageForDragSourceView:(DragSourceView *)dragSourceView {
-    return self.imageView.image;
+    NSRect targetRect = [dragSourceView frame];
+    NSImage *dragImage = [[NSImage alloc] initWithSize:targetRect.size];
+    NSBitmapImageRep *imageRep = [self.imageView bitmapImageRepForCachingDisplayInRect:targetRect];
+    if (nil != imageRep) {
+        [self.imageView cacheDisplayInRect:targetRect
+                          toBitmapImageRep:imageRep];
+        [dragImage addRepresentation:imageRep];
+    }
+    return dragImage;
 }
 
 - (void)dragSourceView:(DragSourceView *)dragSourceView wasClicked:(NSInteger)count {
