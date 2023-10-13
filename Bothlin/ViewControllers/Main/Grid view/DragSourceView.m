@@ -1,6 +1,6 @@
 //
 //  DragSourceView.m
-//  Bothlin
+//  Bothlin - Copyright 2023 Digital Flapjack Ltd
 //
 //  Created by Michael Dales on 11/10/2023.
 //

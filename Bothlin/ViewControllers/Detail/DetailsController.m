@@ -1,6 +1,6 @@
 //
 //  DetailsController.m
-//  Bothlin
+//  Bothlin - Copyright 2023 Digital Flapjack Ltd
 //
 //  Created by Michael Dales on 28/09/2023.
 //

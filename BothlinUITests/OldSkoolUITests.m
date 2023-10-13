@@ -1,6 +1,6 @@
 //
 //  BothlinUITests.m
-//  BothlinUITests
+//  BothlinUITests - Copyright 2023 Digital Flapjack Ltd
 //
 //  Created by Michael Dales on 16/09/2023.
 //

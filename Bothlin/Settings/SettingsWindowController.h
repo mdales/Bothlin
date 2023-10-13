@@ -1,6 +1,6 @@
 //
 //  SettingsWindowController.h
-//  Bothlin
+//  Bothlin - Copyright 2023 Digital Flapjack Ltd
 //
 //  Created by Michael Dales on 08/10/2023.
 //
