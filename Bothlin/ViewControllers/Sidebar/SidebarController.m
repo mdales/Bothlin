@@ -56,9 +56,13 @@ NSArray<NSString *> * const testTags = @[
                                              children:nil];
         }]];
 
+        SidebarItem *trash = [[SidebarItem alloc] initWithTitle:@"Trash"
+                                                     symbolName:@"trash"
+                                                       children:nil];
+
         self->_sidebarTree = [[SidebarItem alloc] initWithTitle:@"toplevel"
                                                      symbolName:nil
-                                                       children:@[everything, favourites, groups, tags]];
+                                                       children:@[everything, favourites, groups, tags, trash]];
     }
     return self;
 }
