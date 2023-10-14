@@ -118,12 +118,20 @@ NSArray<NSString *> * const testTags = @[
 #pragma mark - NSOutlineViewDelegate
 
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
+    NSAssert([item isKindOfClass:[SidebarItem class]], @"Cell item not of expected type");
     SidebarItem *sidebarItem = (SidebarItem *)item;
-    NSTableCellView *view = [outlineView makeViewWithIdentifier:@"ItemCell" owner:self];
+    NSTableCellView *view = [outlineView makeViewWithIdentifier:nil != sidebarItem.icon ? @"TopLevelItemCell" : @"ItemCell"
+                                                          owner:self];
     view.textField.stringValue = sidebarItem.title;
     view.imageView.image = sidebarItem.icon;
 
     return view;
+}
+
+- (CGFloat)outlineView:(NSOutlineView *)outlineView heightOfRowByItem:(id)item {
+    NSAssert([item isKindOfClass:[SidebarItem class]], @"Cell item not of expected type");
+    SidebarItem *sidebarItem = (SidebarItem *)item;
+    return sidebarItem.icon ? 32.0 : 24.0;
 }
 
 @end

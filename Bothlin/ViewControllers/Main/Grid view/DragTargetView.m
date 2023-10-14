@@ -18,14 +18,21 @@
 }
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
-    return NSDragOperationCopy;
+//    NSLog(@"entered: %lx", sender.draggingSourceOperationMask);
+    return (NSDragOperationCopy | NSDragOperationMove) & sender.draggingSourceOperationMask;
+}
+
+- (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender {
+//    NSLog(@"updated: %lx", sender.draggingSourceOperationMask);
+    return (NSDragOperationCopy | NSDragOperationMove) & sender.draggingSourceOperationMask;
 }
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
     if (nil == self.delegate) {
         return NO;
     }
-    return [self.delegate dragTargetView:self handleDrag:sender];
+    return [self.delegate dragTargetView:self 
+                              handleDrag:sender];
 }
 
 //- (void)drawRect:(NSRect)dirtyRect {

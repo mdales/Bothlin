@@ -232,6 +232,10 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 }
 
 - (void)trashItem:(id)sender {
+//    if (nil == self.details.item) {
+//        return;
+//    }
+    
 }
 
 
