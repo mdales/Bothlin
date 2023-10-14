@@ -115,6 +115,12 @@ NSArray<NSString *> * const testTags = @[
     return NO;
 }
 
+- (BOOL)outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item {
+    NSAssert([item isKindOfClass:[SidebarItem class]], @"Cell item not of expected type");
+    SidebarItem *sidebarItem = (SidebarItem *)item;
+    return 0 == [sidebarItem.children count];
+}
+
 #pragma mark - NSOutlineViewDelegate
 
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
