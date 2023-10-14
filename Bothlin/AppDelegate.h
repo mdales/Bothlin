@@ -20,6 +20,7 @@ extern NSString * __nonnull const kUserDefaultsCustomStoragePath;
 
 - (IBAction)import:(id _Nullable)sender;
 - (IBAction)settings:(id _Nullable)sender;
+- (IBAction)createGroup:(id _Nullable)sender;
 
 @end
 

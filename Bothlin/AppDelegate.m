@@ -112,6 +112,10 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
     [self.settingsWindowController showWindow:nil];
 }
 
+- (IBAction)createGroup:(id _Nullable)sender {
+    [self.mainWindowController showGroupCreatePanel:sender];
+}
+
 
 #pragma mark - Core Data stack
 

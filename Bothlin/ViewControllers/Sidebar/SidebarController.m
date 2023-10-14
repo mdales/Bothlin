@@ -8,11 +8,9 @@
 #import "SidebarController.h"
 #import "SidebarItem.h"
 #import "NSArray+Functional.h"
-
-NSArray<NSString *> * const testGroups = @[
-    @"Project A",
-    @"Work thing",
-];
+#import "TableCellWithButtonView.h"
+#import "AppDelegate.h"
+#import "Group+CoreDataClass.h"
 
 NSArray<NSString *> * const testTags = @[
     @"Minecraft",
@@ -22,56 +20,82 @@ NSArray<NSString *> * const testTags = @[
 
 @interface SidebarController ()
 
-@property (nonatomic, strong, readonly) SidebarItem * _Nonnull sidebarTree;
+// Safe on mainQ only
+@property (nonatomic, strong, readwrite) SidebarItem * _Nonnull sidebarTree;
 
 @end
 
 @implementation SidebarController
 
-- (instancetype)initWithNibName:(NSNibName)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (nil != self) {
+- (void)rebuildMenu {
+    dispatch_assert_queue(dispatch_get_main_queue());
 
-        SidebarItem *everything = [[SidebarItem alloc] initWithTitle:@"Everything"
-                                                          symbolName:@"shippingbox"
-                                                            children:nil];
+    SidebarItem *everything = [[SidebarItem alloc] initWithTitle:@"Everything"
+                                                      symbolName:@"shippingbox"
+                                                        children:nil];
 
-        SidebarItem *favourites = [[SidebarItem alloc] initWithTitle:@"Favourites"
-                                                          symbolName:@"heart"
-                                                            children:nil];
+    SidebarItem *favourites = [[SidebarItem alloc] initWithTitle:@"Favourites"
+                                                      symbolName:@"heart"
+                                                        children:nil];
 
-        SidebarItem *groups = [[SidebarItem alloc] initWithTitle:@"Groups"
-                                                      symbolName:@"folder"
-                                                        children:[testGroups mapUsingBlock:^SidebarItem * _Nonnull(NSString * _Nonnull title) {
-            return [[SidebarItem alloc] initWithTitle:title
-                                           symbolName:nil
-                                             children:nil];
-        }]];
-
-        SidebarItem *tags = [[SidebarItem alloc] initWithTitle:@"Tags"
-                                                    symbolName:@"tag"
-                                                      children:[testTags mapUsingBlock:^SidebarItem * _Nonnull(NSString * _Nonnull title) {
-            return [[SidebarItem alloc] initWithTitle:title
-                                           symbolName:nil
-                                             children:nil];
-        }]];
-
-        SidebarItem *trash = [[SidebarItem alloc] initWithTitle:@"Trash"
-                                                     symbolName:@"trash"
-                                                       children:nil];
-
-        self->_sidebarTree = [[SidebarItem alloc] initWithTitle:@"toplevel"
-                                                     symbolName:nil
-                                                       children:@[everything, favourites, groups, tags, trash]];
+    AppDelegate *appDelegate = (AppDelegate *)([NSApplication sharedApplication].delegate);
+    NSManagedObjectContext *context = appDelegate.persistentContainer.viewContext;
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Group"];
+    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"name"
+                                                           ascending:YES];
+    [fetchRequest setSortDescriptors:@[sort]];
+    NSError *error = nil;
+    NSArray<Group *> *groups = [context executeFetchRequest:fetchRequest
+                                                      error:&error];
+    if (nil != error) {
+        NSAssert(nil == groups, @"Got error and groups");
+        // TODO: Need to take corrective action for corrupt data?
+        NSLog(@"Failed to fetch groups: %@", error);
+        groups = @[];
     }
-    return self;
+    NSAssert(nil != groups, @"Got no error and no groups");
+
+    SidebarItem *groupsItem = [[SidebarItem alloc] initWithTitle:@"Groups"
+                                                      symbolName:@"folder"
+                                                        children:[groups mapUsingBlock:^SidebarItem * _Nonnull(Group * _Nonnull group) {
+        return [[SidebarItem alloc] initWithTitle:group.name
+                                       symbolName:nil
+                                         children:nil];
+    }]];
+
+    SidebarItem *tags = [[SidebarItem alloc] initWithTitle:@"Popular Tags"
+                                                symbolName:@"tag"
+                                                  children:[testTags mapUsingBlock:^SidebarItem * _Nonnull(NSString * _Nonnull title) {
+        return [[SidebarItem alloc] initWithTitle:title
+                                       symbolName:nil
+                                         children:nil];
+    }]];
+
+    SidebarItem *trash = [[SidebarItem alloc] initWithTitle:@"Trash"
+                                                 symbolName:@"trash"
+                                                   children:nil];
+
+    self->_sidebarTree = [[SidebarItem alloc] initWithTitle:@"toplevel"
+                                                 symbolName:nil
+                                                   children:@[everything, favourites, groupsItem, tags, trash]];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    [self rebuildMenu];
+    [self.outlineView reloadData];
     [self.outlineView selectRowIndexes:[[NSIndexSet alloc] initWithIndex:0]
                   byExtendingSelection:NO];
+}
+
+- (void)reloadData {
+    dispatch_assert_queue(dispatch_get_main_queue());
+    [self rebuildMenu];
+    [self.outlineView reloadData];
+}
+
+- (IBAction)addItemFromOutlineView:(id)sender {
+    [self.delegate addGroupViaSidebarController: self];
 }
 
 
@@ -126,8 +150,15 @@ NSArray<NSString *> * const testTags = @[
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
     NSAssert([item isKindOfClass:[SidebarItem class]], @"Cell item not of expected type");
     SidebarItem *sidebarItem = (SidebarItem *)item;
-    NSTableCellView *view = [outlineView makeViewWithIdentifier:nil != sidebarItem.icon ? @"TopLevelItemCell" : @"ItemCell"
+
+    NSString *cellType = @"ItemCell";
+    if (nil != sidebarItem.icon) {
+        cellType = ([sidebarItem.title compare:@"Groups"] == NSOrderedSame) ? @"AddItemCell" : @"TopLevelItemCell";
+    }
+
+    NSTableCellView *view = [outlineView makeViewWithIdentifier:cellType
                                                           owner:self];
+    NSAssert(nil != view, @"Failed to get outline view cell");
     view.textField.stringValue = sidebarItem.title;
     view.imageView.image = sidebarItem.icon;
 

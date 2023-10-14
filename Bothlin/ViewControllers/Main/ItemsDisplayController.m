@@ -60,6 +60,7 @@
 }
 
 - (void)reloadData {
+    dispatch_assert_queue(dispatch_get_main_queue());
     [self.gridViewController reloadData:nil];
 }
 

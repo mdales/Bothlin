@@ -26,6 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)importURLs:(NSArray<NSURL *> * _Nonnull)urls
           callback:(void (^)(BOOL success, NSError *error)) callback;
 
+- (void)createGroup:(NSString *)name
+           callback:(void (^)(BOOL success, NSError *error)) callback;
+
 @end
 
 NS_ASSUME_NONNULL_END

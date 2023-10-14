@@ -68,6 +68,12 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="File" id="bib-Uj-vzu">
                         <items>
+                            <menuItem title="New Group..." keyEquivalent="n" id="uyK-UH-Ald">
+                                <connections>
+                                    <action selector="createGroup:" target="Voe-Tx-rLC" id="HC4-hC-10x"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="iLa-t0-UEx"/>
                             <menuItem title="Import..." keyEquivalent="i" id="d2v-o9-GXV">
                                 <connections>
                                     <action selector="import:" target="Voe-Tx-rLC" id="syG-JO-Klr"/>

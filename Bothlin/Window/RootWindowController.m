@@ -13,6 +13,8 @@
 #import "LibraryController.h"
 #import "ToolbarProgressView.h"
 #import "Helpers.h"
+#import "Group+CoreDataClass.h"
+#import "NSArray+Functional.h"
 
 NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIdentifier";
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
@@ -69,6 +71,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     self.windowFrameAutosaveName = @"RootWindow";
 
     self.itemsDisplay.delegate = self;
+    self.sidebar.delegate = self;
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryController *library = appDelegate.libraryController;
@@ -87,6 +90,13 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
                                                  intoContexts:@[viewContext]];
 
     [self.itemsDisplay reloadData];
+    [self.sidebar reloadData];
+}
+
+#pragma mark - SidebarControllerDelegate
+
+- (void)addGroupViaSidebarController:(SidebarController *)sidebarController {
+    [self showGroupCreatePanel:sidebarController];
 }
 
 
@@ -196,6 +206,99 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             }];
         }
     }];
+}
+
+#pragma mark - Group creation panel
+
+- (IBAction)showGroupCreatePanel:(id)sender {
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    NSManagedObjectContext *context = appDelegate.persistentContainer.viewContext;
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Group"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name like[c] %@", @"Untitled*"];
+    [fetchRequest setPredicate: predicate];
+    NSError *error = nil;
+    NSArray *groups = [context executeFetchRequest:fetchRequest
+                                             error:&error];
+    if (nil != error) {
+        NSAssert(nil == groups, @"Got error and data");
+        NSLog(@"Failed to find untitled groups: %@", error);
+    } else {
+        NSAssert(nil != groups, @"Got no error and no data");
+        NSArray<NSString *> *names = [groups mapUsingBlock:^NSString * _Nonnull(Group * _Nonnull group) {
+            return group.name;
+        }];
+        for (NSUInteger counter = 0; counter < NSUIntegerMax; counter++) {
+            NSString *nameSuggestion = counter > 0 ? [NSString stringWithFormat:@"Untitled %lu", counter] : @"Untitled";
+            if (NSNotFound == [names indexOfObject:nameSuggestion]) {
+                [self.groupCreateNameField setStringValue:nameSuggestion];
+                break;
+            }
+        }
+    }
+
+    [self.window beginSheet:self.groupCreatePanel
+          completionHandler:^(__unused NSModalResponse returnCode) {
+    }];
+}
+
+- (IBAction)groupCreateOK:(id)sender {
+    NSString *name = [self.groupCreateNameField stringValue];
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryController *library = appDelegate.libraryController;
+    @weakify(self)
+    [library createGroup:name
+                callback:^(__unused BOOL success, NSError * _Nullable error) {
+        @strongify(self);
+        if (nil == self) {
+            return;
+        }
+
+        @weakify(self);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+            if (nil != error) {
+                NSAlert *alert = [NSAlert alertWithError:error];
+                [alert runModal];
+            } else {
+                [self.window endSheet:self.groupCreatePanel];
+            }
+        });
+    }];
+}
+
+- (IBAction)groupCreateCancel:(id)sender {
+    [self.window endSheet:self.groupCreatePanel];
+}
+
+- (void)controlTextDidChange:(NSNotification *)obj {
+    NSString *current = [self.groupCreateNameField stringValue];
+    BOOL canOkay = [current length] > 0;
+    if (canOkay) {
+        AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+        NSManagedObjectContext *context = appDelegate.persistentContainer.viewContext;
+        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Group"];
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name like[c] %@", current];
+        [fetchRequest setPredicate: predicate];
+
+        NSError *error = nil;
+        NSArray *groups = [context executeFetchRequest:fetchRequest
+                                                 error:&error];
+        if (nil != error) {
+            NSAssert(nil == groups, @"Got error and result");
+            NSLog(@"Failed to look up existing groups");
+        } else {
+            NSAssert(nil != groups, @"Go no error and no result");
+            canOkay = [groups count] == 0;
+            [self.groupCreateDuplicateWarningLabel setHidden:canOkay];
+        }
+    }
+    [self.groupCreateOKButton setEnabled: canOkay];
+}
+
+- (IBAction)groupNameFieldEnter:(id)sender {
 }
 
 #pragma mark - Toolbar items

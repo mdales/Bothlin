@@ -9,12 +9,26 @@
 
 #import "LibraryController.h"
 #import "ItemsDisplayController.h"
+#import "SidebarController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RootWindowController : NSWindowController <NSToolbarDelegate, LibraryControllerDelegate, ItemsDisplayControllerDelegate>
+@interface RootWindowController : NSWindowController <NSToolbarDelegate, LibraryControllerDelegate, ItemsDisplayControllerDelegate, NSTextFieldDelegate, SidebarControllerDelegate>
 
+// Group creation panel and controls.
+@property (nonatomic, weak, readwrite) IBOutlet NSPanel *groupCreatePanel;
+@property (nonatomic, weak, readwrite) IBOutlet NSTextField *groupCreateDuplicateWarningLabel;
+@property (nonatomic, weak, readwrite) IBOutlet NSTextField *groupCreateNameField;
+@property (nonatomic, weak, readwrite) IBOutlet NSButton *groupCreateOKButton;
+
+// Menu and toolbar actions
 - (IBAction)import:(id)sender;
+- (IBAction)showGroupCreatePanel:(id)sender;
+
+// Group creation panel actions
+- (IBAction)groupCreateOK:(id)sender;
+- (IBAction)groupCreateCancel:(id)sender;
+- (IBAction)groupNameFieldEnter:(id)sender;
 
 @end
 

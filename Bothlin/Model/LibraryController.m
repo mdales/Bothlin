@@ -8,6 +8,7 @@
 #import "LibraryController.h"
 #import "AppDelegate.h"
 #import "Item+CoreDataClass.h"
+#import "Group+CoreDataClass.h"
 #import "ItemExtension.h"
 #import "Helpers.h"
 #import "NSURL+SecureAccess.h"
@@ -122,7 +123,9 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
         });
 
         if (nil != callback) {
-            callback(YES, error);
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                callback(YES, error);
+            });
         }
     });
 }
@@ -374,5 +377,55 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
 }
 
 
+- (void)createGroup:(NSString *)name
+           callback:(void (^)(BOOL success, NSError *error)) callback {
+    @weakify(self);
+    dispatch_sync(self.dataQ, ^() {
+        @strongify(self);
+        if (nil == self) {
+            if (nil != callback) {
+                callback(NO, [NSError errorWithDomain:LibraryControllerErrorDomain
+                                                 code:LibraryControllerErrorSelfIsNoLongerValid
+                                             userInfo:nil]);
+            }
+            return;
+        }
+        __block NSError *error = nil;
+        __block BOOL success = NO;
+        __block NSManagedObjectID *groupID = nil;
+        [self.managedObjectContext performBlockAndWait:^{
+            Group *group = [NSEntityDescription insertNewObjectForEntityForName:@"Group"
+                                                         inManagedObjectContext:self.managedObjectContext];
+            group.name = name;
+
+            success = [self.managedObjectContext obtainPermanentIDsForObjects:@[group]
+                                                                        error:&error];
+            if ((nil == error) && success) {
+                groupID = group.objectID;
+
+                success = [self.managedObjectContext save:&error];
+            }
+        }];
+        if ((nil == error) && success && (nil != groupID)) {
+            @weakify(self);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+                if (nil == self.delegate) {
+                    return;
+                }
+                [self.delegate libraryDidUpdate:@{NSInsertedObjectsKey:@[groupID]}];
+            });
+        }
+
+        if (nil != callback) {
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                callback(success, error);
+            });
+        }
+    });
+}
 
 @end
