@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Only safe on mainQ
 - (void)reloadData;
+- (void)showGroups;
 
 @end
 

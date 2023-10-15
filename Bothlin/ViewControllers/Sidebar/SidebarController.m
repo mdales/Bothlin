@@ -94,6 +94,15 @@ NSArray<NSString *> * const testTags = @[
     [self.outlineView reloadData];
 }
 
+- (void)showGroups {
+    for (SidebarItem *item in self.sidebarTree.children) {
+        if ([item.title compare:@"Groups"] == NSOrderedSame) {
+            [self.outlineView expandItem:item];
+            break;
+        }
+    }
+}
+
 - (IBAction)addItemFromOutlineView:(id)sender {
     [self.delegate addGroupViaSidebarController: self];
 }

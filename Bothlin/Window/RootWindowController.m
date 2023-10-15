@@ -264,6 +264,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
                 [alert runModal];
             } else {
                 [self.window endSheet:self.groupCreatePanel];
+                [self.sidebar showGroups];
             }
         });
     }];
