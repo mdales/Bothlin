@@ -40,7 +40,8 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 @property (nonatomic, weak, readwrite) id<ItemsDisplayControllerDelegate> delegate;
 @property (nonatomic, readwrite) ItemsDisplayStyle displayStyle;
 
-- (void)reloadData;
+- (void)setItems:(NSArray<Item *> *)items
+    withSelected:(Item *)selected;
 
 @end
 

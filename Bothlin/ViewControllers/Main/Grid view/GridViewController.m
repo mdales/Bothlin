@@ -5,7 +5,6 @@
 //  Created by Michael Dales on 28/09/2023.
 //
 
-#import "AppDelegate.h"
 #import "GridViewController.h"
 #import "Item+CoreDataClass.h"
 #import "Helpers.h"
@@ -36,62 +35,18 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
     self.dragTargetView.delegate = self;
-
-    NSError *error = nil;
-    [self reloadData:&error];
-    if (nil != error) {
-        NSLog(@"Failed to load data: %@", error.localizedDescription);
-    }
-    [self.collectionView reloadData];
 }
 
 #pragma mark - Data management
 
-- (BOOL)reloadData:(NSError **)error {
-    AppDelegate *appDelegate = (AppDelegate *)([NSApplication sharedApplication].delegate);
-    NSManagedObjectContext *context = appDelegate.persistentContainer.viewContext;
-
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
-    NSPredicate *filter = [NSPredicate predicateWithFormat:@"deletedAt == nil"];
-    [fetchRequest setPredicate:filter];
-    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"created"
-                                                           ascending:YES];
-    [fetchRequest setSortDescriptors:@[sort]];
-
-    NSError *innerError = nil;
-    NSArray<Item *> *result = [context executeFetchRequest:fetchRequest
-                                                     error:&innerError];
-    if (nil != innerError) {
-        NSAssert(nil == result, @"Got error and fetch results.");
-        if (nil != error) {
-            *error = innerError;
-        }
-        return NO;
-    }
-    NSAssert(nil != result, @"Got no error and no fetch results.");
-
-    @weakify(self);
-    dispatch_async(self.syncQ, ^{
-        @strongify(self);
-        if (nil == self) {
-            return;
-        }
-        self.contents = result;
-
-        @weakify(self);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            @strongify(self);
-            if (nil == self) {
-                return;
-            }
-            [self.collectionView reloadData];
-        });
-    });
-
-    return YES;
+- (void)setItems:(NSArray<Item *> *)items withSelected:(Item *)selected {
+    dispatch_assert_queue(dispatch_get_main_queue());
+    self.contents = items;
+    self.selectedItem = selected;
+    [self.collectionView reloadData];
 }
+
 
 #pragma mark - NSCollectionViewDataSource
 

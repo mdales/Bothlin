@@ -59,9 +59,11 @@
                        viewStyleDidChange:displayStyle];
 }
 
-- (void)reloadData {
+- (void)setItems:(NSArray<Item *> *)items withSelected:(Item *)selected {
     dispatch_assert_queue(dispatch_get_main_queue());
-    [self.gridViewController reloadData:nil];
+    [self.gridViewController setItems:items
+                         withSelected:selected];
+    [self.singleViewController setItemForDisplay:selected];
 }
 
 #pragma mark - View management

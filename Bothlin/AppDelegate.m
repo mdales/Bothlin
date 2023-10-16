@@ -83,7 +83,8 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
     NSPersistentStoreCoordinator *store = self.persistentContainer.persistentStoreCoordinator;
     self->_libraryController = [[LibraryController alloc] initWithPersistentStore:store];
 
-    self.mainWindowController = [[RootWindowController alloc] initWithWindowNibName:@"RootWindowController"];
+    self.mainWindowController = [[RootWindowController alloc] initWithWindowNibName:@"RootWindowController"
+                                                                        viewContext:self.persistentContainer.viewContext];
     [self.mainWindowController showWindow:nil];
 }
 

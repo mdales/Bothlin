@@ -15,11 +15,11 @@
     NSAssert(nil != title, @"Sidebar item must have non nil title");
     self = [super init];
     if (nil != self) {
-        self->_title = title;
+        self->_title = [NSString stringWithString:title];
         if (nil != symbolName) {
             self->_icon = [NSImage imageWithSystemSymbolName:symbolName accessibilityDescription:nil];
         }
-        self->_children = children;
+        self->_children = nil != children ? [NSArray arrayWithArray:children] : nil;
     }
     return self;
 }

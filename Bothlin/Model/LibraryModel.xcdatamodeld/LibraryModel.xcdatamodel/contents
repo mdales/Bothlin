@@ -3,6 +3,7 @@
     <entity name="Group" representedClassName="Group" syncable="YES" codeGenerationType="class">
         <attribute name="internal" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="name" attributeType="String" minValueString="1"/>
+        <relationship name="contains" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Item" inverseName="groups" inverseEntity="Item"/>
     </entity>
     <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
         <attribute name="added" attributeType="Date" usesScalarValueType="NO"/>
@@ -15,8 +16,11 @@
         <attribute name="path" attributeType="String"/>
         <attribute name="thumbnailPath" optional="YES" attributeType="String"/>
         <attribute name="type" attributeType="String"/>
+        <relationship name="groups" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Group" inverseName="contains" inverseEntity="Group"/>
+        <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="tags" inverseEntity="Tag"/>
     </entity>
     <entity name="Tag" representedClassName="Tag" syncable="YES" codeGenerationType="class">
         <attribute name="name" attributeType="String" minValueString="1"/>
+        <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Item" inverseName="tags" inverseEntity="Item"/>
     </entity>
 </model>

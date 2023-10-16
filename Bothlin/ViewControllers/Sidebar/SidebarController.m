@@ -9,7 +9,6 @@
 #import "SidebarItem.h"
 #import "NSArray+Functional.h"
 #import "TableCellWithButtonView.h"
-#import "AppDelegate.h"
 #import "Group+CoreDataClass.h"
 
 NSArray<NSString *> * const testTags = @[
@@ -27,7 +26,7 @@ NSArray<NSString *> * const testTags = @[
 
 @implementation SidebarController
 
-- (void)rebuildMenu {
+- (void)rebuildMenuWithGroups:(NSArray<Group *> * _Nonnull)groups {
     dispatch_assert_queue(dispatch_get_main_queue());
 
     SidebarItem *everything = [[SidebarItem alloc] initWithTitle:@"Everything"
@@ -37,23 +36,6 @@ NSArray<NSString *> * const testTags = @[
     SidebarItem *favourites = [[SidebarItem alloc] initWithTitle:@"Favourites"
                                                       symbolName:@"heart"
                                                         children:nil];
-
-    AppDelegate *appDelegate = (AppDelegate *)([NSApplication sharedApplication].delegate);
-    NSManagedObjectContext *context = appDelegate.persistentContainer.viewContext;
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Group"];
-    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"name"
-                                                           ascending:YES];
-    [fetchRequest setSortDescriptors:@[sort]];
-    NSError *error = nil;
-    NSArray<Group *> *groups = [context executeFetchRequest:fetchRequest
-                                                      error:&error];
-    if (nil != error) {
-        NSAssert(nil == groups, @"Got error and groups");
-        // TODO: Need to take corrective action for corrupt data?
-        NSLog(@"Failed to fetch groups: %@", error);
-        groups = @[];
-    }
-    NSAssert(nil != groups, @"Got no error and no groups");
 
     SidebarItem *groupsItem = [[SidebarItem alloc] initWithTitle:@"Groups"
                                                       symbolName:@"folder"
@@ -82,15 +64,15 @@ NSArray<NSString *> * const testTags = @[
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self rebuildMenu];
+    [self rebuildMenuWithGroups:@[]];
     [self.outlineView reloadData];
     [self.outlineView selectRowIndexes:[[NSIndexSet alloc] initWithIndex:0]
                   byExtendingSelection:NO];
 }
 
-- (void)reloadData {
+- (void)setGroups:(NSArray<Group *> *)groups {
     dispatch_assert_queue(dispatch_get_main_queue());
-    [self rebuildMenu];
+    [self rebuildMenuWithGroups:groups];
     [self.outlineView reloadData];
 }
 

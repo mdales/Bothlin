@@ -63,6 +63,8 @@
 		4CBF176F2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBF176E2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m */; };
 		4CD0A0332ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD0A0322ADA918700BFFF7D /* TableCellWithButtonView.m */; };
 		4CD0A0342ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD0A0322ADA918700BFFF7D /* TableCellWithButtonView.m */; };
+		4CD0A0372ADD3F8C00BFFF7D /* LibraryViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD0A0362ADD3F8C00BFFF7D /* LibraryViewModel.m */; };
+		4CD0A0382ADD3F8C00BFFF7D /* LibraryViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD0A0362ADD3F8C00BFFF7D /* LibraryViewModel.m */; };
 		4CE8776A2AD93E81004FF342 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4CE877692AD93E81004FF342 /* Credits.rtf */; };
 		4CE8776B2AD93E81004FF342 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4CE877692AD93E81004FF342 /* Credits.rtf */; };
 		4CFB4D382AD08D98006F6F7E /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CFB4D372AD08D98006F6F7E /* Quartz.framework */; };
@@ -143,6 +145,8 @@
 		4CBF176E2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OldSkoolUITestsLaunchTests.m; sourceTree = "<group>"; };
 		4CD0A0312ADA918700BFFF7D /* TableCellWithButtonView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableCellWithButtonView.h; sourceTree = "<group>"; };
 		4CD0A0322ADA918700BFFF7D /* TableCellWithButtonView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TableCellWithButtonView.m; sourceTree = "<group>"; };
+		4CD0A0352ADD3F8C00BFFF7D /* LibraryViewModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryViewModel.h; sourceTree = "<group>"; };
+		4CD0A0362ADD3F8C00BFFF7D /* LibraryViewModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryViewModel.m; sourceTree = "<group>"; };
 		4CE877692AD93E81004FF342 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		4CFB4D372AD08D98006F6F7E /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		4CFB4D392AD18119006F6F7E /* DragTargetView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetView.h; sourceTree = "<group>"; };
@@ -184,6 +188,8 @@
 				4C01199F2AC5AA45004A94C4 /* RootWindowController.xib */,
 				4C01199D2AC5AA45004A94C4 /* RootWindowController.h */,
 				4C01199E2AC5AA45004A94C4 /* RootWindowController.m */,
+				4CD0A0352ADD3F8C00BFFF7D /* LibraryViewModel.h */,
+				4CD0A0362ADD3F8C00BFFF7D /* LibraryViewModel.m */,
 			);
 			path = Window;
 			sourceTree = "<group>";
@@ -532,6 +538,7 @@
 				4C0119B92AC5AC5E004A94C4 /* DetailsController.m in Sources */,
 				4C0119A82AC5AC14004A94C4 /* SidebarController.m in Sources */,
 				4CBF17512AB5F176001F7984 /* AppDelegate.m in Sources */,
+				4CD0A0372ADD3F8C00BFFF7D /* LibraryViewModel.m in Sources */,
 				4CB8861E2ABA2CA900968B0F /* LibraryController.m in Sources */,
 				4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */,
 				4C0119FC2AC5B12E004A94C4 /* GridViewController.m in Sources */,
@@ -572,6 +579,7 @@
 				4CBF176D2AB5F177001F7984 /* OldSkoolUITests.m in Sources */,
 				4CBF176F2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m in Sources */,
 				4CB886202ABA2CA900968B0F /* LibraryController.m in Sources */,
+				4CD0A0382ADD3F8C00BFFF7D /* LibraryViewModel.m in Sources */,
 				4C0119FD2AC5B12E004A94C4 /* GridViewController.m in Sources */,
 				4CFB4D3C2AD18119006F6F7E /* DragTargetView.m in Sources */,
 				4C0119B32AC5AC51004A94C4 /* ItemsDisplayController.m in Sources */,

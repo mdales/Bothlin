@@ -9,6 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class Group;
 @class SidebarController;
 
 @protocol SidebarControllerDelegate <NSObject>
@@ -25,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (IBAction)addItemFromOutlineView:(id)sender;
 
 // Only safe on mainQ
-- (void)reloadData;
+- (void)setGroups:(NSArray<Group *> *)groups;
 - (void)showGroups;
 
 @end

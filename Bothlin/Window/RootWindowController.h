@@ -21,6 +21,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readwrite) IBOutlet NSTextField *groupCreateNameField;
 @property (nonatomic, weak, readwrite) IBOutlet NSButton *groupCreateOKButton;
 
+- (instancetype)initWithWindowNibName:(NSNibName)windowNibName __attribute__((unavailable("Use more specific constructor")));
+- (instancetype)initWithWindowNibName:(NSNibName)windowNibName
+                          viewContext:(NSManagedObjectContext *)viewContext;
+
 // Menu and toolbar actions
 - (IBAction)import:(id)sender;
 - (IBAction)showGroupCreatePanel:(id)sender;

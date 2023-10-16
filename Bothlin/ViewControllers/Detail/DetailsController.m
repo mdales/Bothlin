@@ -30,6 +30,7 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
 }
 
 - (void)setItemForDisplay:(Item *)item {
+    dispatch_assert_queue(dispatch_get_main_queue());
     self.item = item;
     [self.detailsView reloadData];
 }

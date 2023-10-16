@@ -15,6 +15,7 @@
 #import "Helpers.h"
 #import "Group+CoreDataClass.h"
 #import "NSArray+Functional.h"
+#import "LibraryViewModel.h"
 
 NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIdentifier";
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
@@ -33,11 +34,14 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 @property (nonatomic, strong, readonly) NSSplitViewController *splitViewController;
 @property (nonatomic, strong, readonly) ToolbarProgressView *progressView;
 
+@property (nonatomic, strong, readonly) LibraryViewModel *viewModel;
+
 @end
 
 @implementation RootWindowController
 
-- (instancetype)initWithWindowNibName:(NSNibName)windowNibName {
+- (instancetype)initWithWindowNibName:(NSNibName)windowNibName
+                          viewContext:(NSManagedObjectContext *)viewContext {
     self = [super initWithWindowNibName:windowNibName];
     if (nil != self) {
         self->_sidebar = [[SidebarController alloc] initWithNibName:@"SidebarController" bundle:nil];
@@ -45,6 +49,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         self->_details = [[DetailsController alloc] initWithNibName:@"DetailsController" bundle:nil];
         self->_splitViewController = [[NSSplitViewController alloc] init];
         self->_progressView = [[ToolbarProgressView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 250.0, 28.0)];
+        self->_viewModel = [[LibraryViewModel alloc] initWithViewContext:viewContext];
     }
     return self;
 }
@@ -76,6 +81,29 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryController *library = appDelegate.libraryController;
     library.delegate = self;
+
+    NSError *error = nil;
+    BOOL success = [self.viewModel reloadGroups:&error];
+    if (nil != error) {
+        NSAssert(NO == success, @"Got error and success");
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+        return;
+    }
+    NSAssert(NO != success, @"Got no error and no success");
+    [self.sidebar setGroups:self.viewModel.groups];
+
+    success = [self.viewModel reloadItems:&error];
+    if (nil != error) {
+        NSAssert(NO == success, @"Got error and success");
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+        return;
+    }
+    NSAssert(NO != success, @"Got no error and no success");
+
+    [self.itemsDisplay setItems:self.viewModel.contents
+                   withSelected:self.viewModel.selected];
 }
 
 
@@ -89,8 +117,29 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [NSManagedObjectContext mergeChangesFromRemoteContextSave:changeNotificationData
                                                  intoContexts:@[viewContext]];
 
-    [self.itemsDisplay reloadData];
-    [self.sidebar reloadData];
+    // TODO: Make this code more clever by looking at what's changed
+    NSError *error = nil;
+    BOOL success = [self.viewModel reloadGroups:&error];
+    if (nil != error) {
+        NSAssert(NO == success, @"Got error and success");
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+        return;
+    }
+    NSAssert(NO != success, @"Got no error and no success");
+    [self.sidebar setGroups:self.viewModel.groups];
+
+    success = [self.viewModel reloadItems:&error];
+    if (nil != error) {
+        NSAssert(NO == success, @"Got error and success");
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+        return;
+    }
+    NSAssert(NO != success, @"Got no error and no success");
+
+    [self.itemsDisplay setItems:self.viewModel.contents
+                   withSelected:self.viewModel.selected];
 }
 
 #pragma mark - SidebarControllerDelegate
@@ -112,6 +161,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
 - (void)itemsDisplayController:(ItemsDisplayController *)itemDisplayController
             selectionDidChange:(Item *)selectedItem {
+    [self.viewModel setSelected:selectedItem];
     [self.details setItemForDisplay:selectedItem];
 }
 
