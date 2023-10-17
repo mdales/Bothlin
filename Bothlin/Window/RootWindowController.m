@@ -130,6 +130,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
     [self.itemsDisplay setItems:self.viewModel.contents
                    withSelected:self.viewModel.selected];
+    [self.details setItemForDisplay:self.viewModel.selected];
 }
 
 #pragma mark - SidebarControllerDelegate
@@ -152,6 +153,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
     [self.itemsDisplay setItems:self.viewModel.contents
                    withSelected:self.viewModel.selected];
+    [self.details setItemForDisplay:self.viewModel.selected];
 }
 
 
