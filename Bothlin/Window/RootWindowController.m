@@ -23,6 +23,7 @@ NSString * __nonnull const kProgressToolbarItemIdentifier = @"ProgressToolbarIte
 NSString * __nonnull const kItemDisplayStyleItemIdentifier = @"ItemDisplayStyleItemIdentifier";
 NSString * __nonnull const kShareToolbarItemIdentifier = @"ShareToolbarItemIdentifier";
 NSString * __nonnull const kDeleteToolbarItemIdentifier = @"DeleteToolbarItemIdentifier";
+NSString * __nonnull const kToggleSidebarToolbarItemIdentifier = @"ToggleSidebarToolbarItemIdentifier";
 NSString * __nonnull const kToggleDetailViewToolbarItemIdentifier = @"ToggleDetailViewToolbarItemIdentifier";
 NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarItemIdentifier";
 
@@ -371,7 +372,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [self.itemsDisplay setDisplayStyle:style];
 }
 
-- (void)toggleSidebar {
+- (void)toggleSidebar: (id)sender {
     NSSplitViewItem *firstView = self.splitViewController.splitViewItems.firstObject;
     if (nil == firstView) {
         return;
@@ -405,10 +406,10 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
 - (NSArray<NSToolbarIdentifier> *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
     return @[
+        kToggleSidebarToolbarItemIdentifier,
         NSToolbarFlexibleSpaceItemIdentifier,
         kImportToolbarItemIdentifier,
         NSToolbarSidebarTrackingSeparatorItemIdentifier,
-//        kProgressToolbarItemIdentifier,
         NSToolbarFlexibleSpaceItemIdentifier,
         kShareToolbarItemIdentifier,
         kFavouriteToolbarItemIdentifier,
@@ -466,6 +467,16 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.image = [NSImage imageWithSystemSymbolName:@"sidebar.right" accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(toggleDetails:);
+
+        return item;
+    } else if ([itemIdentifier compare:kToggleSidebarToolbarItemIdentifier] == NSOrderedSame) {
+        NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+        item.title = @"Toggle Group Panel";
+        item.paletteLabel = @"Toggle Group Panel";
+        item.toolTip = @"Toggle Group Panel";
+        item.image = [NSImage imageWithSystemSymbolName:@"sidebar.left" accessibilityDescription:nil];
+        item.target = self;
+        item.action = @selector(toggleSidebar:);
 
         return item;
     } else if ([itemIdentifier compare:kShareToolbarItemIdentifier] == NSOrderedSame) {

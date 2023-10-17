@@ -86,4 +86,8 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
     return nil;
 }
 
+- (BOOL)outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item {
+    return NO;
+}
+
 @end
