@@ -29,37 +29,53 @@ NSArray<NSString *> * const testTags = @[
 - (void)rebuildMenuWithGroups:(NSArray<Group *> * _Nonnull)groups {
     dispatch_assert_queue(dispatch_get_main_queue());
 
+    NSFetchRequest *everythingRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
+    [everythingRequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt == nil"]];
     SidebarItem *everything = [[SidebarItem alloc] initWithTitle:@"Everything"
                                                       symbolName:@"shippingbox"
-                                                        children:nil];
+                                                        children:nil
+                                                    fetchRequest:everythingRequest];
 
+    NSFetchRequest *favouriteRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
+    [favouriteRequest setPredicate:[NSPredicate predicateWithFormat: @"favourite == YES"]];
     SidebarItem *favourites = [[SidebarItem alloc] initWithTitle:@"Favourites"
                                                       symbolName:@"heart"
-                                                        children:nil];
+                                                        children:nil
+                                                    fetchRequest:favouriteRequest];
 
     SidebarItem *groupsItem = [[SidebarItem alloc] initWithTitle:@"Groups"
                                                       symbolName:@"folder"
                                                         children:[groups mapUsingBlock:^SidebarItem * _Nonnull(Group * _Nonnull group) {
+        NSFetchRequest *groupRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
+        [groupRequest setPredicate:[NSPredicate predicateWithFormat: @"group == %@", group]];
         return [[SidebarItem alloc] initWithTitle:group.name
                                        symbolName:nil
-                                         children:nil];
-    }]];
+                                         children:nil
+                                     fetchRequest:groupRequest];
+    }]
+                                                    fetchRequest: nil];
 
     SidebarItem *tags = [[SidebarItem alloc] initWithTitle:@"Popular Tags"
                                                 symbolName:@"tag"
                                                   children:[testTags mapUsingBlock:^SidebarItem * _Nonnull(NSString * _Nonnull title) {
         return [[SidebarItem alloc] initWithTitle:title
                                        symbolName:nil
-                                         children:nil];
-    }]];
+                                         children:nil
+                                     fetchRequest:nil];
+    }]
+                                              fetchRequest:nil];
 
+    NSFetchRequest *trashReequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
+    [trashReequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt != nil"]];
     SidebarItem *trash = [[SidebarItem alloc] initWithTitle:@"Trash"
                                                  symbolName:@"trash"
-                                                   children:nil];
+                                                   children:nil
+                                               fetchRequest:trashReequest];
 
     self->_sidebarTree = [[SidebarItem alloc] initWithTitle:@"toplevel"
                                                  symbolName:nil
-                                                   children:@[everything, favourites, groupsItem, tags, trash]];
+                                                   children:@[everything, favourites, groupsItem, tags, trash]
+                                               fetchRequest:nil];
 }
 
 - (void)viewDidLoad {
@@ -87,6 +103,12 @@ NSArray<NSString *> * const testTags = @[
 
 - (IBAction)addItemFromOutlineView:(id)sender {
     [self.delegate addGroupViaSidebarController: self];
+}
+
+- (NSFetchRequest *)selectedOption {
+    SidebarItem *item = [self.outlineView itemAtRow:[self.outlineView selectedRow]];
+    NSAssert(nil != item.fetchRequest, @"selected item with no fetch request");
+    return item.fetchRequest;
 }
 
 
@@ -160,6 +182,13 @@ NSArray<NSString *> * const testTags = @[
     NSAssert([item isKindOfClass:[SidebarItem class]], @"Cell item not of expected type");
     SidebarItem *sidebarItem = (SidebarItem *)item;
     return sidebarItem.icon ? 32.0 : 24.0;
+}
+
+- (void)outlineViewSelectionDidChange:(NSNotification *)notification {
+    SidebarItem *item = [self.outlineView itemAtRow:[self.outlineView selectedRow]];
+    NSAssert(nil != item.fetchRequest, @"selected item with no fetch request");
+    [self.delegate sidebarController:self
+             didChangeSelectedOption:item.fetchRequest];
 }
 
 @end

@@ -10,8 +10,9 @@
 @implementation SidebarItem
 
 - (instancetype)initWithTitle:(NSString *)title
-                   symbolName:(NSString *)symbolName
-                     children:(NSArray<SidebarItem *> *)children {
+                   symbolName:(NSString * _Nullable)symbolName
+                     children:(NSArray<SidebarItem *> * _Nullable)children
+                 fetchRequest:(NSFetchRequest * _Nullable)fetchRequest {
     NSAssert(nil != title, @"Sidebar item must have non nil title");
     self = [super init];
     if (nil != self) {
@@ -19,6 +20,7 @@
         if (nil != symbolName) {
             self->_icon = [NSImage imageWithSystemSymbolName:symbolName accessibilityDescription:nil];
         }
+        self->_fetchRequest = [fetchRequest copy];
         self->_children = nil != children ? [NSArray arrayWithArray:children] : nil;
     }
     return self;

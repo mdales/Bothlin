@@ -21,7 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithViewContext:(NSManagedObjectContext *)viewContext;
 
 - (BOOL)reloadGroups:(NSError **)error;
-- (BOOL)reloadItems:(NSError **)error;
+- (BOOL)reloadItemsWithFetchRequest:(NSFetchRequest *)fetchRequest
+                              error:(NSError **)error;
 
 @end
 

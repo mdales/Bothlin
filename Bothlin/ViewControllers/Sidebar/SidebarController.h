@@ -15,6 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SidebarControllerDelegate <NSObject>
 
 - (void)addGroupViaSidebarController:(SidebarController *)sidebarController;
+- (void)sidebarController:(SidebarController *)sidebarController
+  didChangeSelectedOption:(NSFetchRequest *)fetchRequest;
 
 @end
 
@@ -28,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Only safe on mainQ
 - (void)setGroups:(NSArray<Group *> *)groups;
 - (void)showGroups;
+- (NSFetchRequest *)selectedOption;
 
 @end
 

@@ -35,10 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readwrite) IBOutlet NSCollectionView *collectionView;
 @property (nonatomic, weak, readwrite) IBOutlet DragTargetView *dragTargetView;
 @property (nonatomic, weak, readwrite) id<GridViewControllerDelegate> delegate;
-@property (nonatomic, strong, readwrite) Item *selectedItem;
+@property (nonatomic, strong, readwrite, nullable) Item *selectedItem;
 
 - (void)setItems:(NSArray<Item *> *)items
-    withSelected:(Item *)selected;
+    withSelected:(Item * _Nullable)selected;
 
 @end
 

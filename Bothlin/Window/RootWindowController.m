@@ -92,18 +92,6 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     }
     NSAssert(NO != success, @"Got no error and no success");
     [self.sidebar setGroups:self.viewModel.groups];
-
-    success = [self.viewModel reloadItems:&error];
-    if (nil != error) {
-        NSAssert(NO == success, @"Got error and success");
-        NSAlert *alert = [NSAlert alertWithError:error];
-        [alert runModal];
-        return;
-    }
-    NSAssert(NO != success, @"Got no error and no success");
-
-    [self.itemsDisplay setItems:self.viewModel.contents
-                   withSelected:self.viewModel.selected];
 }
 
 
@@ -129,7 +117,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     NSAssert(NO != success, @"Got no error and no success");
     [self.sidebar setGroups:self.viewModel.groups];
 
-    success = [self.viewModel reloadItems:&error];
+    NSFetchRequest *fetchRequest = [self.sidebar selectedOption];
+    success = [self.viewModel reloadItemsWithFetchRequest:fetchRequest
+                                                    error:&error];
     if (nil != error) {
         NSAssert(NO == success, @"Got error and success");
         NSAlert *alert = [NSAlert alertWithError:error];
@@ -146,6 +136,22 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
 - (void)addGroupViaSidebarController:(SidebarController *)sidebarController {
     [self showGroupCreatePanel:sidebarController];
+}
+
+- (void)sidebarController:(SidebarController *)sidebarController didChangeSelectedOption:(NSFetchRequest *)fetchRequest {
+    NSError *error = nil;
+    BOOL success = [self.viewModel reloadItemsWithFetchRequest:fetchRequest
+                                                         error:&error];
+    if (nil != error) {
+        NSAssert(NO == success, @"Got error and success");
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+        return;
+    }
+    NSAssert(NO != success, @"Got no error and no success");
+
+    [self.itemsDisplay setItems:self.viewModel.contents
+                   withSelected:self.viewModel.selected];
 }
 
 

@@ -106,13 +106,11 @@
     return YES;
 }
 
-- (BOOL)reloadItems:(NSError **)error {
+- (BOOL)reloadItemsWithFetchRequest:(NSFetchRequest *)fetchRequest
+                              error:(NSError **)error {
     dispatch_assert_queue_not(self.syncQ);
     dispatch_assert_queue(dispatch_get_main_queue());
 
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
-    NSPredicate *filter = [NSPredicate predicateWithFormat:@"deletedAt == nil"];
-    [fetchRequest setPredicate:filter];
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"created"
                                                            ascending:YES];
     [fetchRequest setSortDescriptors:@[sort]];

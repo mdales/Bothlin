@@ -41,7 +41,7 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 @property (nonatomic, readwrite) ItemsDisplayStyle displayStyle;
 
 - (void)setItems:(NSArray<Item *> *)items
-    withSelected:(Item *)selected;
+    withSelected:(Item * _Nullable)selected;
 
 @end
 

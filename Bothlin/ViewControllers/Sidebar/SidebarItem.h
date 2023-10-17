@@ -14,10 +14,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) NSString *title;
 @property (nonatomic, strong, readonly, nullable) NSImage *icon;
 @property (nonatomic, strong, readonly, nullable) NSArray<SidebarItem *> *children;
+@property (nonatomic, strong, readonly, nullable) NSFetchRequest *fetchRequest;
 
 - (instancetype)initWithTitle:(NSString *)title
                    symbolName:(NSString * _Nullable)symbolName
-                     children:(NSArray<SidebarItem *> * _Nullable)children;
+                     children:(NSArray<SidebarItem *> * _Nullable)children
+                 fetchRequest:(NSFetchRequest * _Nullable)fetchRequest;
 
 @end
 

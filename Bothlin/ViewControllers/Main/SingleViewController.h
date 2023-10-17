@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readwrite) id<SingleViewControllerDelegate> delegate;
 @property (nonatomic, weak, readwrite) IBOutlet IKImageView *imageView;
 
-- (void)setItemForDisplay:(Item *)item;
+- (void)setItemForDisplay:(Item * _Nullable)item;
 
 @end
 
