@@ -27,8 +27,8 @@
     if (nil != self) {
         self->_syncQ = dispatch_queue_create("com.digitalflapjack.GridViewController.syncQ", DISPATCH_QUEUE_SERIAL);
         self->_thumbnailLoadQ = dispatch_queue_create("com.digitalflapjack.GridViewController.thumbnailLoadQ", DISPATCH_QUEUE_CONCURRENT);
-        self->_contents = [[NSArray alloc] init];
-        self->_thumbnailCache = [[NSDictionary alloc] init];
+        self->_contents = @[];
+        self->_thumbnailCache = @{};
     }
     return self;
 }
@@ -42,9 +42,30 @@
 
 - (void)setItems:(NSArray<Item *> *)items withSelected:(Item *)selected {
     dispatch_assert_queue(dispatch_get_main_queue());
-    self.contents = items;
-    self.selectedItem = selected;
-    [self.collectionView reloadData];
+    __block BOOL updated = NO;
+    // TODO: at some point this needs to generate the update indexes so we don't just reload the table
+    if ([items count] == [self.contents count]) {
+        [items enumerateObjectsUsingBlock:^(Item * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            Item *existingItem = [self.contents objectAtIndex:idx];
+            if (obj.objectID != existingItem.objectID) {
+                *stop = YES;
+                updated = YES;
+            }
+        }];
+    } else {
+        updated = YES;
+    }
+    if (NO != updated) {
+        self.contents = items;
+    }
+    // TODO: at some point we should just update the selected and not reload the table
+    if (selected != self.selectedItem) {
+        self.selectedItem = selected;
+        updated = YES;
+    }
+    if (NO != updated) {
+        [self.collectionView reloadData];
+    }
 }
 
 

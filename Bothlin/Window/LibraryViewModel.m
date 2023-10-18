@@ -202,8 +202,10 @@ NSArray<NSString *> * const testTags = @[
     NSAssert(nil != result, @"Got no error and no fetch results.");
 
     dispatch_sync(self.syncQ, ^{
-        self->_contents = result;
-        self->_selected = [result firstObject];
+        self.contents = result;
+        if ((nil == self->_selected) || ([result indexOfObject:self->_selected] == NSNotFound)) {
+            self->_selected = [result firstObject];
+        }
     });
 
     return YES;
@@ -228,7 +230,7 @@ NSArray<NSString *> * const testTags = @[
                                                       symbolName:@"folder"
                                                         children:[groups mapUsingBlock:^SidebarItem * _Nonnull(Group * _Nonnull group) {
         NSFetchRequest *groupRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
-        [groupRequest setPredicate:[NSPredicate predicateWithFormat: @"group == %@", group]];
+        [groupRequest setPredicate:[NSPredicate predicateWithFormat: @"ANY groups == %@", group]];
         return [[SidebarItem alloc] initWithTitle:group.name
                                        symbolName:nil
                                          children:nil

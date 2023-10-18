@@ -39,6 +39,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 @property (nonatomic, strong, readonly) LibraryViewModel *viewModel;
 
 @property (nonatomic, strong, readonly) KVOBox *sidebarObserver;
+@property (nonatomic, strong, readonly) KVOBox *itemsObserver;
+@property (nonatomic, strong, readonly) KVOBox *selectedObserver;
 
 @end
 
@@ -57,6 +59,10 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
         self->_sidebarObserver = [KVOBox observeObject:self->_viewModel
                                                keyPath:@"sidebarItems"];
+        self->_itemsObserver = [KVOBox observeObject:self->_viewModel
+                                             keyPath:@"contents"];
+        self->_selectedObserver = [KVOBox observeObject:self->_viewModel
+                                                keyPath:@"selected"];
     }
     return self;
 }
@@ -89,17 +95,59 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     LibraryController *library = appDelegate.libraryController;
     library.delegate = self.viewModel;
 
+    // TODO: This whole section is horribly verbose and thus confusing to read. The root
+    // cause is that starting a block based observer can fail if the block was already
+    // started. I suspect I should just assert in the handler and not ignore the error
+    // - it's not like I can recover from this.
     NSError *error = nil;
     @weakify(self);
-    BOOL success = [self.sidebarObserver startWithBlock:^(NSDictionary * _Nonnull changes) {
+    BOOL success = [self.sidebarObserver startWithBlock:^(__unused NSDictionary * _Nonnull changes) {
         @strongify(self);
         if (nil == self) {
             return;
         }
         dispatch_assert_queue(dispatch_get_main_queue());
-        NSLog(@"sidebar changes: %@", changes);
         [self.sidebar setSidebarTree:self.viewModel.sidebarItems];
-    } error: &error];
+    } 
+                                                  error:&error];
+    if (nil != error) {
+        NSAssert(NO == success, @"Got error and success");
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+        return;
+    }
+    NSAssert(NO != success, @"Got no error and no success");
+
+    success = [self.itemsObserver startWithBlock:^(__unused NSDictionary * _Nonnull changes) {
+        @strongify(self);
+        if (nil == self) {
+            return;
+        }
+        dispatch_assert_queue(dispatch_get_main_queue());
+        [self.itemsDisplay setItems:self.viewModel.contents
+                       withSelected:self.viewModel.selected];
+
+    }
+                                                error:&error];
+    if (nil != error) {
+        NSAssert(NO == success, @"Got error and success");
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+        return;
+    }
+    NSAssert(NO != success, @"Got no error and no success");
+
+    success = [self.selectedObserver startWithBlock:^(__unused NSDictionary * _Nonnull changes) {
+        @strongify(self);
+        if (nil == self) {
+            return;
+        }
+        dispatch_assert_queue(dispatch_get_main_queue());
+        [self.itemsDisplay setItems:self.viewModel.contents
+                       withSelected:self.viewModel.selected];
+        [self.details setItemForDisplay:self.viewModel.selected];
+    }
+                                                error:&error];
     if (nil != error) {
         NSAssert(NO == success, @"Got error and success");
         NSAlert *alert = [NSAlert alertWithError:error];
@@ -137,10 +185,6 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         return;
     }
     NSAssert(NO != success, @"Got no error and no success");
-
-    [self.itemsDisplay setItems:self.viewModel.contents
-                   withSelected:self.viewModel.selected];
-    [self.details setItemForDisplay:self.viewModel.selected];
 }
 
 #pragma mark - ItemDisplayController
@@ -148,7 +192,6 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 - (void)itemsDisplayController:(ItemsDisplayController *)itemDisplayController
             selectionDidChange:(Item *)selectedItem {
     [self.viewModel setSelected:selectedItem];
-    [self.details setItemForDisplay:selectedItem];
 }
 
 - (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController 
