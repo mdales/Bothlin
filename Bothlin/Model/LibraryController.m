@@ -39,8 +39,7 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
 @implementation LibraryController
 
 - (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator * _Nonnull)store {
-    NSAssert(nil != store, @"Null persistent store coordinated passed to init");
-
+    NSParameterAssert(nil != store);
     self = [super init];
     if (nil != self) {
         self->_dataQ = dispatch_queue_create("com.digitalflapjack.LibraryController.dataQ", DISPATCH_QUEUE_SERIAL);

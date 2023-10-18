@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class Group;
 @class SidebarController;
+@class SidebarItem;
 
 @protocol SidebarControllerDelegate <NSObject>
 
@@ -25,11 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readwrite) IBOutlet NSOutlineView *outlineView;
 @property (nonatomic, weak, readwrite) id<SidebarControllerDelegate> delegate;
 
+// Safe on mainQ only
+@property (nonatomic, strong, readwrite) SidebarItem *sidebarTree;
+
+
 - (IBAction)addItemFromOutlineView:(id)sender;
 
-// Only safe on mainQ
-- (void)setGroups:(NSArray<Group *> *)groups;
-- (void)showGroups;
+- (void)expandGroupsBranch;
 - (NSFetchRequest *)selectedOption;
 
 @end

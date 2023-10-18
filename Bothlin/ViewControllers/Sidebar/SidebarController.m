@@ -7,92 +7,25 @@
 
 #import "SidebarController.h"
 #import "SidebarItem.h"
-#import "NSArray+Functional.h"
 #import "TableCellWithButtonView.h"
-#import "Group+CoreDataClass.h"
-
-NSArray<NSString *> * const testTags = @[
-    @"Minecraft",
-    @"QGIS",
-    @"Other",
-];
-
-@interface SidebarController ()
-
-// Safe on mainQ only
-@property (nonatomic, strong, readwrite) SidebarItem * _Nonnull sidebarTree;
-
-@end
 
 @implementation SidebarController
 
-- (void)rebuildMenuWithGroups:(NSArray<Group *> * _Nonnull)groups {
-    dispatch_assert_queue(dispatch_get_main_queue());
-
-    NSFetchRequest *everythingRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
-    [everythingRequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt == nil"]];
-    SidebarItem *everything = [[SidebarItem alloc] initWithTitle:@"Everything"
-                                                      symbolName:@"shippingbox"
-                                                        children:nil
-                                                    fetchRequest:everythingRequest];
-
-    NSFetchRequest *favouriteRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
-    [favouriteRequest setPredicate:[NSPredicate predicateWithFormat: @"favourite == YES"]];
-    SidebarItem *favourites = [[SidebarItem alloc] initWithTitle:@"Favourites"
-                                                      symbolName:@"heart"
-                                                        children:nil
-                                                    fetchRequest:favouriteRequest];
-
-    SidebarItem *groupsItem = [[SidebarItem alloc] initWithTitle:@"Groups"
-                                                      symbolName:@"folder"
-                                                        children:[groups mapUsingBlock:^SidebarItem * _Nonnull(Group * _Nonnull group) {
-        NSFetchRequest *groupRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
-        [groupRequest setPredicate:[NSPredicate predicateWithFormat: @"group == %@", group]];
-        return [[SidebarItem alloc] initWithTitle:group.name
-                                       symbolName:nil
-                                         children:nil
-                                     fetchRequest:groupRequest];
-    }]
-                                                    fetchRequest: nil];
-
-    SidebarItem *tags = [[SidebarItem alloc] initWithTitle:@"Popular Tags"
-                                                symbolName:@"tag"
-                                                  children:[testTags mapUsingBlock:^SidebarItem * _Nonnull(NSString * _Nonnull title) {
-        return [[SidebarItem alloc] initWithTitle:title
-                                       symbolName:nil
-                                         children:nil
-                                     fetchRequest:nil];
-    }]
-                                              fetchRequest:nil];
-
-    NSFetchRequest *trashReequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
-    [trashReequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt != nil"]];
-    SidebarItem *trash = [[SidebarItem alloc] initWithTitle:@"Trash"
-                                                 symbolName:@"trash"
-                                                   children:nil
-                                               fetchRequest:trashReequest];
-
-    self->_sidebarTree = [[SidebarItem alloc] initWithTitle:@"toplevel"
-                                                 symbolName:nil
-                                                   children:@[everything, favourites, groupsItem, tags, trash]
-                                               fetchRequest:nil];
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self rebuildMenuWithGroups:@[]];
     [self.outlineView reloadData];
     [self.outlineView selectRowIndexes:[[NSIndexSet alloc] initWithIndex:0]
                   byExtendingSelection:NO];
 }
 
-- (void)setGroups:(NSArray<Group *> *)groups {
+- (void)setSidebarTree:(SidebarItem *)sidebarTree {
+    NSParameterAssert(nil != sidebarTree);
     dispatch_assert_queue(dispatch_get_main_queue());
-    [self rebuildMenuWithGroups:groups];
+    self->_sidebarTree = sidebarTree;
     [self.outlineView reloadData];
 }
 
-- (void)showGroups {
+- (void)expandGroupsBranch {
     for (SidebarItem *item in self.sidebarTree.children) {
         if ([item.title compare:@"Groups"] == NSOrderedSame) {
             [self.outlineView expandItem:item];
@@ -155,7 +88,7 @@ NSArray<NSString *> * const testTags = @[
 - (BOOL)outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item {
     NSAssert([item isKindOfClass:[SidebarItem class]], @"Cell item not of expected type");
     SidebarItem *sidebarItem = (SidebarItem *)item;
-    return 0 == [sidebarItem.children count];
+    return nil != sidebarItem.fetchRequest;
 }
 
 #pragma mark - NSOutlineViewDelegate

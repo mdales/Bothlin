@@ -16,6 +16,7 @@
 #import "Group+CoreDataClass.h"
 #import "NSArray+Functional.h"
 #import "LibraryViewModel.h"
+#import "KVOBox.h"
 
 NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIdentifier";
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
@@ -37,6 +38,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
 @property (nonatomic, strong, readonly) LibraryViewModel *viewModel;
 
+@property (nonatomic, strong, readonly) KVOBox *sidebarObserver;
+
 @end
 
 @implementation RootWindowController
@@ -51,6 +54,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         self->_splitViewController = [[NSSplitViewController alloc] init];
         self->_progressView = [[ToolbarProgressView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 250.0, 28.0)];
         self->_viewModel = [[LibraryViewModel alloc] initWithViewContext:viewContext];
+
+        self->_sidebarObserver = [KVOBox observeObject:self->_viewModel
+                                               keyPath:@"sidebarItems"];
     }
     return self;
 }
@@ -81,10 +87,19 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryController *library = appDelegate.libraryController;
-    library.delegate = self;
+    library.delegate = self.viewModel;
 
     NSError *error = nil;
-    BOOL success = [self.viewModel reloadGroups:&error];
+    @weakify(self);
+    BOOL success = [self.sidebarObserver startWithBlock:^(NSDictionary * _Nonnull changes) {
+        @strongify(self);
+        if (nil == self) {
+            return;
+        }
+        dispatch_assert_queue(dispatch_get_main_queue());
+        NSLog(@"sidebar changes: %@", changes);
+        [self.sidebar setSidebarTree:self.viewModel.sidebarItems];
+    } error: &error];
     if (nil != error) {
         NSAssert(NO == success, @"Got error and success");
         NSAlert *alert = [NSAlert alertWithError:error];
@@ -92,47 +107,18 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         return;
     }
     NSAssert(NO != success, @"Got no error and no success");
-    [self.sidebar setGroups:self.viewModel.groups];
+
+    // Trigger a loading of the groups for the sidebar
+    success = [self.viewModel reloadGroups:&error];
+    if (nil != error) {
+        NSAssert(NO == success, @"Got error and success");
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+        return;
+    }
+    NSAssert(NO != success, @"Got no error and no success");
 }
 
-
-#pragma mark - LibraryControllerDelegate
-
-- (void)libraryDidUpdate:(NSDictionary *)changeNotificationData {
-    dispatch_assert_queue(dispatch_get_main_queue());
-
-    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-    NSManagedObjectContext *viewContext = appDelegate.persistentContainer.viewContext;
-    [NSManagedObjectContext mergeChangesFromRemoteContextSave:changeNotificationData
-                                                 intoContexts:@[viewContext]];
-
-    // TODO: Make this code more clever by looking at what's changed
-    NSError *error = nil;
-    BOOL success = [self.viewModel reloadGroups:&error];
-    if (nil != error) {
-        NSAssert(NO == success, @"Got error and success");
-        NSAlert *alert = [NSAlert alertWithError:error];
-        [alert runModal];
-        return;
-    }
-    NSAssert(NO != success, @"Got no error and no success");
-    [self.sidebar setGroups:self.viewModel.groups];
-
-    NSFetchRequest *fetchRequest = [self.sidebar selectedOption];
-    success = [self.viewModel reloadItemsWithFetchRequest:fetchRequest
-                                                    error:&error];
-    if (nil != error) {
-        NSAssert(NO == success, @"Got error and success");
-        NSAlert *alert = [NSAlert alertWithError:error];
-        [alert runModal];
-        return;
-    }
-    NSAssert(NO != success, @"Got no error and no success");
-
-    [self.itemsDisplay setItems:self.viewModel.contents
-                   withSelected:self.viewModel.selected];
-    [self.details setItemForDisplay:self.viewModel.selected];
-}
 
 #pragma mark - SidebarControllerDelegate
 
@@ -155,15 +141,6 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [self.itemsDisplay setItems:self.viewModel.contents
                    withSelected:self.viewModel.selected];
     [self.details setItemForDisplay:self.viewModel.selected];
-}
-
-
-#pragma mark -
-
-- (void)thumbnailGenerationFailedWithError:(NSError *)error {
-    NSAssert(nil != error, @"Thumbnail generation sent nil error");
-    NSAlert *alert = [NSAlert alertWithError:error];
-    [alert runModal];
 }
 
 #pragma mark - ItemDisplayController
@@ -323,7 +300,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
                 [alert runModal];
             } else {
                 [self.window endSheet:self.groupCreatePanel];
-                [self.sidebar showGroups];
+                [self.sidebar expandGroupsBranch];
             }
         });
     }];

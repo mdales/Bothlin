@@ -13,7 +13,7 @@
                    symbolName:(NSString * _Nullable)symbolName
                      children:(NSArray<SidebarItem *> * _Nullable)children
                  fetchRequest:(NSFetchRequest * _Nullable)fetchRequest {
-    NSAssert(nil != title, @"Sidebar item must have non nil title");
+    NSParameterAssert(nil != title);
     self = [super init];
     if (nil != self) {
         self->_title = [NSString stringWithString:title];
