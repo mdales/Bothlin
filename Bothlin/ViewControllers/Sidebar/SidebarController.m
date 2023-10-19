@@ -13,6 +13,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    [self.outlineView registerForDraggedTypes:NSFilePromiseReceiver.readableDraggedTypes];
+
     [self.outlineView reloadData];
     [self.outlineView selectRowIndexes:[[NSIndexSet alloc] initWithIndex:0]
                   byExtendingSelection:NO];
@@ -122,6 +125,24 @@
     NSAssert(nil != item.fetchRequest, @"selected item with no fetch request");
     [self.delegate sidebarController:self
              didChangeSelectedOption:item.fetchRequest];
+}
+
+- (NSDragOperation)outlineView:(NSOutlineView *)outlineView validateDrop:(id<NSDraggingInfo>)info proposedItem:(id)item proposedChildIndex:(NSInteger)index {
+    if (nil == item) {
+        return NSDragOperationNone;
+    }
+    NSAssert([item isKindOfClass:[SidebarItem class]], @"Unexpected class for item");
+    SidebarItem *sidebarItem = (SidebarItem *)item;
+    return (sidebarItem.fetchRequest == nil) ? NSDragOperationNone : NSDragOperationCopy;
+}
+
+- (BOOL)outlineView:(NSOutlineView *)outlineView acceptDrop:(id<NSDraggingInfo>)info item:(id)item childIndex:(NSInteger)index {
+    if (nil == item) {
+        return NO;
+    }
+    NSAssert([item isKindOfClass:[SidebarItem class]], @"Unexpected class for item");
+    SidebarItem *sidebarItem = (SidebarItem *)item;
+    return (sidebarItem.fetchRequest != nil);
 }
 
 @end

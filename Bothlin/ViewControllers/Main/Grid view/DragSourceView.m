@@ -49,7 +49,8 @@ const float kDragThreshold = 3.0;
             if ((fabs(movedLocation.x - startLocation.x) > kDragThreshold) || (fabs(movedLocation.y - startLocation.y) > kDragThreshold)) {
                 *stop = YES;
                 if (nil != self.delegate) {
-                    NSDraggingItem *draggingItem = [[NSDraggingItem alloc] initWithPasteboardWriter:[self.delegate pasteboardWriterForDragSourceView:self]];
+                    id<NSPasteboardWriting> writer = [self.delegate pasteboardWriterForDragSourceView:self];
+                    NSDraggingItem *draggingItem = [[NSDraggingItem alloc] initWithPasteboardWriter:writer];
                     [draggingItem setDraggingFrame:[self frame]
                                           contents:[self.delegate draggingImageForDragSourceView:self]];
                     [self beginDraggingSessionWithItems:@[draggingItem]
