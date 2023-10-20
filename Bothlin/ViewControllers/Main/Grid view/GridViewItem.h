@@ -10,6 +10,7 @@
 #import "DragSourceView.h"
 
 @class Item;
+@class SidebarItem;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol GridViewItemDelegate <NSObject>
 
 - (void)gridViewItemWasDoubleClicked:(GridViewItem *)gridViewItem;
+- (BOOL)gridViewItem:(GridViewItem *)gridViewItem
+wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
 
 @end
 

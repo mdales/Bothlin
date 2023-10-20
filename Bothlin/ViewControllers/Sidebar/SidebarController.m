@@ -8,6 +8,8 @@
 #import "SidebarController.h"
 #import "SidebarItem.h"
 #import "TableCellWithButtonView.h"
+#import "DragSourceView.h"
+#import "GridViewItem.h"
 
 @implementation SidebarController
 
@@ -127,22 +129,36 @@
              didChangeSelectedOption:item.fetchRequest];
 }
 
-- (NSDragOperation)outlineView:(NSOutlineView *)outlineView validateDrop:(id<NSDraggingInfo>)info proposedItem:(id)item proposedChildIndex:(NSInteger)index {
+- (NSDragOperation)outlineView:(NSOutlineView *)outlineView 
+                  validateDrop:(id<NSDraggingInfo>)info
+                  proposedItem:(id)item
+            proposedChildIndex:(NSInteger)index {
     if (nil == item) {
         return NSDragOperationNone;
     }
     NSAssert([item isKindOfClass:[SidebarItem class]], @"Unexpected class for item");
     SidebarItem *sidebarItem = (SidebarItem *)item;
-    return (sidebarItem.fetchRequest == nil) ? NSDragOperationNone : NSDragOperationCopy;
+    return (sidebarItem.dragResponseType == SidebarItemDragResponseNone) ? NSDragOperationNone : NSDragOperationCopy;
 }
 
-- (BOOL)outlineView:(NSOutlineView *)outlineView acceptDrop:(id<NSDraggingInfo>)info item:(id)item childIndex:(NSInteger)index {
+- (BOOL)outlineView:(NSOutlineView *)outlineView 
+         acceptDrop:(id<NSDraggingInfo>)dragInfo
+               item:(id)item
+         childIndex:(NSInteger)index {
     if (nil == item) {
         return NO;
     }
     NSAssert([item isKindOfClass:[SidebarItem class]], @"Unexpected class for item");
     SidebarItem *sidebarItem = (SidebarItem *)item;
-    return (sidebarItem.fetchRequest != nil);
+    if (SidebarItemDragResponseNone == sidebarItem.dragResponseType) {
+        return NO;
+    }
+
+    if (NO == [[dragInfo draggingSource] isKindOfClass:[DragSourceView class]]) {
+        return NO;
+    }
+    DragSourceView *source = (DragSourceView *)[dragInfo draggingSource];
+    return [source wasDroppedOnSidebarItem:sidebarItem];
 }
 
 @end

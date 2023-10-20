@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class DragSourceView;
+@class SidebarItem;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,12 +18,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSImage*)draggingImageForDragSourceView:(DragSourceView *)dragSourceView;
 - (void)dragSourceView:(DragSourceView *)dragSourceView
             wasClicked:(NSInteger)count;
+- (BOOL)dragSourceWasDroppedOnSidebar:(SidebarItem *)sidebarItem;
 
 @end
 
 @interface DragSourceView : NSView <NSDraggingSource>
 
 @property (nonatomic, weak, readwrite) id<DragSourceViewDelegate> delegate;
+
+- (BOOL)wasDroppedOnSidebarItem:(SidebarItem *)sidebarItem;
 
 @end
 

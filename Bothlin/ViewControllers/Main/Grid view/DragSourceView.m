@@ -12,11 +12,12 @@ const float kDragThreshold = 3.0;
 
 @implementation DragSourceView
 
-//- (void)drawRect:(NSRect)dirtyRect {
-//    [[NSColor systemPinkColor] setFill];
-//    NSBezierPath *path = [NSBezierPath bezierPathWithRect:dirtyRect];
-//    [path fill];
-//}
+- (BOOL)wasDroppedOnSidebarItem:(SidebarItem *)sidebarItem {
+    if (nil == self.delegate) {
+        return NO;
+    }
+    return [self.delegate dragSourceWasDroppedOnSidebar:sidebarItem];
+}
 
 - (void)mouseDown:(NSEvent *)event {
     [super mouseDown:event];

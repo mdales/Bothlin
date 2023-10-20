@@ -84,6 +84,14 @@
     }
 }
 
+- (BOOL)dragSourceWasDroppedOnSidebar:(SidebarItem *)sidebarItem {
+    if (nil == self.delegate) {
+        return NO;
+    }
+    return [self.delegate gridViewItem:self
+               wasDraggedOnSidebarItem:sidebarItem];
+}
+
 #pragma mark - NSFilePromiseProviderDelegate
 
 - (NSString*)filePromiseProvider:(NSFilePromiseProvider *)filePromiseProvider

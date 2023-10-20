@@ -216,49 +216,65 @@ NSArray<NSString *> * const testTags = @[
     [everythingRequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt == nil"]];
     SidebarItem *everything = [[SidebarItem alloc] initWithTitle:@"Everything"
                                                       symbolName:@"shippingbox"
+                                                dragResponseType:SidebarItemDragResponseNone
                                                         children:nil
-                                                    fetchRequest:everythingRequest];
+                                                    fetchRequest:everythingRequest
+                                                   relatedObject:nil];
 
     NSFetchRequest *favouriteRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
     [favouriteRequest setPredicate:[NSPredicate predicateWithFormat: @"favourite == YES"]];
     SidebarItem *favourites = [[SidebarItem alloc] initWithTitle:@"Favourites"
                                                       symbolName:@"heart"
+                                                dragResponseType:SidebarItemDragResponseFavourite
                                                         children:nil
-                                                    fetchRequest:favouriteRequest];
+                                                    fetchRequest:favouriteRequest
+                                                   relatedObject:nil];
 
     SidebarItem *groupsItem = [[SidebarItem alloc] initWithTitle:@"Groups"
                                                       symbolName:@"folder"
+                                                dragResponseType:SidebarItemDragResponseNone
                                                         children:[groups mapUsingBlock:^SidebarItem * _Nonnull(Group * _Nonnull group) {
         NSFetchRequest *groupRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
         [groupRequest setPredicate:[NSPredicate predicateWithFormat: @"ANY groups == %@", group]];
         return [[SidebarItem alloc] initWithTitle:group.name
                                        symbolName:nil
+                                 dragResponseType:SidebarItemDragResponseGroup
                                          children:nil
-                                     fetchRequest:groupRequest];
+                                     fetchRequest:groupRequest
+                                    relatedObject:group.objectID];
     }]
-                                                    fetchRequest: nil];
+                                                    fetchRequest:nil
+                                                   relatedObject:nil];
 
     SidebarItem *tags = [[SidebarItem alloc] initWithTitle:@"Popular Tags"
                                                 symbolName:@"tag"
+                                          dragResponseType:SidebarItemDragResponseNone
                                                   children:[testTags mapUsingBlock:^SidebarItem * _Nonnull(NSString * _Nonnull title) {
         return [[SidebarItem alloc] initWithTitle:title
                                        symbolName:nil
+                                 dragResponseType:SidebarItemDragResponseNone
                                          children:nil
-                                     fetchRequest:nil];
+                                     fetchRequest:nil
+                                    relatedObject:nil];
     }]
-                                              fetchRequest:nil];
+                                              fetchRequest:nil
+                                             relatedObject:nil];
 
     NSFetchRequest *trashReequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
     [trashReequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt != nil"]];
     SidebarItem *trash = [[SidebarItem alloc] initWithTitle:@"Trash"
                                                  symbolName:@"trash"
+                                           dragResponseType:SidebarItemDragResponseTrash
                                                    children:nil
-                                               fetchRequest:trashReequest];
+                                               fetchRequest:trashReequest
+                                              relatedObject:nil];
 
     SidebarItem *root = [[SidebarItem alloc] initWithTitle:@"toplevel"
                                                 symbolName:nil
+                                          dragResponseType:SidebarItemDragResponseNone
                                                   children:@[everything, favourites, groupsItem, tags, trash]
-                                              fetchRequest:nil];
+                                              fetchRequest:nil
+                                             relatedObject:nil];
 
     return root;
 }

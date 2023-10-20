@@ -170,6 +170,15 @@
                     doubleClickedItem:gridViewItem.item];
 }
 
+- (BOOL)gridViewItem:(GridViewItem *)gridViewItem wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
+    if (nil == self.delegate) {
+        return NO;
+    }
+    return [self.delegate gridViewController:self
+                                        item:gridViewItem.item
+                     wasDraggedOnSidebarItem:sidebarItem];
+}
+
 
 #pragma mark - DragTargetViewDelegate
 

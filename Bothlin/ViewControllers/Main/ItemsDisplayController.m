@@ -113,6 +113,15 @@
                     didReceiveDroppedURLs:URLs];
 }
 
+- (BOOL)gridViewController:(GridViewController *)gridViewController item:(Item *)item wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
+    if (nil == self.delegate) {
+        return NO;
+    }
+    return [self.delegate itemsDisplayController:self
+                                            item:item
+                         wasDraggedOnSidebarItem:sidebarItem];
+}
+
 #pragma mark - SingleViewControllerDelegate
 
 - (void)singleViewItemWasDoubleClicked:(SingleViewController *)singleViewItem {

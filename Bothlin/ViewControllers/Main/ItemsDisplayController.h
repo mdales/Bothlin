@@ -32,6 +32,12 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 - (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
          didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs;
 
+// TODO: Better naming needed, but I hope to remove this endless delegate chain
+// at some point, as it's somewhat tedious.
+- (BOOL)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
+                          item:(Item *)item
+       wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
+
 @end
 
 @interface ItemsDisplayController : NSViewController <GridViewControllerDelegate, SingleViewControllerDelegate>

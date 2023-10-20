@@ -9,17 +9,28 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, SidebarItemDragResponse) {
+    SidebarItemDragResponseNone = 0,
+    SidebarItemDragResponseFavourite = 1,
+    SidebarItemDragResponseGroup = 2,
+    SidebarItemDragResponseTrash = 3,
+};
+
 @interface SidebarItem : NSObject
 
 @property (nonatomic, strong, readonly) NSString *title;
 @property (nonatomic, strong, readonly, nullable) NSImage *icon;
 @property (nonatomic, strong, readonly, nullable) NSArray<SidebarItem *> *children;
 @property (nonatomic, strong, readonly, nullable) NSFetchRequest *fetchRequest;
+@property (nonatomic, readonly) SidebarItemDragResponse dragResponseType;
+@property (nonatomic, strong, readonly, nullable) NSManagedObjectID *relatedOject;
 
 - (instancetype)initWithTitle:(NSString *)title
                    symbolName:(NSString * _Nullable)symbolName
+             dragResponseType:(SidebarItemDragResponse)dragResponseType
                      children:(NSArray<SidebarItem *> * _Nullable)children
-                 fetchRequest:(NSFetchRequest * _Nullable)fetchRequest;
+                 fetchRequest:(NSFetchRequest * _Nullable)fetchRequest
+                relatedObject:(NSManagedObjectID * _Nullable)relatedObject;
 
 @end
 

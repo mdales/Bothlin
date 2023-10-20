@@ -27,6 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)gridViewController:(GridViewController *)gridViewController
      didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs;
 
+// TODO: Better naming needed, but I hope to remove this endless delegate chain
+// at some point, as it's somewhat tedious.
+- (BOOL)gridViewController:(GridViewController *)gridViewController
+                      item:(Item *)item
+   wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
+
 @end
 
 @interface GridViewController : NSViewController <NSCollectionViewDelegate, NSCollectionViewDataSource, GridViewItemDelegate, DragTargetViewDelegate>

@@ -9,10 +9,13 @@
 
 @implementation SidebarItem
 
+
 - (instancetype)initWithTitle:(NSString *)title
                    symbolName:(NSString * _Nullable)symbolName
+             dragResponseType:(SidebarItemDragResponse)dragResponseType
                      children:(NSArray<SidebarItem *> * _Nullable)children
-                 fetchRequest:(NSFetchRequest * _Nullable)fetchRequest {
+                 fetchRequest:(NSFetchRequest * _Nullable)fetchRequest
+                relatedObject:(NSManagedObjectID * _Nullable)relatedObject {
     NSParameterAssert(nil != title);
     self = [super init];
     if (nil != self) {
@@ -22,6 +25,8 @@
         }
         self->_fetchRequest = [fetchRequest copy];
         self->_children = nil != children ? [NSArray arrayWithArray:children] : nil;
+        self->_dragResponseType = dragResponseType;
+        self->_relatedOject = relatedObject;
     }
     return self;
 }

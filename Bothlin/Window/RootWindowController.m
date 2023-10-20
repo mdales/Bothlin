@@ -13,6 +13,7 @@
 #import "LibraryController.h"
 #import "ToolbarProgressView.h"
 #import "Helpers.h"
+#import "SidebarItem.h"
 #import "Group+CoreDataClass.h"
 #import "NSArray+Functional.h"
 #import "LibraryViewModel.h"
@@ -239,6 +240,26 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             NSAssert(NO != success, @"Got no success and error from saving.");
         });
     }];
+}
+
+- (BOOL)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController 
+                          item:(Item *)item
+       wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
+    NSParameterAssert(nil != item);
+    NSParameterAssert(nil != sidebarItem);
+
+    BOOL accepted = NO;
+    switch (sidebarItem.dragResponseType) {
+        case SidebarItemDragResponseGroup:
+            break;
+        case SidebarItemDragResponseTrash:
+            break;
+        case SidebarItemDragResponseFavourite:
+            break;
+        default:
+            break;
+    }
+    return accepted;
 }
 
 #pragma mark - Custom behaviour
