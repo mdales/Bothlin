@@ -9,10 +9,11 @@
 
 #import "ItemsDisplayController.h"
 #import "SidebarController.h"
+#import "LibraryViewModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RootWindowController : NSWindowController <NSToolbarDelegate, ItemsDisplayControllerDelegate, NSTextFieldDelegate, SidebarControllerDelegate>
+@interface RootWindowController : NSWindowController <NSToolbarDelegate, ItemsDisplayControllerDelegate, NSTextFieldDelegate, SidebarControllerDelegate, LibraryViewModelDelegate>
 
 // Group creation panel and controls.
 @property (nonatomic, weak, readwrite) IBOutlet NSPanel *groupCreatePanel;

@@ -24,7 +24,7 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 @protocol ItemsDisplayControllerDelegate <NSObject>
 
 - (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
-            selectionDidChange:(Item *)selectedItem;
+            selectionDidChange:(Item * _Nullable)selectedItem;
 
 - (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
             viewStyleDidChange:(ItemsDisplayStyle)displayStyle;

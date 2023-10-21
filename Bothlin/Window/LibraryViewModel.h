@@ -11,10 +11,20 @@
 @class Item;
 @class Group;
 @class SidebarItem;
+@class LibraryViewModel;
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol LibraryViewModelDelegate <NSObject>
+
+- (void)libraryViewModel:(LibraryViewModel *)libraryViewModel
+        hadErrorOnUpdate:(NSError *)error;
+
+@end
+
 @interface LibraryViewModel : NSObject <LibraryControllerDelegate>
+
+@property (nonatomic, weak, readwrite) id<LibraryViewModelDelegate> delegate;
 
 // TODO: Ideally these would a tuple to make KVO like updates easier
 @property (nonatomic, strong, readonly) NSArray<Item *> *contents;
@@ -28,8 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithViewContext:(NSManagedObjectContext *)viewContext;
 
 - (BOOL)reloadGroups:(NSError **)error;
-- (BOOL)reloadItemsWithFetchRequest:(NSFetchRequest *)fetchRequest
-                              error:(NSError **)error;
 
 @end
 

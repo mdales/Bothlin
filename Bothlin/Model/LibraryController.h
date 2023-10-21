@@ -29,6 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)createGroup:(NSString *)name
            callback:(void (^)(BOOL success, NSError *error)) callback;
 
+- (void)toggleFavouriteState:(NSManagedObjectID *)itemID
+                    callback:(void (^)(BOOL success, NSError *error)) callback;
+
 @end
 
 NS_ASSUME_NONNULL_END

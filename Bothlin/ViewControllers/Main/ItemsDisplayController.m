@@ -94,7 +94,7 @@
 #pragma mark - GridViewControllerDelegate
 
 - (void)gridViewController:(GridViewController *)gridViewController
-        selectionDidChange:(Item *)item {
+        selectionDidChange:(Item * _Nullable)item {
     [self.delegate itemsDisplayController:self
                        selectionDidChange:item];
     [self.singleViewController setItemForDisplay:item];

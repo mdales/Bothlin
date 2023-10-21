@@ -27,6 +27,7 @@ wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
 @interface GridViewItem : NSCollectionViewItem <DragSourceViewDelegate, NSFilePromiseProviderDelegate>
 
 @property (nonatomic, weak, readwrite) IBOutlet DragSourceView *dragSourceView;
+@property (nonatomic, weak, readwrite) IBOutlet NSImageView *favouriteIndicator;
 
 @property (nonatomic, weak, readwrite) id<GridViewItemDelegate> delegate;
 @property (nonatomic, strong, readwrite) Item *item;

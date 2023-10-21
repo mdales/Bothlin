@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addGroupViaSidebarController:(SidebarController *)sidebarController;
 - (void)sidebarController:(SidebarController *)sidebarController
-  didChangeSelectedOption:(NSFetchRequest *)fetchRequest;
+  didChangeSelectedOption:(SidebarItem *)selectedSidebarItem;
 
 @end
 

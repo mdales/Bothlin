@@ -38,7 +38,6 @@
     self.dragSourceView.delegate = self;
 }
 
-
 - (void)setSelected:(BOOL)value {
     [super setSelected:value];
     NSColor *bgColor = value ? [NSColor selectedControlColor] : [NSColor clearColor];

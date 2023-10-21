@@ -18,6 +18,7 @@
 #import "NSArray+Functional.h"
 #import "LibraryViewModel.h"
 #import "KVOBox.h"
+#import "Item+CoreDataClass.h"
 
 NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIdentifier";
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
@@ -96,6 +97,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     LibraryController *library = appDelegate.libraryController;
     library.delegate = self.viewModel;
 
+    self.viewModel.delegate = self;
+
     // TODO: This whole section is horribly verbose and thus confusing to read. The root
     // cause is that starting a block based observer can fail if the block was already
     // started. I suspect I should just assert in the handler and not ignore the error
@@ -109,7 +112,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         }
         dispatch_assert_queue(dispatch_get_main_queue());
         [self.sidebar setSidebarTree:self.viewModel.sidebarItems];
-    } 
+        [self updateToolbar];
+    }
                                                   error:&error];
     if (nil != error) {
         NSAssert(NO == success, @"Got error and success");
@@ -127,6 +131,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         dispatch_assert_queue(dispatch_get_main_queue());
         [self.itemsDisplay setItems:self.viewModel.contents
                        withSelected:self.viewModel.selected];
+        [self updateToolbar];
 
     }
                                                 error:&error];
@@ -147,6 +152,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         [self.itemsDisplay setItems:self.viewModel.contents
                        withSelected:self.viewModel.selected];
         [self.details setItemForDisplay:self.viewModel.selected];
+        [self updateToolbar];
     }
                                                 error:&error];
     if (nil != error) {
@@ -168,6 +174,48 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     NSAssert(NO != success, @"Got no error and no success");
 }
 
+- (void)updateToolbar {
+    NSArray<NSToolbarItem *> *toolbarItems = [[self.window toolbar] items];
+    NSAssert(nil != toolbarItems, @"Toolbar unexpctedly has no items");
+
+    BOOL isItemSelected = nil != self.viewModel.selected;
+    BOOL isItemFavourite = isItemSelected && (self.viewModel.selected.favourite);
+
+    for (NSToolbarItem *toolbarItem in toolbarItems) {
+        NSToolbarIdentifier identifier = [toolbarItem itemIdentifier];
+        if ([identifier compare:kFavouriteToolbarItemIdentifier] == NSOrderedSame) {
+            [toolbarItem setEnabled:isItemSelected];
+            NSString *symbol = isItemFavourite ? @"heart.fill" : @"heart";
+            [toolbarItem setImage:[NSImage imageWithSystemSymbolName:symbol accessibilityDescription:nil]];
+        }
+
+        if ([identifier compare:kDeleteToolbarItemIdentifier] == NSOrderedSame) {
+            [toolbarItem setEnabled:isItemSelected];
+        }
+
+        if ([identifier compare:kShareToolbarItemIdentifier] == NSOrderedSame) {
+            [toolbarItem setEnabled:isItemSelected];
+        }
+
+        if ([identifier compare: kItemDisplayStyleItemIdentifier] == NSOrderedSame) {
+            NSAssert([toolbarItem isKindOfClass: [NSToolbarItemGroup class]], @"Expected this to be a toolbar group item");
+            NSToolbarItemGroup *group = (NSToolbarItemGroup *)toolbarItem;
+            [group setSelectedIndex:self.itemsDisplay.displayStyle];
+            [group setEnabled:isItemSelected];
+        }
+    }
+}
+
+#pragma mark - LibraryViewModelDelegate
+
+- (void)libraryViewModel:(LibraryViewModel *)libraryViewModel hadErrorOnUpdate:(NSError *)error {
+    NSParameterAssert(nil != error);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+    });
+}
+
 
 #pragma mark - SidebarControllerDelegate
 
@@ -175,43 +223,21 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [self showGroupCreatePanel:sidebarController];
 }
 
-- (void)sidebarController:(SidebarController *)sidebarController didChangeSelectedOption:(NSFetchRequest *)fetchRequest {
-    NSError *error = nil;
-    BOOL success = [self.viewModel reloadItemsWithFetchRequest:fetchRequest
-                                                         error:&error];
-    if (nil != error) {
-        NSAssert(NO == success, @"Got error and success");
-        NSAlert *alert = [NSAlert alertWithError:error];
-        [alert runModal];
-        return;
-    }
-    NSAssert(NO != success, @"Got no error and no success");
+- (void)sidebarController:(SidebarController *)sidebarController didChangeSelectedOption:(SidebarItem *)sidebarItem {
+    [self.viewModel setSelectedSidebarItem:sidebarItem];
 }
 
 #pragma mark - ItemDisplayController
 
 - (void)itemsDisplayController:(ItemsDisplayController *)itemDisplayController
-            selectionDidChange:(Item *)selectedItem {
+            selectionDidChange:(Item * _Nullable)selectedItem {
     [self.viewModel setSelected:selectedItem];
 }
 
 - (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController 
             viewStyleDidChange:(ItemsDisplayStyle)displayStyle {
     dispatch_assert_queue(dispatch_get_main_queue());
-
-    NSToolbar *toolbar = self.window.toolbar;
-    if (nil == toolbar) {
-        return;
-    }
-    for (NSToolbarItem *item in toolbar.items) {
-        if ([item.itemIdentifier compare: kItemDisplayStyleItemIdentifier] != NSOrderedSame) {
-            continue;
-        }
-        NSAssert([item isKindOfClass: [NSToolbarItemGroup class]], @"Expected this to be a toolbar group item");
-        NSToolbarItemGroup *group = (NSToolbarItemGroup *)item;
-        [group setSelectedIndex:displayStyle];
-        break;
-    }
+    [self updateToolbar];
 }
 
 - (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController 
@@ -433,13 +459,28 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 }
 
 - (void)toggleFavourite:(id)sender {
+    Item *selectedItem = self.viewModel.selected;
+    if (nil == selectedItem) {
+        return;
+    }
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryController *library = appDelegate.libraryController;
+    [library toggleFavouriteState:selectedItem.objectID
+                         callback:^(BOOL success, NSError * _Nonnull error) {
+        if (nil != error) {
+            NSAssert(NO == success, @"Got error and success!");
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSAlert *alert = [NSAlert alertWithError:error];
+                [alert runModal];
+            });
+        }
+        NSAssert(NO != success, @"Got no error and not success!");
+    }];
+
 }
 
 - (void)trashItem:(id)sender {
-//    if (nil == self.details.item) {
-//        return;
-//    }
-    
 }
 
 
@@ -528,6 +569,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.image = [NSImage imageWithSystemSymbolName:@"square.and.arrow.up" accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(shareItem:);
+        item.autovalidates = NO;
+        item.enabled = nil != self.viewModel.selected;
 
         return item;
     } else if ([itemIdentifier compare:kDeleteToolbarItemIdentifier] == NSOrderedSame) {
@@ -538,6 +581,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.image = [NSImage imageWithSystemSymbolName:@"trash" accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(trashItem:);
+        item.autovalidates = NO;
+        item.enabled = nil != self.viewModel.selected;
 
         return item;
     } else if ([itemIdentifier compare:kFavouriteToolbarItemIdentifier] == NSOrderedSame) {
@@ -545,9 +590,12 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.title = @"Favourite";
         item.paletteLabel = @"Favourite";
         item.toolTip = @"Favourite";
-        item.image = [NSImage imageWithSystemSymbolName:@"heart" accessibilityDescription:nil];
+        NSString *symbol = (nil != self.viewModel.selected) && (self.viewModel.selected.favourite) ? @"heart.fill" : @"heart";
+        item.image = [NSImage imageWithSystemSymbolName:symbol accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(toggleFavourite:);
+        item.autovalidates = NO;
+        item.enabled = nil != self.viewModel.selected;
 
         return item;
     } else if ([itemIdentifier compare:kItemDisplayStyleItemIdentifier] == NSOrderedSame) {

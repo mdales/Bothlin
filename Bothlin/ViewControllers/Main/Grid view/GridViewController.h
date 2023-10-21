@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol GridViewControllerDelegate <NSObject>
 
 - (void)gridViewController:(GridViewController *)gridViewController
-        selectionDidChange:(Item *)selectedItem;
+        selectionDidChange:(Item * _Nullable)selectedItem;
 
 - (void)gridViewController:(GridViewController *)gridViewController
          doubleClickedItem:(Item *)item;

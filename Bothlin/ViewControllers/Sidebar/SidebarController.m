@@ -126,7 +126,7 @@
     SidebarItem *item = [self.outlineView itemAtRow:[self.outlineView selectedRow]];
     NSAssert(nil != item.fetchRequest, @"selected item with no fetch request");
     [self.delegate sidebarController:self
-             didChangeSelectedOption:item.fetchRequest];
+             didChangeSelectedOption:item];
 }
 
 - (NSDragOperation)outlineView:(NSOutlineView *)outlineView 

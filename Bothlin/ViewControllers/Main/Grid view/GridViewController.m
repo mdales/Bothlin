@@ -98,12 +98,12 @@
     viewItem.delegate = self;
     viewItem.item = item;
     viewItem.textField.stringValue = item.name;
+    [viewItem.favouriteIndicator setHidden:NO == item.favourite];
 
     __block NSImage *thumbnail = nil;
     dispatch_sync(self.syncQ, ^{
         thumbnail = self.thumbnailCache[item.objectID];
     });
-
     if (nil == thumbnail) {
         NSString *thumbnailPath = item.thumbnailPath;
         @weakify(self);
@@ -138,7 +138,6 @@
 
         thumbnail = [NSImage imageWithSystemSymbolName:@"photo.artframe" accessibilityDescription:nil];
     }
-
     viewItem.imageView.image = thumbnail;
 
     return viewItem;
@@ -159,6 +158,15 @@
     if (nil != self.delegate) {
         [self.delegate gridViewController:self
                        selectionDidChange:item];
+    }
+}
+
+- (void)collectionView:(NSCollectionView *)collectionView didDeselectItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
+    NSAssert(1 == [indexPaths count], @"User selected more/less than one item: %lu", [indexPaths count]);
+    self.selectedItem = nil;
+    if (nil != self.delegate) {
+        [self.delegate gridViewController:self
+                       selectionDidChange:nil];
     }
 }
 

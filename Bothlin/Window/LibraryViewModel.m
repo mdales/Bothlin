@@ -35,6 +35,7 @@ NSArray<NSString *> * const testTags = @[
 @synthesize contents = _contents;
 @synthesize selected = _selected;
 @synthesize groups = _groups;
+@synthesize selectedSidebarItem = _selectedSidebarItem;
 
 - (instancetype)initWithViewContext:(NSManagedObjectContext *)viewContext {
     self = [super init];
@@ -52,7 +53,7 @@ NSArray<NSString *> * const testTags = @[
 
 - (NSArray<Item *> *)contents {
     dispatch_assert_queue_not(self.syncQ);
-    __block NSArray<Item *> *val;
+    __block NSArray<Item *> *val = nil;
     dispatch_sync(self.syncQ, ^{
         val = self->_contents;
     });
@@ -61,7 +62,7 @@ NSArray<NSString *> * const testTags = @[
 
 - (Item *)selected {
     dispatch_assert_queue_not(self.syncQ);
-    __block Item *val;
+    __block Item *val = nil;
     dispatch_sync(self.syncQ, ^{
         val = self->_selected;
     });
@@ -86,24 +87,60 @@ NSArray<NSString *> * const testTags = @[
     return val;
 }
 
+- (SidebarItem *)selectedSidebarItem {
+    dispatch_assert_queue_not(self.syncQ);
+    __block SidebarItem *val = nil;
+    dispatch_sync(self.syncQ, ^{
+        val = self->_selectedSidebarItem;
+    });
+    return val;
+}
+
+- (void)setSelectedSidebarItem:(SidebarItem *)selectedSidebarItem {
+    // We only allow selection of certain sidebar items, so
+    // sanity check this first
+    NSAssert(nil != selectedSidebarItem.fetchRequest, @"Allowed selection of a sidebar item with no fetch request.");
+
+    dispatch_assert_queue_not(self.syncQ);
+    dispatch_sync(self.syncQ, ^{
+        if (self->_selectedSidebarItem == selectedSidebarItem) {
+            return;
+        }
+        self->_selectedSidebarItem = selectedSidebarItem;
+
+        NSError *error = nil;
+        BOOL success = [self reloadItems:&error];
+        if (nil != error) {
+            NSAssert(NO == success, @"Got error but also success");
+            [self.delegate libraryViewModel:self
+                           hadErrorOnUpdate:error];
+        }
+        NSAssert(NO != success, @"Got no error and no success");
+    });
+}
+
 #pragma mark - LibraryControllerDelegate
 
 - (void)libraryDidUpdate:(NSDictionary *)changeNotificationData {
     dispatch_assert_queue(dispatch_get_main_queue());
 
+    [NSManagedObjectContext mergeChangesFromRemoteContextSave:changeNotificationData
+                                                 intoContexts:@[self.viewContext]];
+
     // TODO: differentiate between inserts and updates to make the UI nicer
     // For now we at least check which class types have been updated to
     // minimise UI churn
-    NSArray<NSManagedObjectID *> *objects = changeNotificationData[NSInsertedObjectsKey];
-    if (nil == objects) {
-        objects = @[];
+    NSArray<NSManagedObjectID *> *inserted = changeNotificationData[NSInsertedObjectsKey];
+    if (nil == inserted) {
+        inserted = @[];
     }
     NSArray<NSManagedObjectID *> *updated = changeNotificationData[NSUpdatedObjectsKey];
-    if (nil != updated) {
-        objects = [objects arrayByAddingObjectsFromArray: updated];
+    if (nil == updated) {
+        updated = @[];
     }
+    NSArray<NSManagedObjectID *> *all = [inserted arrayByAddingObjectsFromArray:updated];
 
-    NSArray<NSString *> *allClasses = [objects mapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull object) {
+    NSArray<NSString *> *allClasses = [all mapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull object) {
         return [[object entity] name];
     }];
     NSSet<NSString *> *classes = [NSSet setWithArray:allClasses];
@@ -112,31 +149,24 @@ NSArray<NSString *> * const testTags = @[
         NSError *error = nil;
         BOOL success = [self reloadGroups:&error];
         if (nil != error) {
-            // TODO: this is refactor fallout, should be on RootWindowController
-            NSAssert(NO == success, @"Got error and success");
-            NSAlert *alert = [NSAlert alertWithError:error];
-            [alert runModal];
-            return;
+            [self.delegate libraryViewModel:self
+                           hadErrorOnUpdate:error];
         }
         NSAssert(NO != success, @"Got no error and no success");
-        //    [self.sidebar setSidebarTree:self.viewModel.sidebarItems];
     }
 
     if ([classes containsObject:NSStringFromClass([Item class])]) {
-        //    NSFetchRequest *fetchRequest = [self.sidebar selectedOption];
-        //    success = [self reloadItemsWithFetchRequest:fetchRequest
-        //                                          error:&error];
-        //    if (nil != error) {
-        //        NSAssert(NO == success, @"Got error and success");
-        //        NSAlert *alert = [NSAlert alertWithError:error];
-        //        [alert runModal];
-        //        return;
-        //    }
-        //    NSAssert(NO != success, @"Got no error and no success");
-
-        //    [self.itemsDisplay setItems:self.viewModel.contents
-        //                   withSelected:self.viewModel.selected];
-        //    [self.details setItemForDisplay:self.viewModel.selected];
+        // TODO: This is all very crude, but let's get something working
+        // before we end up down a perfect diffing rabbit hole.
+        dispatch_sync(self.syncQ, ^{
+            NSError *error = nil;
+            BOOL success = [self reloadItems:&error];
+            if (nil != error) {
+                [self.delegate libraryViewModel:self
+                               hadErrorOnUpdate:error];
+            }
+            NSAssert(NO != success, @"Got no error and no success");
+        });
     }
 }
 
@@ -180,17 +210,26 @@ NSArray<NSString *> * const testTags = @[
     return YES;
 }
 
-- (BOOL)reloadItemsWithFetchRequest:(NSFetchRequest *)fetchRequest
-                              error:(NSError **)error {
-    dispatch_assert_queue_not(self.syncQ);
+- (BOOL)reloadItems:(NSError **)error {
+    dispatch_assert_queue(self.syncQ);
     dispatch_assert_queue(dispatch_get_main_queue());
 
+    if (nil == self->_selectedSidebarItem) {
+        if (nil != error) {
+            *error = [NSError errorWithDomain:NSPOSIXErrorDomain
+                                         code:EINVAL
+                                     userInfo:nil];
+        }
+        return NO;
+    }
+
+    NSFetchRequest *request = [self->_selectedSidebarItem.fetchRequest copy];
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"created"
                                                            ascending:YES];
-    [fetchRequest setSortDescriptors:@[sort]];
+    [request setSortDescriptors:@[sort]];
 
     NSError *innerError = nil;
-    NSArray<Item *> *result = [self.viewContext executeFetchRequest:fetchRequest
+    NSArray<Item *> *result = [self.viewContext executeFetchRequest:request
                                                               error:&innerError];
     if (nil != innerError) {
         NSAssert(nil == result, @"Got error and fetch results.");
@@ -201,12 +240,12 @@ NSArray<NSString *> * const testTags = @[
     }
     NSAssert(nil != result, @"Got no error and no fetch results.");
 
-    dispatch_sync(self.syncQ, ^{
-        self.contents = result;
-        if ((nil == self->_selected) || ([result indexOfObject:self->_selected] == NSNotFound)) {
-            self->_selected = [result firstObject];
-        }
-    });
+    self.contents = result;
+    if ((nil == self->_selected) || ([result indexOfObject:self->_selected] == NSNotFound)) {
+        self->_selected = [result firstObject];
+    }
+
+    [self didChangeValueForKey:@"contents"];
 
     return YES;
 }

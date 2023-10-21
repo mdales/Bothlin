@@ -378,17 +378,7 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
 
 - (void)createGroup:(NSString *)name
            callback:(void (^)(BOOL success, NSError *error)) callback {
-    @weakify(self);
     dispatch_sync(self.dataQ, ^() {
-        @strongify(self);
-        if (nil == self) {
-            if (nil != callback) {
-                callback(NO, [NSError errorWithDomain:LibraryControllerErrorDomain
-                                                 code:LibraryControllerErrorSelfIsNoLongerValid
-                                             userInfo:nil]);
-            }
-            return;
-        }
         __block NSError *error = nil;
         __block BOOL success = NO;
         __block NSManagedObjectID *groupID = nil;
@@ -416,6 +406,44 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
                     return;
                 }
                 [self.delegate libraryDidUpdate:@{NSInsertedObjectsKey:@[groupID]}];
+            });
+        }
+
+        if (nil != callback) {
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                callback(success, error);
+            });
+        }
+    });
+}
+
+- (void)toggleFavouriteState:(NSManagedObjectID *)itemID
+                    callback:(void (^)(BOOL success, NSError *error)) callback {
+    dispatch_sync(self.dataQ, ^() {
+        __block NSError *error = nil;
+        __block BOOL success = NO;
+        [self.managedObjectContext performBlockAndWait:^{
+            Item *item = [self.managedObjectContext existingObjectWithID:itemID
+                                                                   error:&error];
+            if (nil != error) {
+                NSAssert(nil == item, @"Got error and item fetching object with ID %@: %@", itemID, error.localizedDescription);
+                return;
+            }
+            NSAssert(nil != item, @"Got no error but also no item fetching object with ID %@", itemID);
+            item.favourite = !item.favourite;
+            success = [self.managedObjectContext save:&error];
+        }];
+        if ((nil == error) && success) {
+            @weakify(self);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+                if (nil == self.delegate) {
+                    return;
+                }
+                [self.delegate libraryDidUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
             });
         }
 
