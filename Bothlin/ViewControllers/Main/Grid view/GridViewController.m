@@ -68,17 +68,18 @@
     if (NO != updated) {
         self.contents = assets;
     }
-    // TODO: at some point we should just update the selected and not reload the table
+
+    BOOL updatedSelection = NO;
     NSInteger index = [indexPath item];
     if (NSNotFound != index) {
         NSIndexSet *currentSelection = [self.collectionView selectionIndexes];
         NSAssert([currentSelection count] < 2, @"We currently allow just one selection!");
         if (0 == [currentSelection count]) {
-            updated = YES;
+            updatedSelection = YES;
         } else {
             NSUInteger current = [currentSelection firstIndex];
             if (current != index) {
-                updated = YES;
+                updatedSelection = YES;
             }
         }
     }
@@ -90,7 +91,7 @@
             [self.collectionView reloadItemsAtIndexPaths:[NSSet setWithObject:updatedCells]];
         }
     }
-    if (NSNotFound != index) {
+    if ((NO != updatedSelection) && (NSNotFound != index)) {
         [self.collectionView selectItemsAtIndexPaths:[NSSet setWithObject:indexPath]
                                       scrollPosition:NSCollectionViewScrollPositionTop];
     }

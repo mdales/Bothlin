@@ -6,7 +6,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "LibraryController.h"
+#import "LibraryWriteCoordinator.h"
 
 @class Asset;
 @class Group;
@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface LibraryViewModel : NSObject <LibraryControllerDelegate>
+@interface LibraryViewModel : NSObject <LibraryWriteCoordinatorDelegate>
 
 @property (nonatomic, weak, readwrite) id<LibraryViewModelDelegate> delegate;
 

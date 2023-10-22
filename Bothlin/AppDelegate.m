@@ -6,7 +6,7 @@
 //
 
 #import "AppDelegate.h"
-#import "LibraryController.h"
+#import "LibraryWriteCoordinator.h"
 #import "RootWindowController.h"
 #import "SettingsWindowController.h"
 
@@ -81,7 +81,7 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
 
     // TODO: icky self use
     NSPersistentStoreCoordinator *store = self.persistentContainer.persistentStoreCoordinator;
-    self->_libraryController = [[LibraryController alloc] initWithPersistentStore:store];
+    self->_libraryController = [[LibraryWriteCoordinator alloc] initWithPersistentStore:store];
 
     self.mainWindowController = [[RootWindowController alloc] initWithWindowNibName:@"RootWindowController"
                                                                         viewContext:self.persistentContainer.viewContext];

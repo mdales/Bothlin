@@ -141,9 +141,10 @@ NSArray<NSString *> * const testTags = @[
     });
 }
 
-#pragma mark - LibraryControllerDelegate
+#pragma mark - LibraryWriteCoordinatorDelegate
 
-- (void)libraryDidUpdate:(NSDictionary *)changeNotificationData {
+- (void)libraryWriteCoordinator:(__unused LibraryWriteCoordinator *)libraryWriteCoordinator 
+                      didUpdate:(NSDictionary *)changeNotificationData {
     dispatch_assert_queue(dispatch_get_main_queue());
 
     [NSManagedObjectContext mergeChangesFromRemoteContextSave:changeNotificationData
@@ -192,11 +193,11 @@ NSArray<NSString *> * const testTags = @[
     }
 }
 
-- (void)thumbnailGenerationFailedWithError:(NSError *)error {
-    // TODO: this is refactor fallout, should be on RootWindowController
-    NSParameterAssert(nil != error);
-    NSAlert *alert = [NSAlert alertWithError:error];
-    [alert runModal];
+- (void)libraryWriteCoordinator:(__unused LibraryWriteCoordinator *)libraryWriteCoordinator
+               thumbnailForItem:(__unused NSManagedObjectID *)objectID
+      generationFailedWithError:(NSError *)error {
+    [self.delegate libraryViewModel:self
+                   hadErrorOnUpdate:error];
 }
 
 #pragma mark - Data management

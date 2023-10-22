@@ -7,7 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "ItemsDisplayController.h"
+#import "AssetsDisplayController.h"
 #import "SidebarController.h"
 #import "LibraryViewModel.h"
 

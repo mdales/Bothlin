@@ -7,19 +7,25 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class LibraryWriteCoordinator;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol LibraryControllerDelegate <NSObject>
+@protocol LibraryWriteCoordinatorDelegate <NSObject>
 
-- (void)libraryDidUpdate:(NSDictionary *)changeNotificationData;
-- (void)thumbnailGenerationFailedWithError:(NSError *)error;
+- (void)libraryWriteCoordinator:(LibraryWriteCoordinator *)libraryWriteCoordinator
+                      didUpdate:(NSDictionary *)changeNotificationData;
+
+- (void)libraryWriteCoordinator:(LibraryWriteCoordinator *)libraryWriteCoordinator
+               thumbnailForItem:(NSManagedObjectID *)objectID
+      generationFailedWithError:(NSError *)error;
 
 @end
 
 
-@interface LibraryController : NSObject
+@interface LibraryWriteCoordinator : NSObject
 
-@property (nonatomic, weak, readwrite) id<LibraryControllerDelegate> delegate;
+@property (nonatomic, weak, readwrite) id<LibraryWriteCoordinatorDelegate> delegate;
 
 - (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator * _Nonnull)store;
 

@@ -5,7 +5,7 @@
 //  Created by Michael Dales on 19/09/2023.
 //
 
-#import "LibraryController.h"
+#import "LibraryWriteCoordinator.h"
 #import "AppDelegate.h"
 #import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
@@ -25,7 +25,7 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
     LibraryControllerErrorCouldNotWriteThumbnailFile,
 };
 
-@interface LibraryController ()
+@interface LibraryWriteCoordinator ()
 
 // Queue used for core data work
 @property (strong, nonatomic, readonly) dispatch_queue_t _Nonnull dataQ;
@@ -36,7 +36,7 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
 
 @end
 
-@implementation LibraryController
+@implementation LibraryWriteCoordinator
 
 - (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator * _Nonnull)store {
     NSParameterAssert(nil != store);
@@ -118,7 +118,8 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
             if (nil == self.delegate) {
                 return;
             }
-            [self.delegate libraryDidUpdate:@{NSInsertedObjectsKey: newItemIDs.allObjects}];
+            [self.delegate libraryWriteCoordinator:self
+                                         didUpdate:@{NSInsertedObjectsKey: newItemIDs.allObjects}];
         });
 
         if (nil != callback) {
@@ -287,7 +288,9 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
             if (nil == self.delegate) {
                 return;
             }
-            [self.delegate libraryDidUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
+
+            [self.delegate libraryWriteCoordinator:self
+                                         didUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
         });
     });
     if (nil != innerError) {
@@ -333,6 +336,16 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
         }
         NSAssert(NO != success, @"Got no success and error from obtainPermanentIDsForObjects.");
 
+        // I used to think that getting permanentIDs was equivelent to "Save", as you clearly got
+        // a final ID, but it seems it's not committed properly, as problems downstream of here
+        // can cause it not to be written. So I'm going to save also
+        success = [self.managedObjectContext save:&innerError];
+        if (nil != innerError) {
+            NSAssert(NO == success, @"Got error and success from save.");
+            return;
+        }
+        NSAssert(NO != success, @"Got no success and error from save.");
+
         NSMutableSet<NSManagedObjectID *> *newIDs = [NSMutableSet setWithCapacity:[newAssets count]];
         for (Asset *asset in newAssets) {
             [newIDs addObject:asset.objectID];
@@ -357,7 +370,9 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
                         if (nil == self.delegate) {
                             return;
                         }
-                        [self.delegate thumbnailGenerationFailedWithError:error];
+                        [self.delegate libraryWriteCoordinator:self
+                                              thumbnailForItem:asset.objectID
+                                     generationFailedWithError:error];
                     });
                 }
             });
@@ -405,7 +420,9 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
                 if (nil == self.delegate) {
                     return;
                 }
-                [self.delegate libraryDidUpdate:@{NSInsertedObjectsKey:@[groupID]}];
+
+                [self.delegate libraryWriteCoordinator:self
+                                             didUpdate:@{NSInsertedObjectsKey:@[groupID]}];
             });
         }
 
@@ -443,7 +460,8 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
                 if (nil == self.delegate) {
                     return;
                 }
-                [self.delegate libraryDidUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
+                [self.delegate libraryWriteCoordinator:self
+                                             didUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
             });
         }
 

@@ -5,18 +5,18 @@
 //  Created by Michael Dales on 28/09/2023.
 //
 
-#import "ItemsDisplayController.h"
+#import "AssetsDisplayController.h"
 #import "GridViewController.h"
 #import "SingleViewController.h"
 
-@interface ItemsDisplayController ()
+@interface AssetsDisplayController ()
 
 @property (nonatomic, strong, readonly) SingleViewController *singleViewController;
 @property (nonatomic, strong, readonly) GridViewController *gridViewController;
 
 @end
 
-@implementation ItemsDisplayController
+@implementation AssetsDisplayController
 
 - (instancetype)initWithNibName:(NSNibName)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -55,7 +55,7 @@
         [currentSubview removeFromSuperview];
     }
 
-    [self.delegate itemsDisplayController:self
+    [self.delegate assetsDisplayController:self
                        viewStyleDidChange:displayStyle];
 }
 
@@ -103,11 +103,8 @@
 - (void)gridViewController:(GridViewController *)gridViewController
         selectionDidChange:(NSIndexPath *)selectedIndexPath {
     NSParameterAssert(nil != selectedIndexPath);
-    [self.delegate itemsDisplayController:self
+    [self.delegate assetsDisplayController:self
                        selectionDidChange:selectedIndexPath];
-
-    // TODO: fix
-//    [self.singleViewController setItemForDisplay:item];
 }
 
 - (void)gridViewController:(nonnull GridViewController *)gridViewController
@@ -119,7 +116,7 @@
 - (void)gridViewController:(GridViewController *)gridViewController 
      didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs {
     dispatch_assert_queue(dispatch_get_main_queue());
-    [self.delegate itemsDisplayController:self
+    [self.delegate assetsDisplayController:self
                     didReceiveDroppedURLs:URLs];
 }
 
@@ -127,7 +124,7 @@
     if (nil == self.delegate) {
         return NO;
     }
-    return [self.delegate itemsDisplayController:self
+    return [self.delegate assetsDisplayController:self
                                             item:item
                          wasDraggedOnSidebarItem:sidebarItem];
 }

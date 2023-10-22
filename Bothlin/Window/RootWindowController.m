@@ -7,10 +7,10 @@
 
 #import "RootWindowController.h"
 #import "SidebarController.h"
-#import "ItemsDisplayController.h"
+#import "AssetsDisplayController.h"
 #import "DetailsController.h"
 #import "AppDelegate.h"
-#import "LibraryController.h"
+#import "LibraryWriteCoordinator.h"
 #import "ToolbarProgressView.h"
 #import "Helpers.h"
 #import "SidebarItem.h"
@@ -33,7 +33,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 @interface RootWindowController ()
 
 @property (nonatomic, strong, readonly) SidebarController *sidebar;
-@property (nonatomic, strong, readonly) ItemsDisplayController *itemsDisplay;
+@property (nonatomic, strong, readonly) AssetsDisplayController *assetsDisplay;
 @property (nonatomic, strong, readonly) DetailsController *details;
 @property (nonatomic, strong, readonly) NSSplitViewController *splitViewController;
 @property (nonatomic, strong, readonly) ToolbarProgressView *progressView;
@@ -53,7 +53,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     self = [super initWithWindowNibName:windowNibName];
     if (nil != self) {
         self->_sidebar = [[SidebarController alloc] initWithNibName:@"SidebarController" bundle:nil];
-        self->_itemsDisplay = [[ItemsDisplayController alloc] initWithNibName:@"ItemsDisplayController" bundle:nil];
+        self->_assetsDisplay = [[AssetsDisplayController alloc] initWithNibName:@"AssetsDisplayController" bundle:nil];
         self->_details = [[DetailsController alloc] initWithNibName:@"DetailsController" bundle:nil];
         self->_splitViewController = [[NSSplitViewController alloc] init];
         self->_progressView = [[ToolbarProgressView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 250.0, 28.0)];
@@ -77,7 +77,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     sidebarItem.minimumThickness = 100.0;
     sidebarItem.maximumThickness = 250.0;
 
-    NSSplitViewItem *mainItem = [NSSplitViewItem splitViewItemWithViewController:self.itemsDisplay];
+    NSSplitViewItem *mainItem = [NSSplitViewItem splitViewItemWithViewController:self.assetsDisplay];
     [self.splitViewController addSplitViewItem:mainItem];
     mainItem.minimumThickness = 220.0;
 
@@ -90,11 +90,11 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [self.window setFrameUsingName:@"RootWindow"];
     self.windowFrameAutosaveName = @"RootWindow";
 
-    self.itemsDisplay.delegate = self;
+    self.assetsDisplay.delegate = self;
     self.sidebar.delegate = self;
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-    LibraryController *library = appDelegate.libraryController;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
     library.delegate = self.viewModel;
 
     self.viewModel.delegate = self;
@@ -129,7 +129,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             return;
         }
         dispatch_assert_queue(dispatch_get_main_queue());
-        [self.itemsDisplay setAssets:self.viewModel.assets
+        [self.assetsDisplay setAssets:self.viewModel.assets
                         withSelected:self.viewModel.selectedAssetIndexPath];
         [self updateToolbar];
 
@@ -149,8 +149,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             return;
         }
         dispatch_assert_queue(dispatch_get_main_queue());
-//        [self.itemsDisplay setItems:self.viewModel.contents
-//                       withSelected:self.viewModel.selected];
+        [self.assetsDisplay setAssets:self.viewModel.assets
+                         withSelected:self.viewModel.selectedAssetIndexPath];
         [self.details setItemForDisplay:self.viewModel.selectedAsset];
         [self updateToolbar];
     }
@@ -200,7 +200,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         if ([identifier compare: kItemDisplayStyleItemIdentifier] == NSOrderedSame) {
             NSAssert([toolbarItem isKindOfClass: [NSToolbarItemGroup class]], @"Expected this to be a toolbar group item");
             NSToolbarItemGroup *group = (NSToolbarItemGroup *)toolbarItem;
-            [group setSelectedIndex:self.itemsDisplay.displayStyle];
+            [group setSelectedIndex:self.assetsDisplay.displayStyle];
             [group setEnabled:isItemSelected];
         }
     }
@@ -229,23 +229,23 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
 #pragma mark - ItemDisplayController
 
-- (void)itemsDisplayController:(ItemsDisplayController *)itemDisplayController
+- (void)assetsDisplayController:(AssetsDisplayController *)itemDisplayController
             selectionDidChange:(NSIndexPath *)selectedIndexPath {
     [self.viewModel setSelectedAssetIndexPath:selectedIndexPath];
 }
 
-- (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController 
+- (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController 
             viewStyleDidChange:(ItemsDisplayStyle)displayStyle {
     dispatch_assert_queue(dispatch_get_main_queue());
     [self updateToolbar];
 }
 
-- (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController 
+- (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController 
          didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs {
     dispatch_assert_queue(dispatch_get_main_queue());
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-    LibraryController *library = appDelegate.libraryController;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
 
     // This is async, so returns immediately
     @weakify(self);
@@ -268,7 +268,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     }];
 }
 
-- (BOOL)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController 
+- (BOOL)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController 
                           item:(Asset *)item
        wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
     NSParameterAssert(nil != item);
@@ -309,7 +309,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             NSArray<NSURL *> *urls = [panel URLs];
             
             AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-            LibraryController *library = appDelegate.libraryController;
+            LibraryWriteCoordinator *library = appDelegate.libraryController;
             
             // This is async, so returns immediately
             @weakify(self);
@@ -370,7 +370,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 - (IBAction)groupCreateOK:(id)sender {
     NSString *name = [self.groupCreateNameField stringValue];
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-    LibraryController *library = appDelegate.libraryController;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
     @weakify(self)
     [library createGroup:name
                 callback:^(__unused BOOL success, NSError * _Nullable error) {
@@ -436,7 +436,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     }
     NSToolbarItemGroup *group = (NSToolbarItemGroup *)sender;
     ItemsDisplayStyle style = (ItemsDisplayStyle)[group selectedIndex];
-    [self.itemsDisplay setDisplayStyle:style];
+    [self.assetsDisplay setDisplayStyle:style];
 }
 
 - (void)toggleSidebar: (id)sender {
@@ -465,7 +465,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     }
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-    LibraryController *library = appDelegate.libraryController;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
     [library toggleFavouriteState:selectedAsset.objectID
                          callback:^(BOOL success, NSError * _Nonnull error) {
         if (nil != error) {
@@ -616,7 +616,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
                                                                          labels:titles
                                                                          target:self
                                                                          action:@selector(setViewStyle:)];
-        group.selectedIndex = self.itemsDisplay.displayStyle;
+        group.selectedIndex = self.assetsDisplay.displayStyle;
 
         return group;
     } else {
