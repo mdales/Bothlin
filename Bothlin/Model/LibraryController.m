@@ -7,9 +7,9 @@
 
 #import "LibraryController.h"
 #import "AppDelegate.h"
-#import "Item+CoreDataClass.h"
+#import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
-#import "ItemExtension.h"
+#import "AssetExtension.h"
 #import "Helpers.h"
 #import "NSURL+SecureAccess.h"
 
@@ -129,7 +129,7 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
     });
 }
 
-- (BOOL)generateThumbnailForItemWithID:(NSManagedObjectID *)itemID
+- (BOOL)generateThumbnailForAssetWithID:(NSManagedObjectID *)itemID
                                  error:(NSError **)error {
     if (nil == itemID) {
         return YES;
@@ -140,15 +140,15 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
     __block NSURL *secureURL = nil;
     __block NSError *innerError = nil;
     dispatch_sync(self.dataQ, ^{
-        Item *item = [self.managedObjectContext existingObjectWithID:itemID
-                                                  error:&innerError];
+        Asset *asset = [self.managedObjectContext existingObjectWithID:itemID
+                                                                 error:&innerError];
         if (nil != innerError) {
-            NSAssert(nil == item, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
+            NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
             return;
         }
-        NSAssert(nil != item, @"Got no error but also no item fetching object with ID %@", itemID);
-        
-        secureURL = [item decodeSecureURL:&innerError];
+        NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", itemID);
+
+        secureURL = [asset decodeSecureURL:&innerError];
         if (nil != innerError) {
             NSAssert(nil == secureURL, @"Got error and value");
             return;
@@ -262,15 +262,15 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
 
     // now we've generated the thumbnail, we should update the record
     dispatch_sync(self.dataQ, ^{
-        Item *item = [self.managedObjectContext existingObjectWithID:itemID
-                                                  error:&innerError];
+        Asset *asset = [self.managedObjectContext existingObjectWithID:itemID
+                                                                 error:&innerError];
         if (nil != innerError) {
-            NSAssert(nil == item, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
+            NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
             return;
         }
-        NSAssert(nil != item, @"Got no error but also no item fetching object with ID %@", itemID);
+        NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", itemID);
 
-        item.thumbnailPath = thumbnailFile.path;
+        asset.thumbnailPath = thumbnailFile.path;
         BOOL success = [self.managedObjectContext save:&innerError];
         if (nil != innerError) {
             NSAssert(NO == success, @"Got error and success from saving.");
@@ -309,33 +309,33 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
     dispatch_assert_queue(self.dataQ);
 
     __block NSError *innerError = nil;
-    __block NSSet<NSManagedObjectID *> *newItemIDs = nil;
+    __block NSSet<NSManagedObjectID *> *newAssetIDs = nil;
     [self.managedObjectContext performBlockAndWait:^{
-        NSArray<Item *> *newItems = [NSArray array];
+        NSArray<Asset *> *newAssets = @[];
         for (NSURL *url in urls) {
-            NSSet<Item *> *importeditems = [Item importItemsAtURL:url
-                                                        inContext:self.managedObjectContext
-                                                            error:&innerError];
+            NSSet<Asset *> *importedAssets = [Asset importAssetsAtURL:url
+                                                            inContext:self.managedObjectContext
+                                                                error:&innerError];
             if (nil != innerError) {
-                NSAssert(nil == importeditems, @"Got error making new items but still got results");
+                NSAssert(nil == importedAssets, @"Got error making new assets but still got results");
                 return;
             }
-            NSAssert(nil != importeditems, @"Got no error adding items, but no result");
+            NSAssert(nil != importedAssets, @"Got no error adding assets, but no result");
 
-            newItems = [newItems arrayByAddingObjectsFromArray:[importeditems allObjects]];
+            newAssets = [newAssets arrayByAddingObjectsFromArray:[importedAssets allObjects]];
         }
 
-        BOOL success = [self.managedObjectContext obtainPermanentIDsForObjects:newItems
-                                                            error:&innerError];
+        BOOL success = [self.managedObjectContext obtainPermanentIDsForObjects:newAssets
+                                                                         error:&innerError];
         if (nil != innerError) {
             NSAssert(NO == success, @"Got error and success from obtainPermanentIDsForObjects.");
             return;
         }
         NSAssert(NO != success, @"Got no success and error from obtainPermanentIDsForObjects.");
 
-        NSMutableSet<NSManagedObjectID *> *newIDs = [NSMutableSet setWithCapacity:[newItems count]];
-        for (Item *item in newItems) {
-            [newIDs addObject:item.objectID];
+        NSMutableSet<NSManagedObjectID *> *newIDs = [NSMutableSet setWithCapacity:[newAssets count]];
+        for (Asset *asset in newAssets) {
+            [newIDs addObject:asset.objectID];
 
             @weakify(self);
             dispatch_async(self.thumbnailWorkerQ, ^{
@@ -344,8 +344,8 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
                     return;
                 }
                 NSError *error = nil;
-                [self generateThumbnailForItemWithID:item.objectID
-                                               error:&error];
+                [self generateThumbnailForAssetWithID:asset.objectID
+                                                error:&error];
                 if (nil != error) {
                     NSLog(@"Error generating thumbnail: %@", error.localizedDescription);
                     @weakify(self)
@@ -363,7 +363,7 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
             });
         }
 
-        newItemIDs = [NSSet setWithSet:newIDs];
+        newAssetIDs = [NSSet setWithSet:newIDs];
     }];
     if (nil != innerError) {
         if (nil != error) {
@@ -371,8 +371,8 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
         }
         return nil;
     }
-    NSAssert(nil != newItemIDs, @"Expected item ID list");
-    return newItemIDs;
+    NSAssert(nil != newAssetIDs, @"Expected asset ID list");
+    return newAssetIDs;
 }
 
 
@@ -423,14 +423,14 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
         __block NSError *error = nil;
         __block BOOL success = NO;
         [self.managedObjectContext performBlockAndWait:^{
-            Item *item = [self.managedObjectContext existingObjectWithID:itemID
-                                                                   error:&error];
+            Asset *asset = [self.managedObjectContext existingObjectWithID:itemID
+                                                                     error:&error];
             if (nil != error) {
-                NSAssert(nil == item, @"Got error and item fetching object with ID %@: %@", itemID, error.localizedDescription);
+                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", itemID, error.localizedDescription);
                 return;
             }
-            NSAssert(nil != item, @"Got no error but also no item fetching object with ID %@", itemID);
-            item.favourite = !item.favourite;
+            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", itemID);
+            asset.favourite = !asset.favourite;
             success = [self.managedObjectContext save:&error];
         }];
         if ((nil == error) && success) {

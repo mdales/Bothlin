@@ -18,7 +18,7 @@
 #import "NSArray+Functional.h"
 #import "LibraryViewModel.h"
 #import "KVOBox.h"
-#import "Item+CoreDataClass.h"
+#import "Asset+CoreDataClass.h"
 
 NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIdentifier";
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
@@ -41,7 +41,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 @property (nonatomic, strong, readonly) LibraryViewModel *viewModel;
 
 @property (nonatomic, strong, readonly) KVOBox *sidebarObserver;
-@property (nonatomic, strong, readonly) KVOBox *itemsObserver;
+@property (nonatomic, strong, readonly) KVOBox *assetsObserver;
 @property (nonatomic, strong, readonly) KVOBox *selectedObserver;
 
 @end
@@ -61,10 +61,10 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
         self->_sidebarObserver = [KVOBox observeObject:self->_viewModel
                                                keyPath:@"sidebarItems"];
-        self->_itemsObserver = [KVOBox observeObject:self->_viewModel
-                                             keyPath:@"contents"];
+        self->_assetsObserver = [KVOBox observeObject:self->_viewModel
+                                             keyPath:@"assets"];
         self->_selectedObserver = [KVOBox observeObject:self->_viewModel
-                                                keyPath:@"selected"];
+                                                keyPath:@"selectedAssetIndexPath"];
     }
     return self;
 }
@@ -123,14 +123,14 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     }
     NSAssert(NO != success, @"Got no error and no success");
 
-    success = [self.itemsObserver startWithBlock:^(__unused NSDictionary * _Nonnull changes) {
+    success = [self.assetsObserver startWithBlock:^(__unused NSDictionary * _Nonnull changes) {
         @strongify(self);
         if (nil == self) {
             return;
         }
         dispatch_assert_queue(dispatch_get_main_queue());
-        [self.itemsDisplay setItems:self.viewModel.contents
-                       withSelected:self.viewModel.selected];
+        [self.itemsDisplay setAssets:self.viewModel.assets
+                        withSelected:self.viewModel.selectedAssetIndexPath];
         [self updateToolbar];
 
     }
@@ -149,9 +149,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             return;
         }
         dispatch_assert_queue(dispatch_get_main_queue());
-        [self.itemsDisplay setItems:self.viewModel.contents
-                       withSelected:self.viewModel.selected];
-        [self.details setItemForDisplay:self.viewModel.selected];
+//        [self.itemsDisplay setItems:self.viewModel.contents
+//                       withSelected:self.viewModel.selected];
+        [self.details setItemForDisplay:self.viewModel.selectedAsset];
         [self updateToolbar];
     }
                                                 error:&error];
@@ -178,8 +178,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     NSArray<NSToolbarItem *> *toolbarItems = [[self.window toolbar] items];
     NSAssert(nil != toolbarItems, @"Toolbar unexpctedly has no items");
 
-    BOOL isItemSelected = nil != self.viewModel.selected;
-    BOOL isItemFavourite = isItemSelected && (self.viewModel.selected.favourite);
+    BOOL isItemSelected = nil != [self.viewModel selectedAssetIndexPath];
+    BOOL isItemFavourite = isItemSelected && ([self.viewModel selectedAsset].favourite);
 
     for (NSToolbarItem *toolbarItem in toolbarItems) {
         NSToolbarIdentifier identifier = [toolbarItem itemIdentifier];
@@ -230,8 +230,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 #pragma mark - ItemDisplayController
 
 - (void)itemsDisplayController:(ItemsDisplayController *)itemDisplayController
-            selectionDidChange:(Item * _Nullable)selectedItem {
-    [self.viewModel setSelected:selectedItem];
+            selectionDidChange:(NSIndexPath *)selectedIndexPath {
+    [self.viewModel setSelectedAssetIndexPath:selectedIndexPath];
 }
 
 - (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController 
@@ -269,7 +269,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 }
 
 - (BOOL)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController 
-                          item:(Item *)item
+                          item:(Asset *)item
        wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
     NSParameterAssert(nil != item);
     NSParameterAssert(nil != sidebarItem);
@@ -459,14 +459,14 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 }
 
 - (void)toggleFavourite:(id)sender {
-    Item *selectedItem = self.viewModel.selected;
-    if (nil == selectedItem) {
+    Asset *selectedAsset = self.viewModel.selectedAsset;
+    if (nil == selectedAsset) {
         return;
     }
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryController *library = appDelegate.libraryController;
-    [library toggleFavouriteState:selectedItem.objectID
+    [library toggleFavouriteState:selectedAsset.objectID
                          callback:^(BOOL success, NSError * _Nonnull error) {
         if (nil != error) {
             NSAssert(NO == success, @"Got error and success!");
@@ -570,7 +570,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.target = self;
         item.action = @selector(shareItem:);
         item.autovalidates = NO;
-        item.enabled = nil != self.viewModel.selected;
+        item.enabled = nil != self.viewModel.selectedAsset;
 
         return item;
     } else if ([itemIdentifier compare:kDeleteToolbarItemIdentifier] == NSOrderedSame) {
@@ -582,7 +582,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.target = self;
         item.action = @selector(trashItem:);
         item.autovalidates = NO;
-        item.enabled = nil != self.viewModel.selected;
+        item.enabled = nil != self.viewModel.selectedAsset;
 
         return item;
     } else if ([itemIdentifier compare:kFavouriteToolbarItemIdentifier] == NSOrderedSame) {
@@ -590,12 +590,12 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.title = @"Favourite";
         item.paletteLabel = @"Favourite";
         item.toolTip = @"Favourite";
-        NSString *symbol = (nil != self.viewModel.selected) && (self.viewModel.selected.favourite) ? @"heart.fill" : @"heart";
+        NSString *symbol = (nil != self.viewModel.selectedAsset) && (self.viewModel.selectedAsset.favourite) ? @"heart.fill" : @"heart";
         item.image = [NSImage imageWithSystemSymbolName:symbol accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(toggleFavourite:);
         item.autovalidates = NO;
-        item.enabled = nil != self.viewModel.selected;
+        item.enabled = nil != self.viewModel.selectedAsset;
 
         return item;
     } else if ([itemIdentifier compare:kItemDisplayStyleItemIdentifier] == NSOrderedSame) {

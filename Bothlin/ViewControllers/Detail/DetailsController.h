@@ -7,7 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class Item;
+@class Asset;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Only access from mainQ
 @property (nonatomic, weak, readwrite) IBOutlet NSOutlineView *detailsView;
 
-- (void)setItemForDisplay:(Item * _Nullable)item;
+- (void)setItemForDisplay:(Asset * _Nullable)item;
 
 @end
 

@@ -6,7 +6,7 @@
 //
 
 #import "GridViewItem.h"
-#import "ItemExtension.h"
+#import "AssetExtension.h"
 #import "NSURL+SecureAccess.h"
 
 @interface GridViewItem ()
@@ -38,6 +38,14 @@
     self.dragSourceView.delegate = self;
 }
 
+- (void)viewDidAppear {
+    [super viewDidAppear];
+
+    // setSelected doesn't seem to take if it's called before the view appears
+    NSColor *bgColor = [self isSelected] ? [NSColor selectedControlColor] : [NSColor clearColor];
+    self.view.layer.backgroundColor = bgColor.CGColor;
+}
+
 - (void)setSelected:(BOOL)value {
     [super setSelected:value];
     NSColor *bgColor = value ? [NSColor selectedControlColor] : [NSColor clearColor];
@@ -52,9 +60,9 @@
 #pragma mark - DragSourceViewDelegate
 
 - (id<NSPasteboardWriting>)pasteboardWriterForDragSourceView:(DragSourceView *)dragSourceView {
-    NSFilePromiseProvider *provider = [[NSFilePromiseProvider alloc] initWithFileType:self.item.type
+    NSFilePromiseProvider *provider = [[NSFilePromiseProvider alloc] initWithFileType:self.asset.type
                                                                              delegate:self];
-    provider.userInfo = self.item;
+    provider.userInfo = self.asset;
     return provider;
 }
 
@@ -73,7 +81,7 @@
 - (void)dragSourceView:(DragSourceView *)dragSourceView wasClicked:(NSInteger)count {
     if (1 == count) {
         NSIndexPath *index = [self.collectionView indexPathForItem:self];
-        NSIndexSet *indexSet = [[NSIndexSet alloc] initWithIndex:(NSUInteger)index.item];
+        NSIndexSet *indexSet = [[NSIndexSet alloc] initWithIndex:(NSUInteger)[index item]];
         [self.collectionView setSelectionIndexes:indexSet];
         // TODO: be less gross once you've finished replumbing
         [self.collectionView.delegate collectionView:self.collectionView
@@ -95,7 +103,7 @@
 
 - (NSString*)filePromiseProvider:(NSFilePromiseProvider *)filePromiseProvider
                  fileNameForType:(NSString *)fileType {
-    return self.item.name;
+    return self.asset.name;
 }
 
 - (NSOperationQueue*)operationQueueForFilePromiseProvider:(NSFilePromiseProvider *)filePromiseProvider {
@@ -103,10 +111,11 @@
 }
 
 - (void)filePromiseProvider:(NSFilePromiseProvider *)filePromiseProvider writePromiseToURL:(NSURL *)destinationURL completionHandler:(void (^)(NSError * _Nullable))completionHandler {
-    Item *item = (Item*)filePromiseProvider.userInfo;
-    if (nil == item) {
+    if (nil == filePromiseProvider.userInfo) {
         return;
     }
+    NSAssert([filePromiseProvider.userInfo isKindOfClass:[Asset class]], @"File promise info not of correct class");
+    Asset *item = (Asset *)filePromiseProvider.userInfo;
 
     __block NSError *error = nil;
     NSURL *sourceURL = [item decodeSecureURL:&error];

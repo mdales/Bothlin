@@ -9,7 +9,7 @@
 #import <Quartz/Quartz.h>
 
 
-@class Item;
+@class Asset;
 @class SingleViewController;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readwrite) id<SingleViewControllerDelegate> delegate;
 @property (nonatomic, weak, readwrite) IBOutlet IKImageView *imageView;
 
-- (void)setItemForDisplay:(Item * _Nullable)item;
+- (void)setItemForDisplay:(Asset * _Nullable)item;
 
 @end
 

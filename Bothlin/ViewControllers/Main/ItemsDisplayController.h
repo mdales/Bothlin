@@ -10,7 +10,7 @@
 #import "GridViewController.h"
 #import "SingleViewController.h"
 
-@class Item;
+@class Asset;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,7 +24,7 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 @protocol ItemsDisplayControllerDelegate <NSObject>
 
 - (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
-            selectionDidChange:(Item * _Nullable)selectedItem;
+            selectionDidChange:(NSIndexPath *)selectedIndexPath;
 
 - (void)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
             viewStyleDidChange:(ItemsDisplayStyle)displayStyle;
@@ -35,7 +35,7 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 // TODO: Better naming needed, but I hope to remove this endless delegate chain
 // at some point, as it's somewhat tedious.
 - (BOOL)itemsDisplayController:(ItemsDisplayController *)itemsDisplayController
-                          item:(Item *)item
+                          item:(Asset *)item
        wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
 
 @end
@@ -46,8 +46,8 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 @property (nonatomic, weak, readwrite) id<ItemsDisplayControllerDelegate> delegate;
 @property (nonatomic, readwrite) ItemsDisplayStyle displayStyle;
 
-- (void)setItems:(NSArray<Item *> *)items
-    withSelected:(Item * _Nullable)selected;
+- (void)setAssets:(NSArray<Asset *> *)assets
+     withSelected:(NSIndexPath *)selected;
 
 @end
 

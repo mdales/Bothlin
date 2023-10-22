@@ -1,21 +1,21 @@
 //
-//  ItemExtension.m
+//  AssetExtension.m
 //  Bothlin - Copyright 2023 Digital Flapjack Ltd
 //
 //  Created by Michael Dales on 28/09/2023.
 //
 
-#import "ItemExtension.h"
+#import "AssetExtension.h"
 #import "AppDelegate.h"
 #import "NSURL+SecureAccess.h"
 
-@implementation Item (Helpers)
+@implementation Asset (Helpers)
 
-+ (NSSet<Item *> *)importItemsAtURL:(NSURL *)url
++ (NSSet<Asset *> *)importAssetsAtURL:(NSURL *)url
                           inContext:(NSManagedObjectContext *)context
                               error:(NSError **)error {
     __block NSError *innerError = nil;
-    NSMutableSet<Item *> *items = [[NSMutableSet alloc] init];
+    NSMutableSet<Asset *> *assets = [NSMutableSet set];
 
     NSFileManager *fm = [NSFileManager defaultManager];
     BOOL isDirectory = NO;
@@ -75,13 +75,13 @@
             continue;
         }
         if (isDirectory) {
-            NSSet<Item *> *children = [Item importItemsAtURL:fullPathURL
-                                                   inContext:context
-                                                       error:&innerError];
+            NSSet<Asset *> *children = [Asset importAssetsAtURL:fullPathURL
+                                                      inContext:context
+                                                          error:&innerError];
             if (nil != innerError) {
                 break;
             }
-            [items addObjectsFromArray:[children allObjects]];
+            [assets addObjectsFromArray:[children allObjects]];
             continue;
         }
 
@@ -128,38 +128,38 @@
         }
         NSAssert(nil != bookmark, @"Bookmark for %@ nil despite no error", fullPathURL);
 
-        Item *item = [NSEntityDescription insertNewObjectForEntityForName:@"Item"
-                                                   inManagedObjectContext:context];
-        item.name = [fullPathURL lastPathComponent];
-        item.path = targetURL.path;
-        item.bookmark = bookmark;
-        item.added = [NSDate now];
+        Asset *asset = [NSEntityDescription insertNewObjectForEntityForName:@"Asset"
+                                                     inManagedObjectContext:context];
+        asset.name = [fullPathURL lastPathComponent];
+        asset.path = targetURL.path;
+        asset.bookmark = bookmark;
+        asset.added = [NSDate now];
 
         // Store the UTType, which is useful for exporting later
         NSString *uttype = (NSString *)CFBridgingRelease(UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[fullPathURL pathExtension], NULL));
-        item.type = uttype;
+        asset.type = uttype;
 
         NSDictionary<NSFileAttributeKey, id> *attributes = [fm attributesOfItemAtPath:fullPathURL.path
                                                                                 error:&error];
         if (nil != error) {
             NSLog(@"Failed to stat item: %@", error.localizedDescription);
-            item.created = [NSDate now];
+            asset.created = [NSDate now];
         } else {
             NSDate *creationDate = [attributes objectForKey:NSFileCreationDate];
             if (nil != creationDate) {
-                item.created = creationDate;
+                asset.created = creationDate;
             } else {
-                item.created = [NSDate now];
+                asset.created = [NSDate now];
             }
         }
 
-        [items addObject:item];
+        [assets addObject:asset];
     }
 
     if (nil != error) {
         *error = innerError;
     }
-    return (nil == innerError) ? [NSSet setWithSet:items] : nil;
+    return (nil == innerError) ? [NSSet setWithSet:assets] : nil;
 }
 
 

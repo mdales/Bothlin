@@ -9,7 +9,7 @@
 
 #import "DragSourceView.h"
 
-@class Item;
+@class Asset;
 @class SidebarItem;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -30,7 +30,7 @@ wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
 @property (nonatomic, weak, readwrite) IBOutlet NSImageView *favouriteIndicator;
 
 @property (nonatomic, weak, readwrite) id<GridViewItemDelegate> delegate;
-@property (nonatomic, strong, readwrite) Item *item;
+@property (nonatomic, strong, readwrite) Asset *asset;
 
 @end
 

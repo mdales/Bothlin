@@ -59,11 +59,18 @@
                        viewStyleDidChange:displayStyle];
 }
 
-- (void)setItems:(NSArray<Item *> *)items withSelected:(Item *)selected {
+- (void)setAssets:(NSArray<Asset *> *)assets withSelected:(NSIndexPath *)indexPath {
+    NSParameterAssert(nil != indexPath);
     dispatch_assert_queue(dispatch_get_main_queue());
-    [self.gridViewController setItems:items
-                         withSelected:selected];
-    [self.singleViewController setItemForDisplay:selected];
+    [self.gridViewController setAssets:assets
+                          withSelected:indexPath];
+    NSInteger index = [indexPath item];
+    if (NSNotFound != index) {
+        Asset *selectedAsset = [assets objectAtIndex:(NSUInteger)index];
+        [self.singleViewController setItemForDisplay:selectedAsset];
+    } else {
+        [self.singleViewController setItemForDisplay:nil];
+    }
 }
 
 #pragma mark - View management
@@ -94,14 +101,17 @@
 #pragma mark - GridViewControllerDelegate
 
 - (void)gridViewController:(GridViewController *)gridViewController
-        selectionDidChange:(Item * _Nullable)item {
+        selectionDidChange:(NSIndexPath *)selectedIndexPath {
+    NSParameterAssert(nil != selectedIndexPath);
     [self.delegate itemsDisplayController:self
-                       selectionDidChange:item];
-    [self.singleViewController setItemForDisplay:item];
+                       selectionDidChange:selectedIndexPath];
+
+    // TODO: fix
+//    [self.singleViewController setItemForDisplay:item];
 }
 
 - (void)gridViewController:(nonnull GridViewController *)gridViewController
-         doubleClickedItem:(nonnull Item *)item {
+         doubleClickedItem:(nonnull Asset *)item {
     [self.singleViewController setItemForDisplay: item];
     [self setDisplayStyle:ItemsDisplayStyleSingle];
 }
@@ -113,7 +123,7 @@
                     didReceiveDroppedURLs:URLs];
 }
 
-- (BOOL)gridViewController:(GridViewController *)gridViewController item:(Item *)item wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
+- (BOOL)gridViewController:(GridViewController *)gridViewController item:(Asset *)item wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
     if (nil == self.delegate) {
         return NO;
     }

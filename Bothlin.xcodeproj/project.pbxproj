@@ -29,8 +29,8 @@
 		4C011A042AC5B14B004A94C4 /* SingleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A012AC5B14B004A94C4 /* SingleViewController.m */; };
 		4C011A052AC5B14B004A94C4 /* SingleViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C011A022AC5B14B004A94C4 /* SingleViewController.xib */; };
 		4C011A062AC5B14B004A94C4 /* SingleViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C011A022AC5B14B004A94C4 /* SingleViewController.xib */; };
-		4C011A0D2AC5D178004A94C4 /* ItemExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A0C2AC5D178004A94C4 /* ItemExtension.m */; };
-		4C011A0F2AC5D178004A94C4 /* ItemExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A0C2AC5D178004A94C4 /* ItemExtension.m */; };
+		4C011A0D2AC5D178004A94C4 /* AssetExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A0C2AC5D178004A94C4 /* AssetExtension.m */; };
+		4C011A0F2AC5D178004A94C4 /* AssetExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C011A0C2AC5D178004A94C4 /* AssetExtension.m */; };
 		4C1F01CA2AD7EED400E4CCD7 /* NSArray+FunctionalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C1F01C92AD7EED400E4CCD7 /* NSArray+FunctionalTests.m */; };
 		4C1F01CB2AD7F13600E4CCD7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBF17502AB5F176001F7984 /* AppDelegate.m */; };
 		4C37FBCE2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C37FBCD2AC858D8006839A3 /* NSURL+SecureAccess.m */; };
@@ -114,8 +114,8 @@
 		4C011A002AC5B14B004A94C4 /* SingleViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SingleViewController.h; sourceTree = "<group>"; };
 		4C011A012AC5B14B004A94C4 /* SingleViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SingleViewController.m; sourceTree = "<group>"; };
 		4C011A022AC5B14B004A94C4 /* SingleViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SingleViewController.xib; sourceTree = "<group>"; };
-		4C011A0B2AC5D178004A94C4 /* ItemExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ItemExtension.h; sourceTree = "<group>"; };
-		4C011A0C2AC5D178004A94C4 /* ItemExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ItemExtension.m; sourceTree = "<group>"; };
+		4C011A0B2AC5D178004A94C4 /* AssetExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AssetExtension.h; sourceTree = "<group>"; };
+		4C011A0C2AC5D178004A94C4 /* AssetExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AssetExtension.m; sourceTree = "<group>"; };
 		4C1F01C92AD7EED400E4CCD7 /* NSArray+FunctionalTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+FunctionalTests.m"; sourceTree = "<group>"; };
 		4C37FBCB2AC834FA006839A3 /* Helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Helpers.h; sourceTree = "<group>"; };
 		4C37FBCC2AC858D8006839A3 /* NSURL+SecureAccess.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURL+SecureAccess.h"; sourceTree = "<group>"; };
@@ -274,8 +274,8 @@
 			isa = PBXGroup;
 			children = (
 				4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */,
-				4C011A0B2AC5D178004A94C4 /* ItemExtension.h */,
-				4C011A0C2AC5D178004A94C4 /* ItemExtension.m */,
+				4C011A0B2AC5D178004A94C4 /* AssetExtension.h */,
+				4C011A0C2AC5D178004A94C4 /* AssetExtension.m */,
 				4CB8861C2ABA2CA900968B0F /* LibraryController.h */,
 				4CB8861D2ABA2CA900968B0F /* LibraryController.m */,
 			);
@@ -541,7 +541,7 @@
 				4CC9EA7F2ADFC28A00D33E5C /* KVOBox.m in Sources */,
 				4CA484692AD67CB60096C31F /* DragSourceView.m in Sources */,
 				4C960F422AD7D47E0053C631 /* SidebarItem.m in Sources */,
-				4C011A0D2AC5D178004A94C4 /* ItemExtension.m in Sources */,
+				4C011A0D2AC5D178004A94C4 /* AssetExtension.m in Sources */,
 				4CBF17582AB5F177001F7984 /* main.m in Sources */,
 				4C0119B92AC5AC5E004A94C4 /* DetailsController.m in Sources */,
 				4C0119A82AC5AC14004A94C4 /* SidebarController.m in Sources */,
@@ -582,7 +582,7 @@
 				4C011A042AC5B14B004A94C4 /* SingleViewController.m in Sources */,
 				4CA4846A2AD67CB60096C31F /* DragSourceView.m in Sources */,
 				4C960F432AD7D47E0053C631 /* SidebarItem.m in Sources */,
-				4C011A0F2AC5D178004A94C4 /* ItemExtension.m in Sources */,
+				4C011A0F2AC5D178004A94C4 /* AssetExtension.m in Sources */,
 				4CB886692ABB67E100968B0F /* LibraryModel.xcdatamodeld in Sources */,
 				4C0119BA2AC5AC5E004A94C4 /* DetailsController.m in Sources */,
 				4C0119A92AC5AC14004A94C4 /* SidebarController.m in Sources */,

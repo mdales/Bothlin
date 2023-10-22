@@ -10,7 +10,7 @@
 #import "GridViewItem.h"
 #import "DragTargetView.h"
 
-@class Item;
+@class Asset;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,10 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol GridViewControllerDelegate <NSObject>
 
 - (void)gridViewController:(GridViewController *)gridViewController
-        selectionDidChange:(Item * _Nullable)selectedItem;
+        selectionDidChange:(NSIndexPath *)selectedIndexPath;
 
 - (void)gridViewController:(GridViewController *)gridViewController
-         doubleClickedItem:(Item *)item;
+         doubleClickedItem:(Asset *)item;
 
 - (void)gridViewController:(GridViewController *)gridViewController
      didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs;
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO: Better naming needed, but I hope to remove this endless delegate chain
 // at some point, as it's somewhat tedious.
 - (BOOL)gridViewController:(GridViewController *)gridViewController
-                      item:(Item *)item
+                      item:(Asset *)item
    wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
 
 @end
@@ -41,10 +41,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readwrite) IBOutlet NSCollectionView *collectionView;
 @property (nonatomic, weak, readwrite) IBOutlet DragTargetView *dragTargetView;
 @property (nonatomic, weak, readwrite) id<GridViewControllerDelegate> delegate;
-@property (nonatomic, strong, readwrite, nullable) Item *selectedItem;
 
-- (void)setItems:(NSArray<Item *> *)items
-    withSelected:(Item * _Nullable)selected;
+- (void)setAssets:(NSArray<Asset *> *)assets
+     withSelected:(NSIndexPath *)selected;
 
 @end
 

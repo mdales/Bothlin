@@ -6,7 +6,7 @@
 //
 
 #import "GridViewController.h"
-#import "Item+CoreDataClass.h"
+#import "Asset+CoreDataClass.h"
 #import "Helpers.h"
 
 @interface GridViewController ()
@@ -15,7 +15,7 @@
 @property (strong, nonatomic, readonly) dispatch_queue_t thumbnailLoadQ;
 
 // Access only on syncQ
-@property (strong, nonatomic, readwrite) NSArray<Item *> *contents;
+@property (strong, nonatomic, readwrite) NSArray<Asset *> *contents;
 @property (strong, nonatomic, readwrite) NSDictionary<NSManagedObjectID *, NSImage *> *thumbnailCache;
 
 @end
@@ -40,31 +40,59 @@
 
 #pragma mark - Data management
 
-- (void)setItems:(NSArray<Item *> *)items withSelected:(Item *)selected {
+- (void)setAssets:(NSArray<Asset *> *)assets withSelected:(NSIndexPath *)indexPath {
+    NSParameterAssert(nil != indexPath);
     dispatch_assert_queue(dispatch_get_main_queue());
     __block BOOL updated = NO;
-    // TODO: at some point this needs to generate the update indexes so we don't just reload the table
-    if ([items count] == [self.contents count]) {
-        [items enumerateObjectsUsingBlock:^(Item * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            Item *existingItem = [self.contents objectAtIndex:idx];
-            if (obj.objectID != existingItem.objectID) {
+    __block NSIndexPath *updatedCells = nil;
+    if ([assets count] == [self.contents count]) {
+        [assets enumerateObjectsUsingBlock:^(Asset * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            Asset *existingAsset = [self.contents objectAtIndex:idx];
+            if (obj.objectID != existingAsset.objectID) {
                 *stop = YES;
                 updated = YES;
+            }
+            if (NO != [obj isFault]) {
+                // If this object has either never been rendered, or it's on screen
+                // and has been udpated, so we need to udpate the item view.
+                if (nil == updatedCells) {
+                    updatedCells = [NSIndexPath indexPathForItem:(NSInteger)idx inSection:0];
+                } else {
+                    updatedCells = [updatedCells indexPathByAddingIndex:idx];
+                }
             }
         }];
     } else {
         updated = YES;
     }
     if (NO != updated) {
-        self.contents = items;
+        self.contents = assets;
     }
     // TODO: at some point we should just update the selected and not reload the table
-    if (selected != self.selectedItem) {
-        self.selectedItem = selected;
-        updated = YES;
+    NSInteger index = [indexPath item];
+    if (NSNotFound != index) {
+        NSIndexSet *currentSelection = [self.collectionView selectionIndexes];
+        NSAssert([currentSelection count] < 2, @"We currently allow just one selection!");
+        if (0 == [currentSelection count]) {
+            updated = YES;
+        } else {
+            NSUInteger current = [currentSelection firstIndex];
+            if (current != index) {
+                updated = YES;
+            }
+        }
     }
+
     if (NO != updated) {
         [self.collectionView reloadData];
+    } else {
+        if (nil != updatedCells) {
+            [self.collectionView reloadItemsAtIndexPaths:[NSSet setWithObject:updatedCells]];
+        }
+    }
+    if (NSNotFound != index) {
+        [self.collectionView selectItemsAtIndexPaths:[NSSet setWithObject:indexPath]
+                                      scrollPosition:NSCollectionViewScrollPositionTop];
     }
 }
 
@@ -85,27 +113,29 @@
 }
 
 - (NSCollectionViewItem *)collectionView:(NSCollectionView *)collectionView itemForRepresentedObjectAtIndexPath:(NSIndexPath *)indexPath {
+    NSParameterAssert(nil != indexPath);
+    NSAssert(NSNotFound != [indexPath item], @"Got empty index path");
     dispatch_assert_queue(dispatch_get_main_queue());
     dispatch_assert_queue_not(self.syncQ);
 
-    __block Item *item = nil;
+    __block Asset *asset = nil;
     dispatch_sync(self.syncQ, ^{
-        item = [self.contents objectAtIndex:(NSUInteger)indexPath.item];
+        asset = [self.contents objectAtIndex:(NSUInteger)[indexPath item]];
     });
 
     GridViewItem *viewItem = [collectionView makeItemWithIdentifier:@"GridViewItem"
                                                        forIndexPath:indexPath];
     viewItem.delegate = self;
-    viewItem.item = item;
-    viewItem.textField.stringValue = item.name;
-    [viewItem.favouriteIndicator setHidden:NO == item.favourite];
+    viewItem.asset = asset;
+    viewItem.textField.stringValue = asset.name;
+    [viewItem.favouriteIndicator setHidden:NO == asset.favourite];
 
     __block NSImage *thumbnail = nil;
     dispatch_sync(self.syncQ, ^{
-        thumbnail = self.thumbnailCache[item.objectID];
+        thumbnail = self.thumbnailCache[asset.objectID];
     });
     if (nil == thumbnail) {
-        NSString *thumbnailPath = item.thumbnailPath;
+        NSString *thumbnailPath = asset.thumbnailPath;
         @weakify(self);
         @weakify(viewItem);
         dispatch_async(self.thumbnailLoadQ, ^{
@@ -123,7 +153,7 @@
 
             dispatch_sync(self.syncQ, ^{
                 NSMutableDictionary<NSManagedObjectID *, NSImage *> *tmp = [NSMutableDictionary dictionaryWithDictionary:self.thumbnailCache];
-                tmp[item.objectID] = thumbnail;
+                tmp[asset.objectID] = thumbnail;
                 self.thumbnailCache = [NSDictionary dictionaryWithDictionary:tmp];
             });
 
@@ -146,28 +176,17 @@
 #pragma mark - NSCollectionViewDelegate
 
 - (void)collectionView:(NSCollectionView *)collectionView didSelectItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
+    // TODO: One day, support multiple items
     NSAssert(1 == [indexPaths count], @"User selected more/less than one item: %lu", [indexPaths count]);
     NSIndexPath *indexPath = [indexPaths anyObject];
-
-    __block Item *item = nil;
-    dispatch_sync(self.syncQ, ^{
-        item = self.contents[(NSUInteger)indexPath.item];
-    });
-
-    self.selectedItem = item;
-    if (nil != self.delegate) {
-        [self.delegate gridViewController:self
-                       selectionDidChange:item];
-    }
+    [self.delegate gridViewController:self
+                   selectionDidChange:indexPath];
 }
 
 - (void)collectionView:(NSCollectionView *)collectionView didDeselectItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
     NSAssert(1 == [indexPaths count], @"User selected more/less than one item: %lu", [indexPaths count]);
-    self.selectedItem = nil;
-    if (nil != self.delegate) {
-        [self.delegate gridViewController:self
-                       selectionDidChange:nil];
-    }
+    [self.delegate gridViewController:self
+                   selectionDidChange:[[NSIndexPath alloc] init]];
 }
 
 
@@ -175,7 +194,7 @@
 
 - (void)gridViewItemWasDoubleClicked:(GridViewItem *)gridViewItem {
     [self.delegate gridViewController:self
-                    doubleClickedItem:gridViewItem.item];
+                    doubleClickedItem:gridViewItem.asset];
 }
 
 - (BOOL)gridViewItem:(GridViewItem *)gridViewItem wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
@@ -183,7 +202,7 @@
         return NO;
     }
     return [self.delegate gridViewController:self
-                                        item:gridViewItem.item
+                                        item:gridViewItem.asset
                      wasDraggedOnSidebarItem:sidebarItem];
 }
 

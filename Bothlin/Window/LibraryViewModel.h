@@ -8,7 +8,7 @@
 #import <Cocoa/Cocoa.h>
 #import "LibraryController.h"
 
-@class Item;
+@class Asset;
 @class Group;
 @class SidebarItem;
 @class LibraryViewModel;
@@ -27,8 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readwrite) id<LibraryViewModelDelegate> delegate;
 
 // TODO: Ideally these would a tuple to make KVO like updates easier
-@property (nonatomic, strong, readonly) NSArray<Item *> *contents;
-@property (nonatomic, strong, readwrite, nullable) Item *selected;
+@property (nonatomic, strong, readonly) NSArray<Asset *> *assets;
+@property (nonatomic, strong, readwrite) NSIndexPath *selectedAssetIndexPath;
+@property (nonatomic, strong, readonly, nullable) Asset *selectedAsset;
 
 @property (nonatomic, strong, readonly) NSArray<Group *> *groups;
 

@@ -6,7 +6,7 @@
 //
 
 #import "DetailsController.h"
-#import "Item+CoreDataClass.h"
+#import "Asset+CoreDataClass.h"
 
 NSString * __nonnull const kPropertyColumnIdentifier = @"PropertyColumn";
 NSString * __nonnull const kValueColumnIdentifier = @"ValueColumn";
@@ -19,7 +19,7 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
 @interface DetailsController ()
 
 // Only access on mainQ
-@property (nonatomic, strong, readwrite) Item *item;
+@property (nonatomic, strong, readwrite) Asset *item;
 
 @end
 
@@ -29,7 +29,7 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
     [super viewDidLoad];
 }
 
-- (void)setItemForDisplay:(Item *)item {
+- (void)setItemForDisplay:(Asset *)item {
     dispatch_assert_queue(dispatch_get_main_queue());
     self.item = item;
     [self.detailsView reloadData];

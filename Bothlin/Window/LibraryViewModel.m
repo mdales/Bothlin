@@ -6,7 +6,7 @@
 //
 
 #import "LibraryViewModel.h"
-#import "Item+CoreDataClass.h"
+#import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
 #import "NSArray+Functional.h"
 #import "Helpers.h"
@@ -23,7 +23,7 @@ NSArray<NSString *> * const testTags = @[
 @property (nonatomic, strong, readonly, nonnull) dispatch_queue_t syncQ;
 @property (nonatomic, strong, readonly, nonnull) NSManagedObjectContext *viewContext;
 
-@property (nonatomic, strong, readwrite) NSArray<Item *> *contents;
+@property (nonatomic, strong, readwrite) NSArray<Asset *> *assets;
 @property (nonatomic, strong, readwrite) NSArray<Group *> *groups;
 @property (nonatomic, strong, readwrite) SidebarItem *sidebarItems;
 
@@ -32,8 +32,8 @@ NSArray<NSString *> * const testTags = @[
 
 @implementation LibraryViewModel
 
-@synthesize contents = _contents;
-@synthesize selected = _selected;
+@synthesize assets = _assets;
+@synthesize selectedAssetIndexPath = _selectedAssetIndexPath;
 @synthesize groups = _groups;
 @synthesize selectedSidebarItem = _selectedSidebarItem;
 
@@ -42,8 +42,8 @@ NSArray<NSString *> * const testTags = @[
     if (nil != self) {
         self->_syncQ = dispatch_queue_create("com.digitalflapjack.LibraryViewModel.syncQ", DISPATCH_QUEUE_SERIAL);
         self->_viewContext = viewContext;
-        self->_contents = @[];
-        self->_selected = nil;
+        self->_assets = @[];
+        self->_selectedAssetIndexPath = [[NSIndexPath alloc] init];
         self->_sidebarItems = [LibraryViewModel buildMenuWithGroups:@[]];
     }
     return self;
@@ -51,31 +51,53 @@ NSArray<NSString *> * const testTags = @[
 
 #pragma mark - getters
 
-- (NSArray<Item *> *)contents {
+- (NSArray<Asset *> *)assets {
     dispatch_assert_queue_not(self.syncQ);
-    __block NSArray<Item *> *val = nil;
+    __block NSArray<Asset *> *val = nil;
     dispatch_sync(self.syncQ, ^{
-        val = self->_contents;
+        val = self->_assets;
     });
     return val;
 }
 
-- (Item *)selected {
+- (NSIndexPath *)selectedAssetIndexPath {
     dispatch_assert_queue_not(self.syncQ);
-    __block Item *val = nil;
+    __block NSIndexPath *val = nil;
     dispatch_sync(self.syncQ, ^{
-        val = self->_selected;
+        val = self->_selectedAssetIndexPath;
     });
+    NSAssert(nil != val, @"Index path should not be nil");
     return val;
 }
 
-- (void)setSelected:(Item *)selected {
+- (void)setSelectedAssetIndexPath:(NSIndexPath *)indexPath {
+    NSParameterAssert(nil != indexPath);
     dispatch_assert_queue_not(self.syncQ);
     dispatch_sync(self.syncQ, ^{
-        if (self->_selected != selected) {
-            self->_selected = selected;
+        if ((nil == indexPath) && (nil == self->_selectedAssetIndexPath)) {
+            return;
         }
+        // you still need to do a nil check here as NSOrderedSame is zero, so if selectedAssetIndex is
+        // nil you get a false positive
+        if ((nil != self->_selectedAssetIndexPath) && ([self->_selectedAssetIndexPath compare:indexPath] == NSOrderedSame)) {
+            return;
+        }
+        self->_selectedAssetIndexPath = indexPath;
     });
+}
+
+- (Asset *)selectedAsset {
+    dispatch_assert_queue_not(self.syncQ);
+    __block Asset *val = nil;
+    dispatch_sync(self.syncQ, ^{
+        NSAssert(nil != self->_selectedAssetIndexPath, @"Index path should not be nil");
+        NSInteger index = [self->_selectedAssetIndexPath item];
+        if (NSNotFound == index) {
+            return;
+        }
+        val = [self->_assets objectAtIndex:(NSUInteger)index];
+    });
+    return val;
 }
 
 - (NSArray<Group *> *)groups {
@@ -155,7 +177,7 @@ NSArray<NSString *> * const testTags = @[
         NSAssert(NO != success, @"Got no error and no success");
     }
 
-    if ([classes containsObject:NSStringFromClass([Item class])]) {
+    if ([classes containsObject:NSStringFromClass([Asset class])]) {
         // TODO: This is all very crude, but let's get something working
         // before we end up down a perfect diffing rabbit hole.
         dispatch_sync(self.syncQ, ^{
@@ -229,7 +251,7 @@ NSArray<NSString *> * const testTags = @[
     [request setSortDescriptors:@[sort]];
 
     NSError *innerError = nil;
-    NSArray<Item *> *result = [self.viewContext executeFetchRequest:request
+    NSArray<Asset *> *result = [self.viewContext executeFetchRequest:request
                                                               error:&innerError];
     if (nil != innerError) {
         NSAssert(nil == result, @"Got error and fetch results.");
@@ -240,18 +262,32 @@ NSArray<NSString *> * const testTags = @[
     }
     NSAssert(nil != result, @"Got no error and no fetch results.");
 
-    self.contents = result;
-    if ((nil == self->_selected) || ([result indexOfObject:self->_selected] == NSNotFound)) {
-        self->_selected = [result firstObject];
+    // Is the old selected asset in the new data? If so, keep it selected
+    NSIndexPath *newSelectionIndexPath = [result count] > 0 ? [NSIndexPath indexPathForItem:0 inSection:0] : [[NSIndexPath alloc] init];
+    if (([result count] > 0) && ([self->_assets count] > 0)) {
+        Asset *selected = [self->_assets objectAtIndex:(NSUInteger)[self->_selectedAssetIndexPath item]];
+        if (nil != selected) {
+            NSUInteger newIndex = [result indexOfObject:selected];
+            if (NSNotFound != newIndex) {
+                newSelectionIndexPath = [NSIndexPath indexPathForItem:(NSInteger)newIndex inSection:0];
+            }
+        }
     }
 
-    [self didChangeValueForKey:@"contents"];
+    [self willChangeValueForKey:@"assets"];
+    [self willChangeValueForKey:@"selectedAssetIndexPath"];
+
+    self->_assets = result;
+    self->_selectedAssetIndexPath = newSelectionIndexPath;
+
+    [self didChangeValueForKey:@"assets"];
+    [self didChangeValueForKey:@"selectedAssetIndexPath"];
 
     return YES;
 }
 
 + (SidebarItem * _Nonnull)buildMenuWithGroups:(NSArray<Group *> * _Nonnull)groups {
-    NSFetchRequest *everythingRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
+    NSFetchRequest *everythingRequest = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
     [everythingRequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt == nil"]];
     SidebarItem *everything = [[SidebarItem alloc] initWithTitle:@"Everything"
                                                       symbolName:@"shippingbox"
@@ -260,7 +296,7 @@ NSArray<NSString *> * const testTags = @[
                                                     fetchRequest:everythingRequest
                                                    relatedObject:nil];
 
-    NSFetchRequest *favouriteRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
+    NSFetchRequest *favouriteRequest = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
     [favouriteRequest setPredicate:[NSPredicate predicateWithFormat: @"favourite == YES"]];
     SidebarItem *favourites = [[SidebarItem alloc] initWithTitle:@"Favourites"
                                                       symbolName:@"heart"
@@ -273,7 +309,7 @@ NSArray<NSString *> * const testTags = @[
                                                       symbolName:@"folder"
                                                 dragResponseType:SidebarItemDragResponseNone
                                                         children:[groups mapUsingBlock:^SidebarItem * _Nonnull(Group * _Nonnull group) {
-        NSFetchRequest *groupRequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
+        NSFetchRequest *groupRequest = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
         [groupRequest setPredicate:[NSPredicate predicateWithFormat: @"ANY groups == %@", group]];
         return [[SidebarItem alloc] initWithTitle:group.name
                                        symbolName:nil
@@ -299,7 +335,7 @@ NSArray<NSString *> * const testTags = @[
                                               fetchRequest:nil
                                              relatedObject:nil];
 
-    NSFetchRequest *trashReequest = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
+    NSFetchRequest *trashReequest = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
     [trashReequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt != nil"]];
     SidebarItem *trash = [[SidebarItem alloc] initWithTitle:@"Trash"
                                                  symbolName:@"trash"

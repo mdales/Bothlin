@@ -7,7 +7,7 @@
 
 #import "SingleViewController.h"
 #import "NSURL+SecureAccess.h"
-#import "ItemExtension.h"
+#import "AssetExtension.h"
 
 NSErrorDomain __nonnull const SingleViewControllerErrorDomain = @"com.digitalflapjack.SingleViewController";
 typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerErrorCode) {
@@ -20,7 +20,7 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
 
 @interface SingleViewController ()
 
-@property (nonatomic, strong, readwrite) Item *item;
+@property (nonatomic, strong, readwrite) Asset *item;
 
 @end
 
@@ -61,7 +61,7 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
 
 #pragma mark - data
 
-- (void)setItemForDisplay:(Item *)item {
+- (void)setItemForDisplay:(Asset *)item {
     if (item == self.item) {
         return;
     }
