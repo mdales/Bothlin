@@ -52,6 +52,7 @@
 		4C960F482AD7D8430053C631 /* NSArray+Functional.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C960F452AD7D8430053C631 /* NSArray+Functional.m */; };
 		4CA484692AD67CB60096C31F /* DragSourceView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA484682AD67CB60096C31F /* DragSourceView.m */; };
 		4CA4846A2AD67CB60096C31F /* DragSourceView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA484682AD67CB60096C31F /* DragSourceView.m */; };
+		4CA644772AE5AF0B005A00D3 /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA644762AE5AF0B005A00D3 /* QuickLookThumbnailing.framework */; };
 		4CB8861E2ABA2CA900968B0F /* LibraryWriteCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */; };
 		4CB886202ABA2CA900968B0F /* LibraryWriteCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */; };
 		4CB886692ABB67E100968B0F /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
@@ -133,6 +134,7 @@
 		4C9D91F12AC2C9B400E42251 /* Bothlin.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Bothlin.entitlements; sourceTree = "<group>"; };
 		4CA484672AD67CB60096C31F /* DragSourceView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragSourceView.h; sourceTree = "<group>"; };
 		4CA484682AD67CB60096C31F /* DragSourceView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DragSourceView.m; sourceTree = "<group>"; };
+		4CA644762AE5AF0B005A00D3 /* QuickLookThumbnailing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookThumbnailing.framework; path = System/Library/PrivateFrameworks/QuickLookThumbnailing.framework; sourceTree = SDKROOT; };
 		4CB8861C2ABA2CA900968B0F /* LibraryWriteCoordinator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryWriteCoordinator.h; sourceTree = "<group>"; };
 		4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryWriteCoordinator.m; sourceTree = "<group>"; };
 		4CB886672ABB67E100968B0F /* LibraryModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LibraryModel.xcdatamodel; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CA644772AE5AF0B005A00D3 /* QuickLookThumbnailing.framework in Frameworks */,
 				4CFB4D382AD08D98006F6F7E /* Quartz.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -368,6 +371,7 @@
 		4CFB4D362AD08D98006F6F7E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4CA644762AE5AF0B005A00D3 /* QuickLookThumbnailing.framework */,
 				4CFB4D372AD08D98006F6F7E /* Quartz.framework */,
 			);
 			name = Frameworks;
@@ -773,6 +777,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.digitalflapjack.Bothlin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SYSTEM_FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks",
+				);
 			};
 			name = Debug;
 		};
@@ -813,6 +821,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.digitalflapjack.Bothlin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SYSTEM_FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks",
+				);
 			};
 			name = Release;
 		};

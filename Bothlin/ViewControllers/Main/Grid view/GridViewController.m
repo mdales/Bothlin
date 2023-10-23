@@ -147,16 +147,19 @@
             NSImage *thumbnail = nil;
             if (nil != thumbnailPath) {
                 thumbnail = [[NSImage alloc] initByReferencingFile:thumbnailPath];
+                if (nil != thumbnail) {
+                    dispatch_sync(self.syncQ, ^{
+                        NSMutableDictionary<NSManagedObjectID *, NSImage *> *tmp = [NSMutableDictionary dictionaryWithDictionary:self.thumbnailCache];
+                        tmp[asset.objectID] = thumbnail;
+                        self.thumbnailCache = [NSDictionary dictionaryWithDictionary:tmp];
+                    });
+                } else {
+                    NSLog(@"Failed to load %@", thumbnailPath);
+                }
             }
             if (nil == thumbnail) {
                 thumbnail = [NSImage imageWithSystemSymbolName:@"exclamationmark.square" accessibilityDescription:nil];
             }
-
-            dispatch_sync(self.syncQ, ^{
-                NSMutableDictionary<NSManagedObjectID *, NSImage *> *tmp = [NSMutableDictionary dictionaryWithDictionary:self.thumbnailCache];
-                tmp[asset.objectID] = thumbnail;
-                self.thumbnailCache = [NSDictionary dictionaryWithDictionary:tmp];
-            });
 
             dispatch_async(dispatch_get_main_queue(), ^{
                 @strongify(viewItem);

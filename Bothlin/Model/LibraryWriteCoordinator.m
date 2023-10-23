@@ -5,6 +5,8 @@
 //  Created by Michael Dales on 19/09/2023.
 //
 
+#import <QuickLookThumbnailing/QuickLookThumbnailing.h>
+
 #import "LibraryWriteCoordinator.h"
 #import "AppDelegate.h"
 #import "Asset+CoreDataClass.h"
@@ -130,11 +132,9 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
     });
 }
 
-- (BOOL)generateThumbnailForAssetWithID:(NSManagedObjectID *)itemID
-                                 error:(NSError **)error {
-    if (nil == itemID) {
-        return YES;
-    }
+- (BOOL)generateQuicklookPreviewForAssetWithID:(NSManagedObjectID *)itemID
+                                         error:(NSError **)error {
+    NSParameterAssert(nil != itemID);
     dispatch_assert_queue(self.thumbnailWorkerQ);
     dispatch_assert_queue_not(self.dataQ);
 
@@ -163,14 +163,15 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
         }
         return NO;
     }
-
-    NSString *filename = [NSString stringWithFormat:@"%@.png", [[NSUUID UUID] UUIDString]];
+    
+    NSString *filename = [NSString stringWithFormat:@"%@-ql.png", [[NSUUID UUID] UUIDString]];
     NSFileManager *fm = [NSFileManager defaultManager];
     NSArray<NSURL *> *paths = [fm URLsForDirectory:NSDocumentDirectory
                                          inDomains:NSUserDomainMask];
     NSAssert(0 < [paths count], @"No document directory found!");
     NSURL *docsDirectory = [paths lastObject];
     NSURL *thumbnailFile = [docsDirectory URLByAppendingPathComponent:filename];
+
     [secureURL secureAccessWithBlock: ^(NSURL *url, BOOL canAccess) {
         if (NO == canAccess) {
             innerError = [NSError errorWithDomain:LibraryControllerErrorDomain
@@ -178,121 +179,75 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
                                          userInfo:@{@"URL": url, @"ID": itemID}];
             return;
         }
-        
-        CFURLRef cfurl = (__bridge_retained CFURLRef)url;
-        CGImageSourceRef source = CGImageSourceCreateWithURL(cfurl, NULL);
-        if (NULL == source) {
-            innerError = [NSError errorWithDomain:LibraryControllerErrorDomain
-                                             code:LibraryControllerErrorCouldNotOpenImage
-                                         userInfo:@{
-                @"URL": url,
-                @"ID": itemID,
-                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Could not create image source for %@", [url lastPathComponent]]
-            }];
-            return;
-        }
-
-        size_t index = CGImageSourceGetPrimaryImageIndex(source);
-
-        int imageSize = 400;
-        CFNumberRef thumbnailSize = CFNumberCreate(NULL, kCFNumberIntType, &imageSize);
-        CFDictionaryRef options = NULL;
-        CFStringRef keys[3];
-        CFTypeRef values[3];
-        keys[0] = kCGImageSourceCreateThumbnailWithTransform;
-        values[0] = (CFTypeRef)kCFBooleanTrue;
-        keys[1] = kCGImageSourceCreateThumbnailFromImageAlways;
-        values[1] = (CFTypeRef)kCFBooleanTrue;
-        keys[2] = kCGImageSourceThumbnailMaxPixelSize;
-        values[2] = (CFTypeRef)thumbnailSize;
-        options = CFDictionaryCreate(NULL, (const void **) keys,
-                                       (const void **) values, 2,
-                                       &kCFTypeDictionaryKeyCallBacks,
-                                       & kCFTypeDictionaryValueCallBacks);
-        CGImageRef cgImage = CGImageSourceCreateThumbnailAtIndex(source, index, options);
-        CFRelease(options);
-        CFRelease(thumbnailSize);
-
-        if (NULL == cgImage) {
-            innerError = [NSError errorWithDomain:LibraryControllerErrorDomain
-                                             code:LibraryControllerErrorCouldNotGenerateThumbnail
-                                         userInfo:@{
-                @"URL": url,
-                @"ID": itemID,
-                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Could not create thumbnail for %@", [url lastPathComponent]]
-            }];
-            CFRelease(source);
-            return;
-        }
-
-        CFURLRef cfdesturl = (__bridge_retained CFURLRef)thumbnailFile;
-        CGImageDestinationRef destination = CGImageDestinationCreateWithURL(cfdesturl, kUTTypePNG, 1, NULL);
-        if (NULL == destination) {
-            innerError = [NSError errorWithDomain:LibraryControllerErrorDomain
-                                             code:LibraryControllerErrorCouldNotCreateThumbnailFile
-                                         userInfo:@{
-                @"URL": thumbnailFile,
-                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Could not create thumbnail file at %@", [thumbnailFile lastPathComponent]]
-            }];
-            CGImageRelease(cgImage);
-            CFRelease(source);
-            return;
-        }
-
-        CGImageDestinationAddImage(destination, cgImage, NULL);
-
-        if (!CGImageDestinationFinalize(destination)) {
-            innerError = [NSError errorWithDomain:LibraryControllerErrorDomain
-                                             code:LibraryControllerErrorCouldNotWriteThumbnailFile
-                                         userInfo:@{
-                @"URL": thumbnailFile,
-                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Could not write thumbnail file at %@", [thumbnailFile lastPathComponent]]
-            }];
-        }
-
-        CFRelease(destination);
-        CGImageRelease(cgImage);
-        CFRelease(source);
-    }];
-    if (nil != innerError) {
-        if (nil != error) {
-            *error = innerError;
-        }
-        return NO;
-    }
-
-    // now we've generated the thumbnail, we should update the record
-    dispatch_sync(self.dataQ, ^{
-        Asset *asset = [self.managedObjectContext existingObjectWithID:itemID
-                                                                 error:&innerError];
-        if (nil != innerError) {
-            NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
-            return;
-        }
-        NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", itemID);
-
-        asset.thumbnailPath = thumbnailFile.path;
-        BOOL success = [self.managedObjectContext save:&innerError];
-        if (nil != innerError) {
-            NSAssert(NO == success, @"Got error and success from saving.");
-            return;
-        }
-        NSAssert(NO != success, @"Got no error and no success from saving.");
-
+        QLThumbnailGenerationRequest *qlRequest = [[QLThumbnailGenerationRequest alloc] initWithFileAtURL:secureURL
+                                                                                                     size:CGSizeMake(400.0, 400.0)
+                                                                                                    scale:2.0
+                                                                                      representationTypes:QLThumbnailGenerationRequestRepresentationTypeThumbnail];
+        QLThumbnailGenerator *generator = [QLThumbnailGenerator sharedGenerator];
         @weakify(self);
-        dispatch_async(dispatch_get_main_queue(), ^{
+        [generator generateRepresentationsForRequest:qlRequest
+                                       updateHandler:^(QLThumbnailRepresentation * _Nullable thumbnail, QLThumbnailRepresentationType type, NSError * _Nullable error) {
             @strongify(self);
             if (nil == self) {
                 return;
             }
-            if (nil == self.delegate) {
+
+            if (nil != error) {
+                NSAssert(nil == thumbnail, @"Got error and thumbnail");
+                [self.delegate libraryWriteCoordinator:self
+                                      thumbnailForItem:itemID
+                             generationFailedWithError:error];
                 return;
             }
+            NSAssert(nil != thumbnail, @"Got no error and no thumbnail");
+            NSAssert(type == QLThumbnailRepresentationTypeThumbnail, @"Asked for thumbnail, got %ld", (long)type);
 
-            [self.delegate libraryWriteCoordinator:self
-                                         didUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
-        });
-    });
+            // TODO: replace asserts once we have something working
+            NSData *tiffData = [[thumbnail NSImage] TIFFRepresentation];
+            NSAssert(nil != tiffData, @"didn't get tiff data");
+            NSBitmapImageRep *pngRep = [[NSBitmapImageRep alloc] initWithData:tiffData];
+            NSAssert(nil != pngRep, @"didn't get bitmap rep");
+            NSData *pngData = [pngRep representationUsingType:NSBitmapImageFileTypePNG
+                                                   properties:@{}];
+            NSAssert(nil != pngData, @"didn't get png data");
+            [pngData writeToURL:thumbnailFile
+                     atomically:YES];
+
+
+            // now we've generated the thumbnail, we should update the record
+            dispatch_sync(self.dataQ, ^{
+                Asset *asset = [self.managedObjectContext existingObjectWithID:itemID
+                                                                         error:&innerError];
+                if (nil != innerError) {
+                    NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
+                    return;
+                }
+                NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", itemID);
+
+                asset.thumbnailPath = thumbnailFile.path;
+                BOOL success = [self.managedObjectContext save:&innerError];
+                if (nil != innerError) {
+                    NSAssert(NO == success, @"Got error and success from saving.");
+                    return;
+                }
+                NSAssert(NO != success, @"Got no error and no success from saving.");
+
+                @weakify(self);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    @strongify(self);
+                    if (nil == self) {
+                        return;
+                    }
+                    if (nil == self.delegate) {
+                        return;
+                    }
+
+                    [self.delegate libraryWriteCoordinator:self
+                                                 didUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
+                });
+            });
+        }];
+    }];
     if (nil != innerError) {
         if (nil != error) {
             *error = innerError;
@@ -302,7 +257,6 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
 
     return YES;
 }
-
 
 - (NSSet<NSManagedObjectID *> *)innerImportURLs:(NSArray<NSURL *> *)urls
                                           error:(NSError **)error {
@@ -357,8 +311,8 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
                     return;
                 }
                 NSError *error = nil;
-                [self generateThumbnailForAssetWithID:asset.objectID
-                                                error:&error];
+                [self generateQuicklookPreviewForAssetWithID:asset.objectID
+                                                       error:&error];
                 if (nil != error) {
                     NSLog(@"Error generating thumbnail: %@", error.localizedDescription);
                     @weakify(self)
