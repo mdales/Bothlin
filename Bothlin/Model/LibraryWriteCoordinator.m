@@ -15,16 +15,17 @@
 #import "Helpers.h"
 #import "NSURL+SecureAccess.h"
 
-NSErrorDomain __nonnull const LibraryControllerErrorDomain = @"com.digitalflapjack.LibraryController";
-typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) {
-    LibraryControllerErrorUnknown, // AKA 0, AKA I made a mistake
-    LibraryControllerErrorURLsAreNil,
-    LibraryControllerErrorSelfIsNoLongerValid,
-    LibraryControllerErrorSecurePathNotAccessible,
-    LibraryControllerErrorCouldNotOpenImage,
-    LibraryControllerErrorCouldNotGenerateThumbnail,
-    LibraryControllerErrorCouldNotCreateThumbnailFile,
-    LibraryControllerErrorCouldNotWriteThumbnailFile,
+NSErrorDomain __nonnull const LibraryWriteCoordinatorErrorDomain = @"com.digitalflapjack.LibraryController";
+typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinatorErrorCode) {
+    LibraryWriteCoordinatorErrorUnknown, // AKA 0, AKA I made a mistake
+    LibraryWriteCoordinatorErrorURLsAreNil,
+    LibraryWriteCoordinatorErrorSelfIsNoLongerValid,
+    LibraryWriteCoordinatorErrorSecurePathNotAccessible,
+
+    LibraryWriteCoordinatorErrorCouldNotReadThumbnail,
+    LibraryWriteCoordinatorErrorCouldNotCreateImageRep,
+    LibraryWriteCoordinatorErrorCouldNotGeneratePNGData,
+    LibraryWriteCoordinatorErrorCouldNotWriteThumbnailFile,
 };
 
 @interface LibraryWriteCoordinator ()
@@ -61,8 +62,8 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
     if (nil == urls) {
         if (nil != callback) {
             dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-                callback(NO, [NSError errorWithDomain:LibraryControllerErrorDomain
-                                                 code:LibraryControllerErrorURLsAreNil
+                callback(NO, [NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                                 code:LibraryWriteCoordinatorErrorURLsAreNil
                                              userInfo:nil]);
             });
         }
@@ -93,8 +94,8 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
         @strongify(self);
         if (nil == self) {
             if (nil != callback) {
-                callback(NO, [NSError errorWithDomain:LibraryControllerErrorDomain
-                                                 code:LibraryControllerErrorSelfIsNoLongerValid
+                callback(NO, [NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                                 code:LibraryWriteCoordinatorErrorSelfIsNoLongerValid
                                              userInfo:nil]);
             }
             return;
@@ -174,8 +175,8 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
 
     [secureURL secureAccessWithBlock: ^(NSURL *url, BOOL canAccess) {
         if (NO == canAccess) {
-            innerError = [NSError errorWithDomain:LibraryControllerErrorDomain
-                                             code:LibraryControllerErrorSecurePathNotAccessible
+            innerError = [NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                             code:LibraryWriteCoordinatorErrorSecurePathNotAccessible
                                          userInfo:@{@"URL": url, @"ID": itemID}];
             return;
         }
@@ -204,15 +205,43 @@ typedef NS_ERROR_ENUM(LibraryControllerErrorDomain, LibraryControllerErrorCode) 
 
             // TODO: replace asserts once we have something working
             NSData *tiffData = [[thumbnail NSImage] TIFFRepresentation];
-            NSAssert(nil != tiffData, @"didn't get tiff data");
-            NSBitmapImageRep *pngRep = [[NSBitmapImageRep alloc] initWithData:tiffData];
-            NSAssert(nil != pngRep, @"didn't get bitmap rep");
-            NSData *pngData = [pngRep representationUsingType:NSBitmapImageFileTypePNG
-                                                   properties:@{}];
-            NSAssert(nil != pngData, @"didn't get png data");
-            [pngData writeToURL:thumbnailFile
-                     atomically:YES];
-
+            if (nil == tiffData) {
+                [self.delegate libraryWriteCoordinator:self
+                                      thumbnailForItem:itemID
+                             generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                                                           code:LibraryWriteCoordinatorErrorCouldNotReadThumbnail
+                                                                       userInfo:@{}]];
+                return;
+            }
+            NSBitmapImageRep *imageRep = [[NSBitmapImageRep alloc] initWithData:tiffData];
+            if (nil == imageRep) {
+                [self.delegate libraryWriteCoordinator:self
+                                      thumbnailForItem:itemID
+                             generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                                                           code:LibraryWriteCoordinatorErrorCouldNotCreateImageRep
+                                                                       userInfo:@{}]];
+                return;
+            }
+            NSData *pngData = [imageRep representationUsingType:NSBitmapImageFileTypePNG
+                                                     properties:@{}];
+            if (nil == pngData) {
+                [self.delegate libraryWriteCoordinator:self
+                                      thumbnailForItem:itemID
+                             generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                                                           code:LibraryWriteCoordinatorErrorCouldNotGeneratePNGData
+                                                                       userInfo:@{}]];
+                return;
+            }
+            BOOL success = [pngData writeToURL:thumbnailFile
+                                    atomically:YES];
+            if (NO == success) {
+                [self.delegate libraryWriteCoordinator:self
+                                      thumbnailForItem:itemID
+                             generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                                                           code:LibraryWriteCoordinatorErrorCouldNotWriteThumbnailFile
+                                                                       userInfo:@{}]];
+                return;
+            }
 
             // now we've generated the thumbnail, we should update the record
             dispatch_sync(self.dataQ, ^{
