@@ -193,18 +193,27 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 return;
             }
 
+            NSImage *image = nil;
+
             if (nil != error) {
+                // If quicklook fails to generate a preview, for now fall back to icon if we can
                 NSAssert(nil == thumbnail, @"Got error and thumbnail");
-                [self.delegate libraryWriteCoordinator:self
-                                      thumbnailForItem:itemID
-                             generationFailedWithError:error];
-                return;
+                image = [[NSWorkspace sharedWorkspace] iconForFile:[secureURL path]];
+                if (nil == error) {
+                    // TODO: This should be more about the icon
+                    [self.delegate libraryWriteCoordinator:self
+                                          thumbnailForItem:itemID
+                                 generationFailedWithError:error];
+                    return;
+                }
+            } else {
+                NSAssert(nil != thumbnail, @"Got no error and no thumbnail");
+                NSAssert(type == QLThumbnailRepresentationTypeThumbnail, @"Asked for thumbnail, got %ld", (long)type);
+                image = [thumbnail NSImage];
             }
-            NSAssert(nil != thumbnail, @"Got no error and no thumbnail");
-            NSAssert(type == QLThumbnailRepresentationTypeThumbnail, @"Asked for thumbnail, got %ld", (long)type);
 
             // TODO: replace asserts once we have something working
-            NSData *tiffData = [[thumbnail NSImage] TIFFRepresentation];
+            NSData *tiffData = [image TIFFRepresentation];
             if (nil == tiffData) {
                 [self.delegate libraryWriteCoordinator:self
                                       thumbnailForItem:itemID
