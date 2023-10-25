@@ -121,12 +121,13 @@
 }
 
 - (BOOL)gridViewController:(GridViewController *)gridViewController item:(Asset *)item wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
-    if (nil == self.delegate) {
+    id<AssetsDisplayControllerDelegate> delegate = self.delegate;
+    if (nil == delegate) {
         return NO;
     }
-    return [self.delegate assetsDisplayController:self
-                                            item:item
-                         wasDraggedOnSidebarItem:sidebarItem];
+    return [delegate assetsDisplayController:self
+                                        item:item
+                     wasDraggedOnSidebarItem:sidebarItem];
 }
 
 #pragma mark - SingleViewControllerDelegate
@@ -135,5 +136,10 @@
     [self setDisplayStyle:ItemsDisplayStyleGrid];
 }
 
+- (void)singleViewController:(SingleViewController *)singleViewController failedToLoadAsset:(Asset *)asset error:(NSError *)error {
+    [self.delegate assetsDisplayController:self
+                      failedToDisplayAsset:asset
+                                     error:error];
+}
 
 @end

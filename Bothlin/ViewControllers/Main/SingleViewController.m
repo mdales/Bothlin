@@ -52,9 +52,6 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
     }
 }
 
-#pragma mark - IKImageView delegates
-
-
 
 #pragma mark - gestures
 
@@ -83,12 +80,14 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
     if (nil == self.asset) {
         return;
     }
+    id<SingleViewControllerDelegate> delegate = self.delegate;
 
     __block NSError *error = nil;
     NSURL *secureURL = [self.asset decodeSecureURL:&error];
     if (nil != error) {
-        // TODO: Alert user
-        NSLog(@"Failed to get secure URL for %@: %@", self.asset, error);
+        [delegate singleViewController:self
+                     failedToLoadAsset:self.asset
+                                 error:error];
         return;
     }
 
@@ -103,8 +102,9 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
         [self.previewView setPreviewItem:url];
     }];
     if (nil != error) {
-        // TODO: Alert user
-        NSLog(@"Failed to load %@: %@", self.asset.name, error);
+        [delegate singleViewController:self
+                     failedToLoadAsset:self.asset
+                                 error:error];
         return;
     }
 }

@@ -202,12 +202,13 @@
 }
 
 - (BOOL)gridViewItem:(GridViewItem *)gridViewItem wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
-    if (nil == self.delegate) {
+    id<GridViewControllerDelegate> delegate = self.delegate;
+    if (nil == delegate) {
         return NO;
     }
-    return [self.delegate gridViewController:self
-                                        item:gridViewItem.asset
-                     wasDraggedOnSidebarItem:sidebarItem];
+    return [delegate gridViewController:self
+                                   item:gridViewItem.asset
+                wasDraggedOnSidebarItem:sidebarItem];
 }
 
 
@@ -215,7 +216,8 @@
 
 - (BOOL)dragTargetView:(DragTargetView *)dragTargetView handleDrag:(id<NSDraggingInfo> _Nonnull)dragInfo {
     dispatch_assert_queue(dispatch_get_main_queue());
-    if (nil == self.delegate) {
+    id<GridViewControllerDelegate> delegate = self.delegate;
+    if (nil == delegate) {
         return NO;
     }
 
@@ -225,8 +227,8 @@
     }
     NSArray<NSURL *> *objects = [pasteboard readObjectsForClasses:@[[NSURL class]]
                                                           options:nil];
-    [self.delegate gridViewController:self
-                didReceiveDroppedURLs:[NSSet setWithArray:objects]];
+    [delegate gridViewController:self
+           didReceiveDroppedURLs:[NSSet setWithArray:objects]];
     
     return YES;
 }

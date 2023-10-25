@@ -118,9 +118,6 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             if (nil == self) {
                 return;
             }
-            if (nil == self.delegate) {
-                return;
-            }
             [self.delegate libraryWriteCoordinator:self
                                          didUpdate:@{NSInsertedObjectsKey: newItemIDs.allObjects}];
         });
@@ -138,6 +135,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     NSParameterAssert(nil != itemID);
     dispatch_assert_queue(self.thumbnailWorkerQ);
     dispatch_assert_queue_not(self.dataQ);
+    id<LibraryWriteCoordinatorDelegate> delegate = self.delegate;
 
     __block NSURL *secureURL = nil;
     __block NSError *innerError = nil;
@@ -201,9 +199,9 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 image = [[NSWorkspace sharedWorkspace] iconForFile:[secureURL path]];
                 if (nil == error) {
                     // TODO: This should be more about the icon
-                    [self.delegate libraryWriteCoordinator:self
-                                          thumbnailForItem:itemID
-                                 generationFailedWithError:error];
+                    [delegate libraryWriteCoordinator:self
+                                     thumbnailForItem:itemID
+                            generationFailedWithError:error];
                     return;
                 }
             } else {
@@ -215,40 +213,40 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             // TODO: replace asserts once we have something working
             NSData *tiffData = [image TIFFRepresentation];
             if (nil == tiffData) {
-                [self.delegate libraryWriteCoordinator:self
-                                      thumbnailForItem:itemID
-                             generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
-                                                                           code:LibraryWriteCoordinatorErrorCouldNotReadThumbnail
-                                                                       userInfo:@{}]];
+                [delegate libraryWriteCoordinator:self
+                                 thumbnailForItem:itemID
+                        generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                                                      code:LibraryWriteCoordinatorErrorCouldNotReadThumbnail
+                                                                  userInfo:@{}]];
                 return;
             }
             NSBitmapImageRep *imageRep = [[NSBitmapImageRep alloc] initWithData:tiffData];
             if (nil == imageRep) {
-                [self.delegate libraryWriteCoordinator:self
-                                      thumbnailForItem:itemID
-                             generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
-                                                                           code:LibraryWriteCoordinatorErrorCouldNotCreateImageRep
-                                                                       userInfo:@{}]];
+                [delegate libraryWriteCoordinator:self
+                                 thumbnailForItem:itemID
+                        generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                                                      code:LibraryWriteCoordinatorErrorCouldNotCreateImageRep
+                                                                  userInfo:@{}]];
                 return;
             }
             NSData *pngData = [imageRep representationUsingType:NSBitmapImageFileTypePNG
                                                      properties:@{}];
             if (nil == pngData) {
-                [self.delegate libraryWriteCoordinator:self
-                                      thumbnailForItem:itemID
-                             generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
-                                                                           code:LibraryWriteCoordinatorErrorCouldNotGeneratePNGData
-                                                                       userInfo:@{}]];
+                [delegate libraryWriteCoordinator:self
+                                 thumbnailForItem:itemID
+                        generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                                                      code:LibraryWriteCoordinatorErrorCouldNotGeneratePNGData
+                                                                  userInfo:@{}]];
                 return;
             }
             BOOL success = [pngData writeToURL:thumbnailFile
                                     atomically:YES];
             if (NO == success) {
-                [self.delegate libraryWriteCoordinator:self
-                                      thumbnailForItem:itemID
-                             generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
-                                                                           code:LibraryWriteCoordinatorErrorCouldNotWriteThumbnailFile
-                                                                       userInfo:@{}]];
+                [delegate libraryWriteCoordinator:self
+                                 thumbnailForItem:itemID
+                        generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                                                      code:LibraryWriteCoordinatorErrorCouldNotWriteThumbnailFile
+                                                                  userInfo:@{}]];
                 return;
             }
 
@@ -276,10 +274,6 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                     if (nil == self) {
                         return;
                     }
-                    if (nil == self.delegate) {
-                        return;
-                    }
-
                     [self.delegate libraryWriteCoordinator:self
                                                  didUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
                 });
@@ -359,9 +353,6 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                         if (nil == self) {
                             return;
                         }
-                        if (nil == self.delegate) {
-                            return;
-                        }
                         [self.delegate libraryWriteCoordinator:self
                                               thumbnailForItem:asset.objectID
                                      generationFailedWithError:error];
@@ -409,10 +400,6 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 if (nil == self) {
                     return;
                 }
-                if (nil == self.delegate) {
-                    return;
-                }
-
                 [self.delegate libraryWriteCoordinator:self
                                              didUpdate:@{NSInsertedObjectsKey:@[groupID]}];
             });
@@ -447,9 +434,6 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             dispatch_async(dispatch_get_main_queue(), ^{
                 @strongify(self);
                 if (nil == self) {
-                    return;
-                }
-                if (nil == self.delegate) {
                     return;
                 }
                 [self.delegate libraryWriteCoordinator:self

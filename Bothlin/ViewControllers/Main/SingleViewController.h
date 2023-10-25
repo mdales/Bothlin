@@ -17,13 +17,15 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SingleViewControllerDelegate <NSObject>
 
 - (void)singleViewItemWasDoubleClicked:(SingleViewController *)singleViewItem;
+- (void)singleViewController:(SingleViewController *)singleViewController
+           failedToLoadAsset:(Asset *)asset
+                       error:(NSError *)error;
 
 @end
 
 @interface SingleViewController : NSViewController
 
 @property (nonatomic, weak, readwrite) id<SingleViewControllerDelegate> delegate;
-//@property (nonatomic, weak, readwrite) IBOutlet IKImageView *imageView;
 @property (nonatomic, strong, readwrite) IBOutlet QLPreviewView *previewView;
 
 - (void)setAssetForDisplay:(Asset * _Nullable)item;

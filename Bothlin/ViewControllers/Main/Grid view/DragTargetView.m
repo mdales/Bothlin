@@ -28,11 +28,12 @@
 }
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
-    if (nil == self.delegate) {
+    id<DragTargetViewDelegate> delegate = self.delegate;
+    if (nil == delegate) {
         return NO;
     }
-    return [self.delegate dragTargetView:self 
-                              handleDrag:sender];
+    return [delegate dragTargetView:self
+                         handleDrag:sender];
 }
 
 //- (void)drawRect:(NSRect)dirtyRect {

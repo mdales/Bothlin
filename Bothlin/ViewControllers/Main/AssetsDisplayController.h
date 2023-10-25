@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 
 @class AssetsDisplayController;
 
-@protocol ItemsDisplayControllerDelegate <NSObject>
+@protocol AssetsDisplayControllerDelegate <NSObject>
 
 - (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController
              selectionDidChange:(NSIndexPath *)selectedIndexPath;
@@ -31,6 +31,10 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 
 - (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController
           didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs;
+
+- (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController
+           failedToDisplayAsset:(Asset *)asset
+                          error:(NSError *)error;
 
 // TODO: Better naming needed, but I hope to remove this endless delegate chain
 // at some point, as it's somewhat tedious.
@@ -43,7 +47,7 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 @interface AssetsDisplayController : NSViewController <GridViewControllerDelegate, SingleViewControllerDelegate>
 
 // Only safe on mainQ
-@property (nonatomic, weak, readwrite) id<ItemsDisplayControllerDelegate> delegate;
+@property (nonatomic, weak, readwrite) id<AssetsDisplayControllerDelegate> delegate;
 @property (nonatomic, readwrite) ItemsDisplayStyle displayStyle;
 
 - (void)setAssets:(NSArray<Asset *> *)assets

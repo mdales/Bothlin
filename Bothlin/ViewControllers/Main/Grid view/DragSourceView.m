@@ -13,10 +13,11 @@ const float kDragThreshold = 3.0;
 @implementation DragSourceView
 
 - (BOOL)wasDroppedOnSidebarItem:(SidebarItem *)sidebarItem {
-    if (nil == self.delegate) {
+    id<DragSourceViewDelegate> delegate = self.delegate;
+    if (nil == delegate) {
         return NO;
     }
-    return [self.delegate dragSourceWasDroppedOnSidebar:sidebarItem];
+    return [delegate dragSourceWasDroppedOnSidebar:sidebarItem];
 }
 
 - (void)mouseDown:(NSEvent *)event {
@@ -49,11 +50,12 @@ const float kDragThreshold = 3.0;
                                               fromView:nil];
             if ((fabs(movedLocation.x - startLocation.x) > kDragThreshold) || (fabs(movedLocation.y - startLocation.y) > kDragThreshold)) {
                 *stop = YES;
-                if (nil != self.delegate) {
-                    id<NSPasteboardWriting> writer = [self.delegate pasteboardWriterForDragSourceView:self];
+                id<DragSourceViewDelegate> delegate = self.delegate;
+                if (nil != delegate) {
+                    id<NSPasteboardWriting> writer = [delegate pasteboardWriterForDragSourceView:self];
                     NSDraggingItem *draggingItem = [[NSDraggingItem alloc] initWithPasteboardWriter:writer];
                     [draggingItem setDraggingFrame:[self frame]
-                                          contents:[self.delegate draggingImageForDragSourceView:self]];
+                                          contents:[delegate draggingImageForDragSourceView:self]];
                     [self beginDraggingSessionWithItems:@[draggingItem]
                                                   event:event
                                                  source:self];

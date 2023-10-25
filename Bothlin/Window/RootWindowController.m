@@ -227,20 +227,20 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [self.viewModel setSelectedSidebarItem:sidebarItem];
 }
 
-#pragma mark - ItemDisplayController
+#pragma mark - AssetsDisplayControllerDelegate
 
-- (void)assetsDisplayController:(AssetsDisplayController *)itemDisplayController
+- (void)assetsDisplayController:(__unused AssetsDisplayController *)assetDisplayController
             selectionDidChange:(NSIndexPath *)selectedIndexPath {
     [self.viewModel setSelectedAssetIndexPath:selectedIndexPath];
 }
 
-- (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController 
-            viewStyleDidChange:(ItemsDisplayStyle)displayStyle {
+- (void)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController
+            viewStyleDidChange:(__unused ItemsDisplayStyle)displayStyle {
     dispatch_assert_queue(dispatch_get_main_queue());
     [self updateToolbar];
 }
 
-- (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController 
+- (void)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController
          didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs {
     dispatch_assert_queue(dispatch_get_main_queue());
 
@@ -268,7 +268,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     }];
 }
 
-- (BOOL)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController 
+- (BOOL)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController
                           item:(Asset *)item
        wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
     NSParameterAssert(nil != item);
@@ -286,6 +286,14 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             break;
     }
     return accepted;
+}
+
+- (void)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController
+           failedToDisplayAsset:(__unused Asset *)asset
+                          error:(NSError *)error {
+    dispatch_assert_queue(dispatch_get_main_queue());
+    NSAlert *alert = [NSAlert alertWithError:error];
+    [alert runModal];
 }
 
 #pragma mark - Custom behaviour

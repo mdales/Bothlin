@@ -79,24 +79,28 @@
 }
 
 - (void)dragSourceView:(DragSourceView *)dragSourceView wasClicked:(NSInteger)count {
+    NSCollectionView *collectionView = self.collectionView;
+    NSAssert(nil != collectionView, @"Assumed view item had collection view");
+
     if (1 == count) {
-        NSIndexPath *index = [self.collectionView indexPathForItem:self];
+        NSIndexPath *index = [collectionView indexPathForItem:self];
         NSIndexSet *indexSet = [[NSIndexSet alloc] initWithIndex:(NSUInteger)[index item]];
-        [self.collectionView setSelectionIndexes:indexSet];
+        [collectionView setSelectionIndexes:indexSet];
         // TODO: be less gross once you've finished replumbing
-        [self.collectionView.delegate collectionView:self.collectionView
-                          didSelectItemsAtIndexPaths:[NSSet setWithObject:index]];
+        [collectionView.delegate collectionView:collectionView
+                     didSelectItemsAtIndexPaths:[NSSet setWithObject:index]];
     } else if (2 == count) {
         [self.delegate gridViewItemWasDoubleClicked:self];
     }
 }
 
 - (BOOL)dragSourceWasDroppedOnSidebar:(SidebarItem *)sidebarItem {
-    if (nil == self.delegate) {
+    id<GridViewItemDelegate> delegate = self.delegate;
+    if (nil == delegate) {
         return NO;
     }
-    return [self.delegate gridViewItem:self
-               wasDraggedOnSidebarItem:sidebarItem];
+    return [delegate gridViewItem:self
+          wasDraggedOnSidebarItem:sidebarItem];
 }
 
 #pragma mark - NSFilePromiseProviderDelegate
