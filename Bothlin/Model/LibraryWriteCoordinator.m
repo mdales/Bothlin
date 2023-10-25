@@ -413,19 +413,19 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     });
 }
 
-- (void)toggleFavouriteState:(NSManagedObjectID *)itemID
+- (void)toggleFavouriteState:(NSManagedObjectID *)assetID
                     callback:(void (^)(BOOL success, NSError *error)) callback {
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
         [self.managedObjectContext performBlockAndWait:^{
-            Asset *asset = [self.managedObjectContext existingObjectWithID:itemID
+            Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
                                                                      error:&error];
             if (nil != error) {
-                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", itemID, error.localizedDescription);
+                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", assetID, error.localizedDescription);
                 return;
             }
-            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", itemID);
+            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", assetID);
             asset.favourite = !asset.favourite;
             success = [self.managedObjectContext save:&error];
         }];
@@ -437,7 +437,54 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                     return;
                 }
                 [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
+                                             didUpdate:@{NSUpdatedObjectsKey:@[assetID]}];
+            });
+        }
+
+        if (nil != callback) {
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                callback(success, error);
+            });
+        }
+    });
+}
+
+- (void)addAsset:(NSManagedObjectID *)assetID
+         toGroup:(NSManagedObjectID *)groupID
+        callback:(void (^)(BOOL success, NSError *error)) callback {
+    dispatch_sync(self.dataQ, ^() {
+        __block NSError *error = nil;
+        __block BOOL success = NO;
+        [self.managedObjectContext performBlockAndWait:^{
+            Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
+                                                                     error:&error];
+            if (nil != error) {
+                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", assetID, error.localizedDescription);
+                return;
+            }
+            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", assetID);
+
+            Group *group = [self.managedObjectContext existingObjectWithID:groupID
+                                                                     error:&error];
+            if (nil != error) {
+                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", groupID, error.localizedDescription);
+                return;
+            }
+            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", groupID);
+
+            [group addContains:[NSSet setWithObject:asset]];
+
+            success = [self.managedObjectContext save:&error];
+        }];
+        if ((nil == error) && success) {
+            @weakify(self);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+                [self.delegate libraryWriteCoordinator:self
+                                             didUpdate:@{NSUpdatedObjectsKey:@[assetID, groupID]}];
             });
         }
 

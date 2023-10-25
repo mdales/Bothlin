@@ -269,18 +269,50 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 }
 
 - (BOOL)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController
-                          item:(Asset *)item
+                          item:(Asset *)asset
        wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
-    NSParameterAssert(nil != item);
+    NSParameterAssert(nil != asset);
     NSParameterAssert(nil != sidebarItem);
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
 
     BOOL accepted = NO;
     switch (sidebarItem.dragResponseType) {
         case SidebarItemDragResponseGroup:
+            if (nil != sidebarItem.relatedOject) {
+                [library addAsset:asset.objectID
+                          toGroup:sidebarItem.relatedOject
+                         callback:^(BOOL success, NSError * _Nonnull error) {
+                    if (nil != error) {
+                        NSAssert(NO == success, @"Got error and success");
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            NSAlert *alert = [NSAlert alertWithError:error];
+                            [alert runModal];
+                        });
+                    }
+                    NSAssert(NO != success, @"got no error and no success");
+                }];
+            }
+            accepted = YES;
             break;
         case SidebarItemDragResponseTrash:
             break;
         case SidebarItemDragResponseFavourite:
+            if (NO == asset.favourite) {
+                [library toggleFavouriteState:asset.objectID
+                                     callback:^(BOOL success, NSError * _Nonnull error) {
+                    if (nil != error) {
+                        NSAssert(NO == success, @"Got error and success");
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            NSAlert *alert = [NSAlert alertWithError:error];
+                            [alert runModal];
+                        });
+                    }
+                    NSAssert(NO != success, @"got no error and no success");
+                }];
+            }
+            accepted = YES;
             break;
         default:
             break;

@@ -35,8 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)createGroup:(NSString *)name
            callback:(void (^)(BOOL success, NSError *error)) callback;
 
-- (void)toggleFavouriteState:(NSManagedObjectID *)itemID
+- (void)toggleFavouriteState:(NSManagedObjectID *)assetID
                     callback:(void (^)(BOOL success, NSError *error)) callback;
+
+- (void)addAsset:(NSManagedObjectID *)assetID
+         toGroup:(NSManagedObjectID *)groupID
+        callback:(void (^)(BOOL success, NSError *error)) callback;
 
 @end
 
