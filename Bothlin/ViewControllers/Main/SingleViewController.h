@@ -23,9 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SingleViewController : NSViewController
 
 @property (nonatomic, weak, readwrite) id<SingleViewControllerDelegate> delegate;
-@property (nonatomic, weak, readwrite) IBOutlet IKImageView *imageView;
+//@property (nonatomic, weak, readwrite) IBOutlet IKImageView *imageView;
+@property (nonatomic, strong, readwrite) IBOutlet QLPreviewView *previewView;
 
-- (void)setItemForDisplay:(Asset * _Nullable)item;
+- (void)setAssetForDisplay:(Asset * _Nullable)item;
 
 @end
 

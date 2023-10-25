@@ -67,9 +67,9 @@
     NSInteger index = [indexPath item];
     if (NSNotFound != index) {
         Asset *selectedAsset = [assets objectAtIndex:(NSUInteger)index];
-        [self.singleViewController setItemForDisplay:selectedAsset];
+        [self.singleViewController setAssetForDisplay:selectedAsset];
     } else {
-        [self.singleViewController setItemForDisplay:nil];
+        [self.singleViewController setAssetForDisplay:nil];
     }
 }
 
@@ -109,7 +109,7 @@
 
 - (void)gridViewController:(nonnull GridViewController *)gridViewController
          doubleClickedItem:(nonnull Asset *)item {
-    [self.singleViewController setItemForDisplay: item];
+    [self.singleViewController setAssetForDisplay: item];
     [self setDisplayStyle:ItemsDisplayStyleSingle];
 }
 

@@ -20,7 +20,7 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
 
 @interface SingleViewController ()
 
-@property (nonatomic, strong, readwrite) Asset *item;
+@property (nonatomic, strong, readwrite) Asset *asset;
 
 @end
 
@@ -29,9 +29,13 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    [self.imageView setDoubleClickOpensImageEditPanel:NO];
-    [self.imageView setCurrentToolMode:IKToolModeMove];
-    [self.imageView setDelegate:self];
+    NSAssert(nil == self.previewView, @"Expected no preview view yet");
+    self.previewView = [[QLPreviewView alloc] initWithFrame:self.view.frame
+                                                      style:QLPreviewViewStyleNormal];
+    [self.previewView setAutoresizingMask:NSViewHeightSizable | NSViewWidthSizable];
+    [self.previewView setAutoresizesSubviews:YES];
+    [self.previewView setShouldCloseWithWindow:NO];
+    [self.view addSubview:self.previewView];
 
     NSClickGestureRecognizer *doubleClickGesture =
     [[NSClickGestureRecognizer alloc] initWithTarget:self
@@ -43,8 +47,8 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
 
 - (void)viewWillAppear {
     [super viewWillAppear];
-    if (nil == self.imageView.image) {
-        [self loadImage];
+    if (nil == self.previewView.previewItem) {
+        [self loadAsset];
     }
 }
 
@@ -61,35 +65,34 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
 
 #pragma mark - data
 
-- (void)setItemForDisplay:(Asset *)item {
-    if (item == self.item) {
+- (void)setAssetForDisplay:(Asset *)asset {
+    if (asset.objectID == self.asset.objectID) {
         return;
     }
 
-    self.item = item;
-    [self.imageView setImageWithURL:nil]; // TODO: Trying to clear image
+    self.asset = asset;
+    self.previewView.previewItem = nil;
 
     if (nil != self.view.superview) {
-        [self loadImage];
+        [self loadAsset];
     }
 }
 
-- (void)loadImage {
+- (void)loadAsset {
     dispatch_assert_queue(dispatch_get_main_queue());
-    if (nil == self.item) {
+    if (nil == self.asset) {
         return;
     }
 
     __block NSError *error = nil;
-    NSURL *secureURL = [self.item decodeSecureURL:&error];
+    NSURL *secureURL = [self.asset decodeSecureURL:&error];
     if (nil != error) {
         // TODO: Alert user
-        NSLog(@"Failed to get secure URL for %@: %@", self.item, error);
+        NSLog(@"Failed to get secure URL for %@: %@", self.asset, error);
         return;
     }
 
     [secureURL secureAccessWithBlock:^(NSURL * _Nonnull url, BOOL canAccess) {
-        // TODO: shift all this to background queue once working
         if (NO == canAccess) {
             error = [NSError errorWithDomain:SingleViewControllerErrorDomain
                                         code:SingleViewControllerErrorImageNoAccess
@@ -97,38 +100,13 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
             return;
         }
 
-        CGImageSourceRef imageSource = CGImageSourceCreateWithURL((CFURLRef)url, NULL);
-        if (NULL == imageSource) {
-            error = [NSError errorWithDomain:SingleViewControllerErrorDomain
-                                        code:SingleViewControllerErrorImageOpenFailed
-                                    userInfo:@{@"URL": url}];
-            return;
-        }
-
-        CGImageRef image = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
-        if (NULL == image) {
-            error = [NSError errorWithDomain:SingleViewControllerErrorDomain
-                                        code:SingleViewControllerErrorImageCreateFailed
-                                    userInfo:@{@"URL": url}];
-            CFRelease(imageSource);
-            return;
-        }
-
-        NSDictionary *imageProperties = (NSDictionary*)CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL));
-        [self.imageView setImage:image
-                 imageProperties:imageProperties];
-
-        // TODO: I'm not sure what the ownership is here, but if I release the image and source here the image won't load
-        // Do I need to release them when I unset the image in the image view, or does IKImageView do that?
-        // CGImageRelease(image);
-        // CFRelease(imageSource);
+        [self.previewView setPreviewItem:url];
     }];
     if (nil != error) {
         // TODO: Alert user
-        NSLog(@"Failed to load %@: %@", self.item.name, error);
+        NSLog(@"Failed to load %@: %@", self.asset.name, error);
         return;
     }
-    [self.imageView zoomImageToFit:self];
 }
 
 @end
