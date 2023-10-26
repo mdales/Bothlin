@@ -496,6 +496,52 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     });
 }
 
+- (void)removeAsset:(NSManagedObjectID *)assetID
+          fromGroup:(NSManagedObjectID *)groupID
+           callback:(void (^)(BOOL success, NSError *error)) callback {
+    dispatch_sync(self.dataQ, ^() {
+        __block NSError *error = nil;
+        __block BOOL success = NO;
+        [self.managedObjectContext performBlockAndWait:^{
+            Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
+                                                                     error:&error];
+            if (nil != error) {
+                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", assetID, error.localizedDescription);
+                return;
+            }
+            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", assetID);
+
+            Group *group = [self.managedObjectContext existingObjectWithID:groupID
+                                                                     error:&error];
+            if (nil != error) {
+                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", groupID, error.localizedDescription);
+                return;
+            }
+            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", groupID);
+
+            [group removeContains:[NSSet setWithObject:asset]];
+
+            success = [self.managedObjectContext save:&error];
+        }];
+        if ((nil == error) && success) {
+            @weakify(self);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+                [self.delegate libraryWriteCoordinator:self
+                                             didUpdate:@{NSUpdatedObjectsKey:@[assetID, groupID]}];
+            });
+        }
+
+        if (nil != callback) {
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                callback(success, error);
+            });
+        }
+    });
+}
 
 - (void)toggleSoftDeleteAsset:(NSManagedObjectID *)assetID
                      callback:(void (^)(BOOL success, NSError *error)) callback {

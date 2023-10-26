@@ -42,6 +42,10 @@ NS_ASSUME_NONNULL_BEGIN
          toGroup:(NSManagedObjectID *)groupID
         callback:(void (^)(BOOL success, NSError *error)) callback;
 
+- (void)removeAsset:(NSManagedObjectID *)assetID
+          fromGroup:(NSManagedObjectID *)groupID
+           callback:(void (^)(BOOL success, NSError *error)) callback;
+
 - (void)toggleSoftDeleteAsset:(NSManagedObjectID *)assetID
                      callback:(void (^)(BOOL success, NSError *error)) callback;
 

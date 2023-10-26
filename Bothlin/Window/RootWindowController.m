@@ -181,6 +181,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     BOOL isItemSelected = nil != [self.viewModel selectedAssetIndexPath];
     BOOL isItemFavourite = isItemSelected && ([self.viewModel selectedAsset].favourite);
     BOOL isDeleted = isItemSelected && (nil != [self.viewModel selectedAsset].deletedAt);
+    SidebarItemDragResponse sidebarTypeIndicator = [[self.viewModel selectedSidebarItem] dragResponseType];
 
     for (NSToolbarItem *toolbarItem in toolbarItems) {
         NSToolbarIdentifier identifier = [toolbarItem itemIdentifier];
@@ -192,7 +193,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
         if ([identifier compare:kDeleteToolbarItemIdentifier] == NSOrderedSame) {
             [toolbarItem setEnabled:isItemSelected];
-            NSString *symbol = isDeleted ? @"trash.slash" : @"trash";
+            NSString *symbol = SidebarItemDragResponseGroup == sidebarTypeIndicator ?
+                @"folder.badge.minus" :
+                (isDeleted ? @"trash.slash" : @"trash");
             [toolbarItem setImage:[NSImage imageWithSystemSymbolName:symbol accessibilityDescription:nil]];
         }
 
@@ -544,17 +547,37 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryWriteCoordinator *library = appDelegate.libraryController;
-    [library toggleSoftDeleteAsset:selectedAsset.objectID
-                          callback:^(BOOL success, NSError * _Nonnull error) {
-        if (nil != error) {
-            NSAssert(NO == success, @"Got error and success!");
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSAlert *alert = [NSAlert alertWithError:error];
-                [alert runModal];
-            });
-        }
-        NSAssert(NO != success, @"Got no error and not success!");
-    }];
+
+    SidebarItem *selectedSidebarItem = [self.viewModel selectedSidebarItem];
+    if (SidebarItemDragResponseGroup == selectedSidebarItem.dragResponseType) {
+        // In a group, so remove item from group rather than delete
+        NSManagedObjectID *groupID = selectedSidebarItem.relatedOject;
+        [library removeAsset:selectedAsset.objectID
+                   fromGroup:groupID
+                    callback:^(BOOL success, NSError * _Nonnull error) {
+            if (nil != error) {
+                NSAssert(NO == success, @"Got error and success!");
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSAlert *alert = [NSAlert alertWithError:error];
+                    [alert runModal];
+                });
+            }
+            NSAssert(NO != success, @"Got no error and not success!");
+        }];
+    } else {
+        // Toggle whether in trash
+        [library toggleSoftDeleteAsset:selectedAsset.objectID
+                              callback:^(BOOL success, NSError * _Nonnull error) {
+            if (nil != error) {
+                NSAssert(NO == success, @"Got error and success!");
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSAlert *alert = [NSAlert alertWithError:error];
+                    [alert runModal];
+                });
+            }
+            NSAssert(NO != success, @"Got no error and not success!");
+        }];
+    }
 }
 
 
