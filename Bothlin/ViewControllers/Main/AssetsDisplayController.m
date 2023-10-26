@@ -113,11 +113,15 @@
     [self setDisplayStyle:ItemsDisplayStyleSingle];
 }
 
-- (void)gridViewController:(GridViewController *)gridViewController 
+- (BOOL)gridViewController:(GridViewController *)gridViewController 
      didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs {
     dispatch_assert_queue(dispatch_get_main_queue());
-    [self.delegate assetsDisplayController:self
-                    didReceiveDroppedURLs:URLs];
+    id<AssetsDisplayControllerDelegate> delegate = self.delegate;
+    if (nil == delegate) {
+        return NO;
+    }
+    return [delegate assetsDisplayController:self
+                       didReceiveDroppedURLs:URLs];
 }
 
 - (BOOL)gridViewController:(GridViewController *)gridViewController item:(Asset *)item wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {

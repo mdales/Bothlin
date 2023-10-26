@@ -29,7 +29,7 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 - (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController
              viewStyleDidChange:(ItemsDisplayStyle)displayStyle;
 
-- (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController
+- (BOOL)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController
           didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs;
 
 - (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController

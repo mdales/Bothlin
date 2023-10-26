@@ -227,10 +227,8 @@
     }
     NSArray<NSURL *> *objects = [pasteboard readObjectsForClasses:@[[NSURL class]]
                                                           options:nil];
-    [delegate gridViewController:self
-           didReceiveDroppedURLs:[NSSet setWithArray:objects]];
-    
-    return YES;
+    return [delegate gridViewController:self
+                  didReceiveDroppedURLs:[NSSet setWithArray:objects]];
 }
 
 @end

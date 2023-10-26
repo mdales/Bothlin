@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)gridViewController:(GridViewController *)gridViewController
          doubleClickedItem:(Asset *)item;
 
-- (void)gridViewController:(GridViewController *)gridViewController
+- (BOOL)gridViewController:(GridViewController *)gridViewController
      didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs;
 
 // TODO: Better naming needed, but I hope to remove this endless delegate chain

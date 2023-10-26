@@ -246,9 +246,15 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [self updateToolbar];
 }
 
-- (void)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController
-         didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs {
+- (BOOL)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController
+          didReceiveDroppedURLs:(NSSet<NSURL *> *)URLs {
     dispatch_assert_queue(dispatch_get_main_queue());
+
+    // Don't allow drag onto certain things:
+    SidebarItemDragResponse sidebarItemType = [self.viewModel selectedSidebarItem].dragResponseType;
+    if (SidebarItemDragResponseTrash == sidebarItemType) {
+        return NO;
+    }
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryWriteCoordinator *library = appDelegate.libraryController;
@@ -275,6 +281,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             NSAssert(NO != success, @"Got no success and error from saving.");
         });
     }];
+
+    return YES;
 }
 
 - (BOOL)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController
