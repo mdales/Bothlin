@@ -180,21 +180,24 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
     BOOL isItemSelected = nil != [self.viewModel selectedAssetIndexPath];
     BOOL isItemFavourite = isItemSelected && ([self.viewModel selectedAsset].favourite);
+    BOOL isDeleted = isItemSelected && (nil != [self.viewModel selectedAsset].deletedAt);
 
     for (NSToolbarItem *toolbarItem in toolbarItems) {
         NSToolbarIdentifier identifier = [toolbarItem itemIdentifier];
         if ([identifier compare:kFavouriteToolbarItemIdentifier] == NSOrderedSame) {
-            [toolbarItem setEnabled:isItemSelected];
+            [toolbarItem setEnabled:isItemSelected && !isDeleted];
             NSString *symbol = isItemFavourite ? @"heart.fill" : @"heart";
             [toolbarItem setImage:[NSImage imageWithSystemSymbolName:symbol accessibilityDescription:nil]];
         }
 
         if ([identifier compare:kDeleteToolbarItemIdentifier] == NSOrderedSame) {
             [toolbarItem setEnabled:isItemSelected];
+            NSString *symbol = isDeleted ? @"trash.slash" : @"trash";
+            [toolbarItem setImage:[NSImage imageWithSystemSymbolName:symbol accessibilityDescription:nil]];
         }
 
         if ([identifier compare:kShareToolbarItemIdentifier] == NSOrderedSame) {
-            [toolbarItem setEnabled:isItemSelected];
+            [toolbarItem setEnabled:isItemSelected && !isDeleted];
         }
 
         if ([identifier compare: kItemDisplayStyleItemIdentifier] == NSOrderedSame) {
@@ -297,6 +300,20 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             accepted = YES;
             break;
         case SidebarItemDragResponseTrash:
+            if (nil == asset.deletedAt) {
+                [library toggleSoftDeleteAsset:asset.objectID
+                                      callback:^(BOOL success, NSError * _Nonnull error) {
+                    if (nil != error) {
+                        NSAssert(NO == success, @"Got error and success");
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            NSAlert *alert = [NSAlert alertWithError:error];
+                            [alert runModal];
+                        });
+                    }
+                    NSAssert(NO != success, @"got no error and no success");
+                }];
+                accepted = YES;
+            }
             break;
         case SidebarItemDragResponseFavourite:
             if (NO == asset.favourite) {
@@ -517,10 +534,27 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         }
         NSAssert(NO != success, @"Got no error and not success!");
     }];
-
 }
 
 - (void)trashItem:(id)sender {
+    Asset *selectedAsset = self.viewModel.selectedAsset;
+    if (nil == selectedAsset) {
+        return;
+    }
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
+    [library toggleSoftDeleteAsset:selectedAsset.objectID
+                          callback:^(BOOL success, NSError * _Nonnull error) {
+        if (nil != error) {
+            NSAssert(NO == success, @"Got error and success!");
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSAlert *alert = [NSAlert alertWithError:error];
+                [alert runModal];
+            });
+        }
+        NSAssert(NO != success, @"Got no error and not success!");
+    }];
 }
 
 

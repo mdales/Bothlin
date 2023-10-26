@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22154" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22154"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -77,6 +77,14 @@
                             <menuItem title="Import..." keyEquivalent="i" id="d2v-o9-GXV">
                                 <connections>
                                     <action selector="import:" target="Voe-Tx-rLC" id="syG-JO-Klr"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Delete" id="1P2-CE-OYN">
+                                <string key="keyEquivalent" base64-UTF8="YES">
+CA
+</string>
+                                <connections>
+                                    <action selector="deleteSelectedItems:" target="-1" id="xUd-yd-tXd"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="269-Cx-ejh"/>

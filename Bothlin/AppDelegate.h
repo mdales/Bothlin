@@ -15,6 +15,8 @@ extern NSString * __nonnull const kUserDefaultsCustomStoragePath;
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
+@property (nonatomic, weak, readwrite) IBOutlet NSMenuItem * _Nullable deleteAssetMenuItem;
+
 @property (readonly, nonatomic, strong) NSPersistentContainer * _Nonnull persistentContainer;
 @property (readonly, nonatomic, strong) LibraryWriteCoordinator * _Nonnull libraryController;
 
