@@ -29,25 +29,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator * _Nonnull)store;
 
-- (void)importURLs:(NSArray<NSURL *> * _Nonnull)urls
-          callback:(void (^)(BOOL success, NSError *error)) callback;
+- (void)importURLs:(NSArray<NSURL *> *)urls
+           toGroup:(NSManagedObjectID * _Nullable)groupID
+          callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
 - (void)createGroup:(NSString *)name
-           callback:(void (^)(BOOL success, NSError *error)) callback;
+           callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
 - (void)toggleFavouriteState:(NSManagedObjectID *)assetID
-                    callback:(void (^)(BOOL success, NSError *error)) callback;
+                    callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
 - (void)addAsset:(NSManagedObjectID *)assetID
          toGroup:(NSManagedObjectID *)groupID
-        callback:(void (^)(BOOL success, NSError *error)) callback;
+        callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
 - (void)removeAsset:(NSManagedObjectID *)assetID
           fromGroup:(NSManagedObjectID *)groupID
-           callback:(void (^)(BOOL success, NSError *error)) callback;
+           callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
 - (void)toggleSoftDeleteAsset:(NSManagedObjectID *)assetID
-                     callback:(void (^)(BOOL success, NSError *error)) callback;
+                     callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
 @end
 

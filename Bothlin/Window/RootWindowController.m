@@ -253,9 +253,12 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryWriteCoordinator *library = appDelegate.libraryController;
 
+    NSManagedObjectID *relatedObject = [self.viewModel selectedSidebarItem].relatedOject;
+
     // This is async, so returns immediately
     @weakify(self);
     [library importURLs:[URLs allObjects]
+                toGroup:relatedObject
                callback:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             @strongify(self);
@@ -364,7 +367,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         if (nil == self) {
             return;
         }
-        
+
+        NSManagedObjectID *relatedObject = [self.viewModel selectedSidebarItem].relatedOject;
+
         if (NSModalResponseOK == result) {
             NSArray<NSURL *> *urls = [panel URLs];
             
@@ -374,6 +379,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             // This is async, so returns immediately
             @weakify(self);
             [library importURLs:urls
+                        toGroup:relatedObject
                        callback:^(BOOL success, NSError *error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     @strongify(self);

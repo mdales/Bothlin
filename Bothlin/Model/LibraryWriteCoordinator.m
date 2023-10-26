@@ -57,8 +57,11 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 }
 
 
-- (void)importURLs:(NSArray<NSURL *> * _Nonnull)urls
-          callback:(void (^)(BOOL success, NSError *error)) callback {
+- (void)importURLs:(NSArray<NSURL *> *)urls
+           toGroup:(NSManagedObjectID * _Nullable)groupID
+          callback:(nullable void (^)(BOOL, NSError * _Nullable))callback {
+    NSParameterAssert(nil != urls);
+
     if (nil == urls) {
         if (nil != callback) {
             dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
@@ -102,6 +105,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         }
         NSError *error = nil;
         NSSet<NSManagedObjectID *> *newItemIDs = [self innerImportURLs:filteredURLs
+                                                               toGroup:groupID
                                                                  error:&error];
         if (nil != error) {
             NSAssert(nil == newItemIDs, @"Got error and new items to insert");
@@ -291,6 +295,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 }
 
 - (NSSet<NSManagedObjectID *> *)innerImportURLs:(NSArray<NSURL *> *)urls
+                                        toGroup:(NSManagedObjectID *)groupID
                                           error:(NSError **)error {
     if ((nil == urls) || (0 == [urls count])) {
         return [NSSet set];
@@ -331,6 +336,18 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             return;
         }
         NSAssert(NO != success, @"Got no success and error from save.");
+
+        if ((nil != groupID) && ([newAssets count] > 0)) {
+            Group *group = [self.managedObjectContext existingObjectWithID:groupID
+                                                                     error:&innerError];
+            if (nil != innerError) {
+                NSAssert(nil == group, @"Got error and item fetching object with ID %@: %@", groupID, innerError.localizedDescription);
+                return;
+            }
+            NSAssert(nil != group, @"Got no error but also no item fetching object with ID %@", groupID);
+
+            [group addContains:[NSSet setWithArray:newAssets]];
+        }
 
         NSMutableSet<NSManagedObjectID *> *newIDs = [NSMutableSet setWithCapacity:[newAssets count]];
         for (Asset *asset in newAssets) {
@@ -467,7 +484,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             Group *group = [self.managedObjectContext existingObjectWithID:groupID
                                                                      error:&error];
             if (nil != error) {
-                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", groupID, error.localizedDescription);
+                NSAssert(nil == group, @"Got error and item fetching object with ID %@: %@", groupID, error.localizedDescription);
                 return;
             }
             NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", groupID);
@@ -514,7 +531,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             Group *group = [self.managedObjectContext existingObjectWithID:groupID
                                                                      error:&error];
             if (nil != error) {
-                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", groupID, error.localizedDescription);
+                NSAssert(nil == group, @"Got error and item fetching object with ID %@: %@", groupID, error.localizedDescription);
                 return;
             }
             NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", groupID);
