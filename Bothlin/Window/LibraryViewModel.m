@@ -131,7 +131,7 @@ NSArray<NSString *> * const testTags = @[
         self->_selectedSidebarItem = selectedSidebarItem;
 
         NSError *error = nil;
-        BOOL success = [self reloadItems:&error];
+        BOOL success = [self reloadAssets:&error];
         if (nil != error) {
             NSAssert(NO == success, @"Got error but also success");
             [self.delegate libraryViewModel:self
@@ -183,7 +183,7 @@ NSArray<NSString *> * const testTags = @[
         // before we end up down a perfect diffing rabbit hole.
         dispatch_sync(self.syncQ, ^{
             NSError *error = nil;
-            BOOL success = [self reloadItems:&error];
+            BOOL success = [self reloadAssets:&error];
             if (nil != error) {
                 [self.delegate libraryViewModel:self
                                hadErrorOnUpdate:error];
@@ -233,7 +233,7 @@ NSArray<NSString *> * const testTags = @[
     return YES;
 }
 
-- (BOOL)reloadItems:(NSError **)error {
+- (BOOL)reloadAssets:(NSError **)error {
     dispatch_assert_queue(self.syncQ);
     dispatch_assert_queue(dispatch_get_main_queue());
 
@@ -264,7 +264,7 @@ NSArray<NSString *> * const testTags = @[
     NSAssert(nil != result, @"Got no error and no fetch results.");
 
     // Is the old selected asset in the new data? If so, keep it selected
-    NSIndexPath *newSelectionIndexPath = [result count] > 0 ? [NSIndexPath indexPathForItem:0 inSection:0] : [[NSIndexPath alloc] init];
+    NSIndexPath *newSelectionIndexPath = [result count] > 0 ? [NSIndexPath indexPathForItem:((NSInteger)[result count] - 1) inSection:0] : [[NSIndexPath alloc] init];
     if (([result count] > 0) && ([self->_assets count] > 0)) {
         Asset *selected = [self->_assets objectAtIndex:(NSUInteger)[self->_selectedAssetIndexPath item]];
         if (nil != selected) {
