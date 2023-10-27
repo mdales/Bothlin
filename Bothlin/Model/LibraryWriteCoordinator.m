@@ -431,10 +431,11 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 }
 
 - (void)toggleFavouriteState:(NSManagedObjectID *)assetID
-                    callback:(void (^)(BOOL success, NSError *error)) callback {
+                    callback:(nullable void (^)(BOOL success, NSError * _Nullable error, BOOL newState)) callback {
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
+        __block BOOL newState = NO;
         [self.managedObjectContext performBlockAndWait:^{
             Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
                                                                      error:&error];
@@ -444,6 +445,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             }
             NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", assetID);
             asset.favourite = !asset.favourite;
+            newState = asset.favourite;
             success = [self.managedObjectContext save:&error];
         }];
         if ((nil == error) && success) {
@@ -460,7 +462,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 
         if (nil != callback) {
             dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-                callback(success, error);
+                callback(success, error, newState);
             });
         }
     });

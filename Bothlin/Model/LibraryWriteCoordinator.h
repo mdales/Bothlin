@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
            callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
 - (void)toggleFavouriteState:(NSManagedObjectID *)assetID
-                    callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
+                    callback:(nullable void (^)(BOOL success, NSError * _Nullable error, BOOL newState)) callback;
 
 - (void)addAsset:(NSManagedObjectID *)assetID
          toGroup:(NSManagedObjectID *)groupID

@@ -212,6 +212,52 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     }
 }
 
+#pragma mark - State logic
+
+// State logic is mostly a thin wrapper onto LibraryWriteCoordinator, which should do the actual work
+// but we need to do some wrapping here, because we need to work with the undo manager which is tried
+// to NSWindow and we're the window controller. It also removes duplication when there are multiple UI
+// paths to the same action
+- (void)toggleAssetFavouriteState:(NSManagedObjectID * _Nonnull)assetID
+                    userInitiated:(BOOL)userInitiated {
+    NSParameterAssert(nil != assetID);
+    dispatch_assert_queue(dispatch_get_main_queue());
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
+
+    @weakify(self);
+    [library toggleFavouriteState:assetID
+                         callback:^(BOOL success, NSError * _Nonnull error, BOOL newState) {
+        if (nil != error) {
+            NSAssert(NO == success, @"Got error and success!");
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSAlert *alert = [NSAlert alertWithError:error];
+                [alert runModal];
+            });
+        }
+        NSAssert(NO != success, @"Got no error and not success!");
+
+        if (userInitiated) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+
+                NSUndoManager *undoManager = [self.window undoManager];
+                [undoManager registerUndoWithTarget:assetID
+                                            handler:^(NSManagedObjectID * _Nonnull target) {
+                    @strongify(self);
+                    if (nil == self) {
+                        return;
+                    }
+                    [self toggleAssetFavouriteState:target
+                                      userInitiated:NO];
+                }];
+                [undoManager setActionName:newState ? @"Set Favourite" : @"Remove Favourite"];
+            });
+        }
+    }];
+}
+
+
 #pragma mark - LibraryViewModelDelegate
 
 - (void)libraryViewModel:(LibraryViewModel *)libraryViewModel hadErrorOnUpdate:(NSError *)error {
@@ -331,17 +377,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             break;
         case SidebarItemDragResponseFavourite:
             if (NO == asset.favourite) {
-                [library toggleFavouriteState:asset.objectID
-                                     callback:^(BOOL success, NSError * _Nonnull error) {
-                    if (nil != error) {
-                        NSAssert(NO == success, @"Got error and success");
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            NSAlert *alert = [NSAlert alertWithError:error];
-                            [alert runModal];
-                        });
-                    }
-                    NSAssert(NO != success, @"got no error and no success");
-                }];
+                [self toggleAssetFavouriteState:asset.objectID
+                                  userInitiated:YES];
             }
             accepted = YES;
             break;
@@ -537,20 +574,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     if (nil == selectedAsset) {
         return;
     }
-
-    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-    LibraryWriteCoordinator *library = appDelegate.libraryController;
-    [library toggleFavouriteState:selectedAsset.objectID
-                         callback:^(BOOL success, NSError * _Nonnull error) {
-        if (nil != error) {
-            NSAssert(NO == success, @"Got error and success!");
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSAlert *alert = [NSAlert alertWithError:error];
-                [alert runModal];
-            });
-        }
-        NSAssert(NO != success, @"Got no error and not success!");
-    }];
+    [self toggleAssetFavouriteState:selectedAsset.objectID
+                      userInitiated:YES];
 }
 
 - (void)trashItem:(id)sender {
