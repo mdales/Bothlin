@@ -257,6 +257,53 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     }];
 }
 
+- (IBAction)import:(id)sender {
+    NSOpenPanel* panel = [NSOpenPanel openPanel];
+    panel.canChooseFiles = YES;
+    panel.canChooseDirectories = YES;
+    panel.canCreateDirectories = NO;
+
+    // beginSheetModalForWindow is effectively async on mainQ (the block doesn't have the caller in
+    // its stack, so we need to treat it like so and weakify self).
+    @weakify(self);
+    [panel beginSheetModalForWindow:self.window completionHandler:^(NSInteger result) {
+        @strongify(self);
+        if (nil == self) {
+            return;
+        }
+
+        NSManagedObjectID *relatedObject = [self.viewModel selectedSidebarItem].relatedOject;
+
+        if (NSModalResponseOK == result) {
+            NSArray<NSURL *> *urls = [panel URLs];
+
+            AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+            LibraryWriteCoordinator *library = appDelegate.libraryController;
+
+            // This is async, so returns immediately
+            @weakify(self);
+            [library importURLs:urls
+                        toGroup:relatedObject
+                       callback:^(BOOL success, NSError *error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    @strongify(self);
+                    if (nil == self) {
+                        return;
+                    }
+
+                    if (nil != error) {
+                        NSAssert(NO == success, @"Got error and success from saving.");
+                        NSAlert *alert = [NSAlert alertWithError:error];
+                        [alert runModal];
+                        return;
+                    }
+                    NSAssert(NO != success, @"Got no success and error from saving.");
+                });
+            }];
+        }
+    }];
+}
+
 
 #pragma mark - LibraryViewModelDelegate
 
@@ -396,54 +443,6 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [alert runModal];
 }
 
-#pragma mark - Custom behaviour
-
-- (IBAction)import:(id)sender {
-    NSOpenPanel* panel = [NSOpenPanel openPanel];
-    panel.canChooseFiles = YES;
-    panel.canChooseDirectories = YES;
-    panel.canCreateDirectories = NO;
-    
-    // beginSheetModalForWindow is effectively async on mainQ (the block doesn't have the caller in
-    // its stack, so we need to treat it like so and weakify self).
-    @weakify(self);
-    [panel beginSheetModalForWindow:self.window completionHandler:^(NSInteger result) {
-        @strongify(self);
-        if (nil == self) {
-            return;
-        }
-
-        NSManagedObjectID *relatedObject = [self.viewModel selectedSidebarItem].relatedOject;
-
-        if (NSModalResponseOK == result) {
-            NSArray<NSURL *> *urls = [panel URLs];
-            
-            AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-            LibraryWriteCoordinator *library = appDelegate.libraryController;
-            
-            // This is async, so returns immediately
-            @weakify(self);
-            [library importURLs:urls
-                        toGroup:relatedObject
-                       callback:^(BOOL success, NSError *error) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    @strongify(self);
-                    if (nil == self) {
-                        return;
-                    }
-                    
-                    if (nil != error) {
-                        NSAssert(NO == success, @"Got error and success from saving.");
-                        NSAlert *alert = [NSAlert alertWithError:error];
-                        [alert runModal];
-                        return;
-                    }
-                    NSAssert(NO != success, @"Got no success and error from saving.");
-                });
-            }];
-        }
-    }];
-}
 
 #pragma mark - Group creation panel
 
