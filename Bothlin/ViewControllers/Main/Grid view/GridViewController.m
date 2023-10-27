@@ -44,7 +44,7 @@
     NSParameterAssert(nil != indexPath);
     dispatch_assert_queue(dispatch_get_main_queue());
     __block BOOL updated = NO;
-    __block NSIndexPath *updatedCells = nil;
+    __block NSSet<NSIndexPath *> *updatedCells = [NSSet set];
     if ([assets count] == [self.contents count]) {
         [assets enumerateObjectsUsingBlock:^(Asset * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             Asset *existingAsset = [self.contents objectAtIndex:idx];
@@ -54,12 +54,9 @@
             }
             if (NO != [obj isFault]) {
                 // If this object has either never been rendered, or it's on screen
-                // and has been udpated, so we need to udpate the item view.
-                if (nil == updatedCells) {
-                    updatedCells = [NSIndexPath indexPathForItem:(NSInteger)idx inSection:0];
-                } else {
-                    updatedCells = [updatedCells indexPathByAddingIndex:idx];
-                }
+                // and has been udpated, so we need to udpate the item view. Ideally
+                // we'd filter out those who have never been visualised
+                updatedCells = [updatedCells setByAddingObject:[NSIndexPath indexPathForItem:(NSInteger)idx inSection:0]];
             }
         }];
     } else {
@@ -88,7 +85,7 @@
         [self.collectionView reloadData];
     } else {
         if (nil != updatedCells) {
-            [self.collectionView reloadItemsAtIndexPaths:[NSSet setWithObject:updatedCells]];
+            [self.collectionView reloadItemsAtIndexPaths:updatedCells];
         }
     }
     if ((NO != updatedSelection) && (NSNotFound != index)) {
