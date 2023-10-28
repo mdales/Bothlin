@@ -67,17 +67,15 @@
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
+    // Not allowed to return nil, so just assert incase we medded out the numberOfChildrenOfItem
     if (nil == item) {
-        if (nil != self.sidebarTree.children) {
-            return [self.sidebarTree.children objectAtIndex:(NSUInteger)index];
-        }
-    } else if ([item isKindOfClass:[SidebarItem class]]) {
-        SidebarItem *sidebarItem = (SidebarItem *)item;
-        if (nil != sidebarItem.children) {
-            return [sidebarItem.children objectAtIndex:(NSUInteger)index];
-        }
+        NSAssert(nil != self.sidebarTree.children, @"No sidebar tree!");
+        return [self.sidebarTree.children objectAtIndex:(NSUInteger)index];
     }
-    return nil;
+    NSAssert([item isKindOfClass:[SidebarItem class]], @"Unexpected item in sidebar area %@", item);
+    SidebarItem *sidebarItem = (SidebarItem *)item;
+    NSAssert(nil != sidebarItem.children, @"wrong number of children for %@", item);
+    return [sidebarItem.children objectAtIndex:(NSUInteger)index];
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item {
