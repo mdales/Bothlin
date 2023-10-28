@@ -47,6 +47,7 @@
 }
 
 - (void)setSelected:(BOOL)value {
+    NSLog(@"item %@ -> %d", self.asset.name, value);
     [super setSelected:value];
     NSColor *bgColor = value ? [NSColor selectedControlColor] : [NSColor clearColor];
     self.view.layer.backgroundColor = bgColor.CGColor;
@@ -83,12 +84,12 @@
     NSAssert(nil != collectionView, @"Assumed view item had collection view");
 
     if (1 == count) {
-        NSIndexPath *index = [collectionView indexPathForItem:self];
-        NSIndexSet *indexSet = [[NSIndexSet alloc] initWithIndex:(NSUInteger)[index item]];
-        [collectionView setSelectionIndexes:indexSet];
-        // TODO: be less gross once you've finished replumbing
-        [collectionView.delegate collectionView:collectionView
-                     didSelectItemsAtIndexPaths:[NSSet setWithObject:index]];
+//        NSIndexPath *index = [collectionView indexPathForItem:self];
+//        NSIndexSet *indexSet = [[NSIndexSet alloc] initWithIndex:(NSUInteger)[index item]];
+//        [collectionView setSelectionIndexes:indexSet];
+//        // TODO: be less gross once you've finished replumbing
+//        [collectionView.delegate collectionView:collectionView
+//                     didSelectItemsAtIndexPaths:[NSSet setWithObject:index]];
     } else if (2 == count) {
         [self.delegate gridViewItemWasDoubleClicked:self];
     }

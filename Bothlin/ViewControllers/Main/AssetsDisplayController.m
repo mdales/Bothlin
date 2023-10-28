@@ -59,15 +59,21 @@
                        viewStyleDidChange:displayStyle];
 }
 
-- (void)setAssets:(NSArray<Asset *> *)assets withSelected:(NSIndexPath *)indexPath {
-    NSParameterAssert(nil != indexPath);
+- (void)setAssets:(NSArray<Asset *> *)assets withSelected:(NSSet<NSIndexPath *> *)indexPaths {
+    NSParameterAssert(nil != assets);
+    NSParameterAssert(nil != indexPaths);
     dispatch_assert_queue(dispatch_get_main_queue());
     [self.gridViewController setAssets:assets
-                          withSelected:indexPath];
-    NSInteger index = [indexPath item];
-    if (NSNotFound != index) {
-        Asset *selectedAsset = [assets objectAtIndex:(NSUInteger)index];
-        [self.singleViewController setAssetForDisplay:selectedAsset];
+                          withSelected:indexPaths];
+    if ([indexPaths count] == 1) {
+        NSIndexPath *indexPath = [indexPaths anyObject];
+        NSInteger index = [indexPath item];
+        if (NSNotFound != index) {
+            Asset *selectedAsset = [assets objectAtIndex:(NSUInteger)index];
+            [self.singleViewController setAssetForDisplay:selectedAsset];
+        } else {
+            [self.singleViewController setAssetForDisplay:nil];
+        }
     } else {
         [self.singleViewController setAssetForDisplay:nil];
     }
@@ -124,13 +130,13 @@
                        didReceiveDroppedURLs:URLs];
 }
 
-- (BOOL)gridViewController:(GridViewController *)gridViewController item:(Asset *)item wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
+- (BOOL)gridViewController:(GridViewController *)gridViewController assets:(NSSet<Asset *> *)assets wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
     id<AssetsDisplayControllerDelegate> delegate = self.delegate;
     if (nil == delegate) {
         return NO;
     }
     return [delegate assetsDisplayController:self
-                                        item:item
+                                    assets:assets
                      wasDraggedOnSidebarItem:sidebarItem];
 }
 

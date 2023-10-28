@@ -9,6 +9,7 @@
 #import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
 #import "NSArray+Functional.h"
+#import "NSSet+Functional.h"
 #import "Helpers.h"
 #import "SidebarItem.h"
 
@@ -33,7 +34,7 @@ NSArray<NSString *> * const testTags = @[
 @implementation LibraryViewModel
 
 @synthesize assets = _assets;
-@synthesize selectedAssetIndexPath = _selectedAssetIndexPath;
+@synthesize selectedAssetIndexPaths = _selectedAssetIndexPaths;
 @synthesize groups = _groups;
 @synthesize selectedSidebarItem = _selectedSidebarItem;
 
@@ -43,7 +44,7 @@ NSArray<NSString *> * const testTags = @[
         self->_syncQ = dispatch_queue_create("com.digitalflapjack.LibraryViewModel.syncQ", DISPATCH_QUEUE_SERIAL);
         self->_viewContext = viewContext;
         self->_assets = @[];
-        self->_selectedAssetIndexPath = [[NSIndexPath alloc] init];
+        self->_selectedAssetIndexPaths = [NSSet set];
         self->_sidebarItems = [LibraryViewModel buildMenuWithGroups:@[]];
     }
     return self;
@@ -60,42 +61,44 @@ NSArray<NSString *> * const testTags = @[
     return val;
 }
 
-- (NSIndexPath *)selectedAssetIndexPath {
+- (NSSet<NSIndexPath *> *)selectedAssetIndexPaths {
     dispatch_assert_queue_not(self.syncQ);
-    __block NSIndexPath *val = nil;
+    __block NSSet<NSIndexPath *> *val = nil;
     dispatch_sync(self.syncQ, ^{
-        val = self->_selectedAssetIndexPath;
+        val = self->_selectedAssetIndexPaths;
     });
-    NSAssert(nil != val, @"Index path should not be nil");
+    NSAssert(nil != val, @"Index paths should not be nil");
     return val;
 }
 
-- (void)setSelectedAssetIndexPath:(NSIndexPath *)indexPath {
-    NSParameterAssert(nil != indexPath);
+- (void)setSelectedAssetIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
+    NSLog(@"%@ -> %@", self->_selectedAssetIndexPaths, indexPaths);
+    NSParameterAssert(nil != indexPaths);
     dispatch_assert_queue_not(self.syncQ);
     dispatch_sync(self.syncQ, ^{
-        if ((nil == indexPath) && (nil == self->_selectedAssetIndexPath)) {
+        NSAssert(nil != self->_selectedAssetIndexPaths, @"Internal index paths is nil and shouldn't be");
+        if ([self->_selectedAssetIndexPaths isEqualToSet:indexPaths]) {
             return;
         }
-        // you still need to do a nil check here as NSOrderedSame is zero, so if selectedAssetIndex is
-        // nil you get a false positive
-        if ((nil != self->_selectedAssetIndexPath) && ([self->_selectedAssetIndexPath compare:indexPath] == NSOrderedSame)) {
-            return;
-        }
-        self->_selectedAssetIndexPath = indexPath;
+        self->_selectedAssetIndexPaths = [NSSet setWithSet:indexPaths];
     });
 }
 
-- (Asset *)selectedAsset {
+- (NSSet<Asset *> *)selectedAssets {
     dispatch_assert_queue_not(self.syncQ);
-    __block Asset *val = nil;
+    __block NSSet<Asset *> *val = [NSSet set];
     dispatch_sync(self.syncQ, ^{
-        NSAssert(nil != self->_selectedAssetIndexPath, @"Index path should not be nil");
-        NSInteger index = [self->_selectedAssetIndexPath item];
-        if (NSNotFound == index) {
-            return;
-        }
-        val = [self->_assets objectAtIndex:(NSUInteger)index];
+        NSAssert(nil != self->_selectedAssetIndexPaths, @"Index path should not be nil");
+        // We need compactMap here as updates to the _asset set the the selection are not atomic in all cases, so
+        // there are windows when they are briefly out of sync, causing us to not find currently selected
+        // assets in the current view on assets.
+        val = [self->_selectedAssetIndexPaths compactMapUsingBlock:^id _Nullable(NSIndexPath * _Nonnull object) {
+            NSInteger index = [object item];
+            if ((NSNotFound == index) || (0 > index) || ([self->_assets count] >= index)) {
+                return nil;
+            }
+            return [self->_assets objectAtIndex:(NSUInteger)index];
+        }];
     });
     return val;
 }
@@ -263,26 +266,37 @@ NSArray<NSString *> * const testTags = @[
     }
     NSAssert(nil != result, @"Got no error and no fetch results.");
 
-    // Is the old selected asset in the new data? If so, keep it selected
+    // Are any of the old selected assets in the new data? If so, keep them selected?
+    // If not default to just having the most recent by time
+    // TODO: one day the assumption this is the last item will not be true
     NSIndexPath *newSelectionIndexPath = [result count] > 0 ? [NSIndexPath indexPathForItem:((NSInteger)[result count] - 1) inSection:0] : [[NSIndexPath alloc] init];
+    NSSet<NSIndexPath *> *newSelectionIndexPaths = [NSSet setWithObject:newSelectionIndexPath];
     if (([result count] > 0) && ([self->_assets count] > 0)) {
-        Asset *selected = [self->_assets objectAtIndex:(NSUInteger)[self->_selectedAssetIndexPath item]];
-        if (nil != selected) {
-            NSUInteger newIndex = [result indexOfObject:selected];
-            if (NSNotFound != newIndex) {
-                newSelectionIndexPath = [NSIndexPath indexPathForItem:(NSInteger)newIndex inSection:0];
+        NSSet<NSIndexPath *> *selected = [self->_selectedAssetIndexPaths compactMapUsingBlock:^id _Nullable(NSIndexPath * _Nonnull indexPath) {
+            NSInteger idx = [indexPath item];
+            if ((NSNotFound == idx) || (0 > idx) || ([self->_assets count] < idx)) {
+                return nil;
             }
+            Asset *selected = [self->_assets objectAtIndex:(NSUInteger)[indexPath item]];
+            NSUInteger newIndex = [result indexOfObject:selected];
+            if (NSNotFound == newIndex) {
+                return nil;
+            }
+            return [NSIndexPath indexPathForItem:(NSInteger)newIndex inSection:0];
+        }];
+        if ([selected count] > 0) {
+            newSelectionIndexPaths = selected;
         }
     }
 
     [self willChangeValueForKey:@"assets"];
-    [self willChangeValueForKey:@"selectedAssetIndexPath"];
+    [self willChangeValueForKey:@"selectedAssetIndexPaths"];
 
     self->_assets = result;
-    self->_selectedAssetIndexPath = newSelectionIndexPath;
+    self->_selectedAssetIndexPaths = newSelectionIndexPaths;
 
     [self didChangeValueForKey:@"assets"];
-    [self didChangeValueForKey:@"selectedAssetIndexPath"];
+    [self didChangeValueForKey:@"selectedAssetIndexPaths"];
 
     return YES;
 }

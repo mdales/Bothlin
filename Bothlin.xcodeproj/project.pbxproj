@@ -41,6 +41,10 @@
 		4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
 		4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
 		4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
+		4C9544B52AECE613007205A9 /* NSSet+Functional.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9544B42AECE613007205A9 /* NSSet+Functional.m */; };
+		4C9544B62AECE613007205A9 /* NSSet+Functional.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9544B42AECE613007205A9 /* NSSet+Functional.m */; };
+		4C9544B72AECE613007205A9 /* NSSet+Functional.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9544B42AECE613007205A9 /* NSSet+Functional.m */; };
+		4C9544B92AECE706007205A9 /* NSSet+FunctionalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9544B82AECE706007205A9 /* NSSet+FunctionalTests.m */; };
 		4C960F3C2AD70CF70053C631 /* GridViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C960F3A2AD70CF70053C631 /* GridViewItem.m */; };
 		4C960F3D2AD70CF70053C631 /* GridViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C960F3A2AD70CF70053C631 /* GridViewItem.m */; };
 		4C960F3E2AD70CF70053C631 /* GridViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C960F3B2AD70CF70053C631 /* GridViewItem.xib */; };
@@ -124,6 +128,9 @@
 		4C3A50D02ACB27550080327C /* AssetsDisplayController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetsDisplayController.xib; sourceTree = "<group>"; };
 		4C7F5F452AC6B1E5000E9BD9 /* ToolbarProgressView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ToolbarProgressView.h; sourceTree = "<group>"; };
 		4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ToolbarProgressView.m; sourceTree = "<group>"; };
+		4C9544B32AECE613007205A9 /* NSSet+Functional.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSSet+Functional.h"; sourceTree = "<group>"; };
+		4C9544B42AECE613007205A9 /* NSSet+Functional.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSSet+Functional.m"; sourceTree = "<group>"; };
+		4C9544B82AECE706007205A9 /* NSSet+FunctionalTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSSet+FunctionalTests.m"; sourceTree = "<group>"; };
 		4C960F392AD70CF70053C631 /* GridViewItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GridViewItem.h; sourceTree = "<group>"; };
 		4C960F3A2AD70CF70053C631 /* GridViewItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GridViewItem.m; sourceTree = "<group>"; };
 		4C960F3B2AD70CF70053C631 /* GridViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GridViewItem.xib; sourceTree = "<group>"; };
@@ -260,6 +267,8 @@
 				4C960F452AD7D8430053C631 /* NSArray+Functional.m */,
 				4CC9EA7D2ADFC28A00D33E5C /* KVOBox.h */,
 				4CC9EA7E2ADFC28A00D33E5C /* KVOBox.m */,
+				4C9544B32AECE613007205A9 /* NSSet+Functional.h */,
+				4C9544B42AECE613007205A9 /* NSSet+Functional.m */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -330,6 +339,7 @@
 			isa = PBXGroup;
 			children = (
 				4C1F01C92AD7EED400E4CCD7 /* NSArray+FunctionalTests.m */,
+				4C9544B82AECE706007205A9 /* NSSet+FunctionalTests.m */,
 			);
 			path = BothlinTests;
 			sourceTree = "<group>";
@@ -539,6 +549,7 @@
 				4C37FBCE2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
 				4C960F462AD7D8430053C631 /* NSArray+Functional.m in Sources */,
 				4CFB4D412AD2FAE4006F6F7E /* SettingsWindowController.m in Sources */,
+				4C9544B52AECE613007205A9 /* NSSet+Functional.m in Sources */,
 				4C0119A02AC5AA45004A94C4 /* RootWindowController.m in Sources */,
 				4C011A032AC5B14B004A94C4 /* SingleViewController.m in Sources */,
 				4CD0A0332ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */,
@@ -567,6 +578,8 @@
 				4C1F01CA2AD7EED400E4CCD7 /* NSArray+FunctionalTests.m in Sources */,
 				4C960F472AD7D8430053C631 /* NSArray+Functional.m in Sources */,
 				4C37FBCF2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
+				4C9544B92AECE706007205A9 /* NSSet+FunctionalTests.m in Sources */,
+				4C9544B62AECE613007205A9 /* NSSet+Functional.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -574,6 +587,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C9544B72AECE613007205A9 /* NSSet+Functional.m in Sources */,
 				4C1F01CB2AD7F13600E4CCD7 /* AppDelegate.m in Sources */,
 				4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
 				4CC9EA812ADFC28A00D33E5C /* KVOBox.m in Sources */,

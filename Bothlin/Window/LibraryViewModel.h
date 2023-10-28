@@ -28,8 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // TODO: Ideally these would a tuple to make KVO like updates easier
 @property (nonatomic, strong, readonly) NSArray<Asset *> *assets;
-@property (nonatomic, strong, readwrite) NSIndexPath *selectedAssetIndexPath;
-@property (nonatomic, strong, readonly, nullable) Asset *selectedAsset;
+@property (nonatomic, strong, readwrite) NSSet<NSIndexPath *> *selectedAssetIndexPaths;
+@property (nonatomic, strong, readonly) NSSet<Asset *> *selectedAssets;
 
 @property (nonatomic, strong, readonly) NSArray<Group *> *groups;
 

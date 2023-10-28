@@ -16,6 +16,7 @@
 #import "SidebarItem.h"
 #import "Group+CoreDataClass.h"
 #import "NSArray+Functional.h"
+#import "NSSet+Functional.h"
 #import "LibraryViewModel.h"
 #import "KVOBox.h"
 #import "Asset+CoreDataClass.h"
@@ -130,7 +131,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         }
         dispatch_assert_queue(dispatch_get_main_queue());
         [self.assetsDisplay setAssets:self.viewModel.assets
-                        withSelected:self.viewModel.selectedAssetIndexPath];
+                        withSelected:self.viewModel.selectedAssetIndexPaths];
         [self updateToolbar];
 
     }
@@ -150,8 +151,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         }
         dispatch_assert_queue(dispatch_get_main_queue());
         [self.assetsDisplay setAssets:self.viewModel.assets
-                         withSelected:self.viewModel.selectedAssetIndexPath];
-        [self.details setItemForDisplay:self.viewModel.selectedAsset];
+                         withSelected:self.viewModel.selectedAssetIndexPaths];
+        NSSet<Asset *> *selectedAssets = [self.viewModel selectedAssets];
+        [self.details setItemForDisplay:[selectedAssets count] == 1 ? [selectedAssets anyObject] : nil];
         [self updateToolbar];
     }
                                                 error:&error];
@@ -178,21 +180,30 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     NSArray<NSToolbarItem *> *toolbarItems = [[self.window toolbar] items];
     NSAssert(nil != toolbarItems, @"Toolbar unexpctedly has no items");
 
-    BOOL isItemSelected = nil != [self.viewModel selectedAssetIndexPath];
-    BOOL isItemFavourite = isItemSelected && ([self.viewModel selectedAsset].favourite);
-    BOOL isDeleted = isItemSelected && (nil != [self.viewModel selectedAsset].deletedAt);
+    NSSet<NSIndexPath *> *selection = [self.viewModel selectedAssetIndexPaths];
+    BOOL isAnyItemSelected = [selection count] > 0;
+    BOOL isOneItemSelected = [selection count] == 1;
+
+    // TODO: make this work? But that'd require we not just toggle fave, so whilst
+    // I add multiselection support, just stop you changing fave if many things selected
+    BOOL isItemFavourite = isOneItemSelected && ([[self.viewModel selectedAssets] anyObject].favourite);
+
+    // TODO: This logic assumes we never mix views of deleted and undeleted items
+    BOOL isDeleted = isAnyItemSelected && (nil != [[self.viewModel selectedAssets] anyObject].deletedAt);
+
     SidebarItemDragResponse sidebarTypeIndicator = [[self.viewModel selectedSidebarItem] dragResponseType];
 
     for (NSToolbarItem *toolbarItem in toolbarItems) {
         NSToolbarIdentifier identifier = [toolbarItem itemIdentifier];
+
         if ([identifier compare:kFavouriteToolbarItemIdentifier] == NSOrderedSame) {
-            [toolbarItem setEnabled:isItemSelected && !isDeleted];
+            [toolbarItem setEnabled:isOneItemSelected && !isDeleted];
             NSString *symbol = isItemFavourite ? @"heart.fill" : @"heart";
             [toolbarItem setImage:[NSImage imageWithSystemSymbolName:symbol accessibilityDescription:nil]];
         }
 
         if ([identifier compare:kDeleteToolbarItemIdentifier] == NSOrderedSame) {
-            [toolbarItem setEnabled:isItemSelected];
+            [toolbarItem setEnabled:isAnyItemSelected];
             NSString *symbol = SidebarItemDragResponseGroup == sidebarTypeIndicator ?
                 @"folder.badge.minus" :
                 (isDeleted ? @"trash.slash" : @"trash");
@@ -200,34 +211,36 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         }
 
         if ([identifier compare:kShareToolbarItemIdentifier] == NSOrderedSame) {
-            [toolbarItem setEnabled:isItemSelected && !isDeleted];
+            [toolbarItem setEnabled:isAnyItemSelected && !isDeleted];
         }
 
         if ([identifier compare: kItemDisplayStyleItemIdentifier] == NSOrderedSame) {
             NSAssert([toolbarItem isKindOfClass: [NSToolbarItemGroup class]], @"Expected this to be a toolbar group item");
             NSToolbarItemGroup *group = (NSToolbarItemGroup *)toolbarItem;
             [group setSelectedIndex:self.assetsDisplay.displayStyle];
-            [group setEnabled:isItemSelected];
+            [group setEnabled:isOneItemSelected];
         }
     }
 }
 
 #pragma mark - State logic
-
 // State logic is mostly a thin wrapper onto LibraryWriteCoordinator, which should do the actual work
 // but we need to do some wrapping here, because we need to work with the undo manager which is tried
 // to NSWindow and we're the window controller. It also removes duplication when there are multiple UI
 // paths to the same action
-- (void)toggleAssetFavouriteState:(NSManagedObjectID * _Nonnull)assetID
+
+- (void)setFavouriteStateOnAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+                         newState:(BOOL)state
                     userInitiated:(BOOL)userInitiated {
-    NSParameterAssert(nil != assetID);
+    NSParameterAssert(nil != assetIDs);
     dispatch_assert_queue(dispatch_get_main_queue());
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryWriteCoordinator *library = appDelegate.libraryController;
 
     @weakify(self);
-    [library toggleFavouriteState:assetID
+    [library setFavouriteStateOnAssets:assetIDs
+                              newState:state
                          callback:^(BOOL success, NSError * _Nonnull error, BOOL newState) {
         if (nil != error) {
             NSAssert(NO == success, @"Got error and success!");
@@ -242,13 +255,18 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             dispatch_async(dispatch_get_main_queue(), ^{
 
                 NSUndoManager *undoManager = [self.window undoManager];
-                [undoManager registerUndoWithTarget:assetID
-                                            handler:^(NSManagedObjectID * _Nonnull target) {
+                [undoManager registerUndoWithTarget:assetIDs
+                                            handler:^(NSSet<NSManagedObjectID *> * _Nonnull target) {
                     @strongify(self);
                     if (nil == self) {
                         return;
                     }
-                    [self toggleAssetFavouriteState:target
+                    // TODO: This is broken, as there's not guarantee the original assets were all
+                    // of the opposite state, but this is a bodge as I added this whilst
+                    // replumbing everyting from single selection to many. Must go back and fix all
+                    // this after.
+                    [self setFavouriteStateOnAssets:target
+                                           newState:!state
                                       userInitiated:NO];
                 }];
                 [undoManager setActionName:newState ? @"Set Favourite" : @"Remove Favourite"];
@@ -326,11 +344,12 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [self.viewModel setSelectedSidebarItem:sidebarItem];
 }
 
+
 #pragma mark - AssetsDisplayControllerDelegate
 
 - (void)assetsDisplayController:(__unused AssetsDisplayController *)assetDisplayController
-            selectionDidChange:(NSIndexPath *)selectedIndexPath {
-    [self.viewModel setSelectedAssetIndexPath:selectedIndexPath];
+             selectionDidChange:(NSSet<NSIndexPath *> *)selectedIndexPaths {
+    [self.viewModel setSelectedAssetIndexPaths:selectedIndexPaths];
 }
 
 - (void)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController
@@ -379,9 +398,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 }
 
 - (BOOL)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController
-                          item:(Asset *)asset
-       wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
-    NSParameterAssert(nil != asset);
+                         assets:(NSSet<Asset *> *)assets
+        wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
+    NSParameterAssert(nil != assets);
     NSParameterAssert(nil != sidebarItem);
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
@@ -391,7 +410,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     switch (sidebarItem.dragResponseType) {
         case SidebarItemDragResponseGroup:
             if (nil != sidebarItem.relatedOject) {
-                [library addAsset:asset.objectID
+                [library addAssets:[assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }]
                           toGroup:sidebarItem.relatedOject
                          callback:^(BOOL success, NSError * _Nonnull error) {
                     if (nil != error) {
@@ -406,10 +425,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             }
             accepted = YES;
             break;
-        case SidebarItemDragResponseTrash:
-            if (nil == asset.deletedAt) {
-                [library toggleSoftDeleteAsset:asset.objectID
-                                      callback:^(BOOL success, NSError * _Nonnull error) {
+        case SidebarItemDragResponseTrash: {
+                [library toggleSoftDeleteAssets:[assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }]
+                                       callback:^(BOOL success, NSError * _Nonnull error) {
                     if (nil != error) {
                         NSAssert(NO == success, @"Got error and success");
                         dispatch_async(dispatch_get_main_queue(), ^{
@@ -422,12 +440,19 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
                 accepted = YES;
             }
             break;
-        case SidebarItemDragResponseFavourite:
-            if (NO == asset.favourite) {
-                [self toggleAssetFavouriteState:asset.objectID
-                                  userInitiated:YES];
+        case SidebarItemDragResponseFavourite: {
+                // In a mixed set, only toggle those that are not currently favourited
+                NSSet<Asset *> *notFavourited = [assets compactMapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
+                    return asset.favourite ? nil : asset;
+                }];
+
+                if (0 < [notFavourited count]) {
+                    [self setFavouriteStateOnAssets:[assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }]
+                                           newState:![assets anyObject].favourite
+                                      userInitiated:YES];
+                }
+                accepted = YES;
             }
-            accepted = YES;
             break;
         default:
             break;
@@ -442,6 +467,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     NSAlert *alert = [NSAlert alertWithError:error];
     [alert runModal];
 }
+
 
 
 #pragma mark - Group creation panel
@@ -471,7 +497,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             }
         }
     }
-
+    
     [self.window beginSheet:self.groupCreatePanel
           completionHandler:^(__unused NSModalResponse returnCode) {
     }];
@@ -488,7 +514,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         if (nil == self) {
             return;
         }
-
+        
         @weakify(self);
         dispatch_async(dispatch_get_main_queue(), ^{
             @strongify(self);
@@ -517,9 +543,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
         NSManagedObjectContext *context = appDelegate.persistentContainer.viewContext;
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Group"];
-            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name like[c] %@", current];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name like[c] %@", current];
         [fetchRequest setPredicate: predicate];
-
+        
         NSError *error = nil;
         NSArray *groups = [context executeFetchRequest:fetchRequest
                                                  error:&error];
@@ -569,30 +595,33 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 }
 
 - (void)toggleFavourite:(id)sender {
-    Asset *selectedAsset = self.viewModel.selectedAsset;
+    // TODO: UI should be set to only allow this when a single item is selected, we should do
+    // better one day
+    Asset *selectedAsset = [self.viewModel.selectedAssets anyObject];
     if (nil == selectedAsset) {
         return;
     }
-    [self toggleAssetFavouriteState:selectedAsset.objectID
+    [self setFavouriteStateOnAssets:[NSSet setWithObject:selectedAsset]
+                           newState:!selectedAsset.favourite
                       userInitiated:YES];
 }
 
 - (void)trashItem:(id)sender {
-    Asset *selectedAsset = self.viewModel.selectedAsset;
-    if (nil == selectedAsset) {
+    NSSet<Asset *> *selectedAssets = self.viewModel.selectedAssets;
+    if (0 == [selectedAssets count]) {
         return;
     }
-
+    
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryWriteCoordinator *library = appDelegate.libraryController;
-
+    
     SidebarItem *selectedSidebarItem = [self.viewModel selectedSidebarItem];
     if (SidebarItemDragResponseGroup == selectedSidebarItem.dragResponseType) {
-        // In a group, so remove item from group rather than delete
+        // In a group, so remove assets from group rather than delete
         NSManagedObjectID *groupID = selectedSidebarItem.relatedOject;
-        [library removeAsset:selectedAsset.objectID
-                   fromGroup:groupID
-                    callback:^(BOOL success, NSError * _Nonnull error) {
+        [library removeAssets:[selectedAssets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }]
+                    fromGroup:groupID
+                     callback:^(BOOL success, NSError * _Nonnull error) {
             if (nil != error) {
                 NSAssert(NO == success, @"Got error and success!");
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -604,8 +633,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         }];
     } else {
         // Toggle whether in trash
-        [library toggleSoftDeleteAsset:selectedAsset.objectID
-                              callback:^(BOOL success, NSError * _Nonnull error) {
+        [library toggleSoftDeleteAssets:[selectedAssets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }]
+                               callback:^(BOOL success, NSError * _Nonnull error) {
             if (nil != error) {
                 NSAssert(NO == success, @"Got error and success!");
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -674,7 +703,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.target = self;
         item.action = @selector(import:);
         item.view = self.progressView;
-
+        
         return item;
     } else if ([itemIdentifier compare:kToggleDetailViewToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
@@ -684,7 +713,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.image = [NSImage imageWithSystemSymbolName:@"sidebar.right" accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(toggleDetails:);
-
+        
         return item;
     } else if ([itemIdentifier compare:kToggleSidebarToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
@@ -694,7 +723,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.image = [NSImage imageWithSystemSymbolName:@"sidebar.left" accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(toggleSidebar:);
-
+        
         return item;
     } else if ([itemIdentifier compare:kShareToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
@@ -705,8 +734,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.target = self;
         item.action = @selector(shareItem:);
         item.autovalidates = NO;
-        item.enabled = nil != self.viewModel.selectedAsset;
-
+        item.enabled = [[self.viewModel selectedAssetIndexPaths] count] > 0;
+        
         return item;
     } else if ([itemIdentifier compare:kDeleteToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
@@ -717,34 +746,34 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         item.target = self;
         item.action = @selector(trashItem:);
         item.autovalidates = NO;
-        item.enabled = nil != self.viewModel.selectedAsset;
-
+        item.enabled = [[self.viewModel selectedAssetIndexPaths] count] > 0;
+        
         return item;
     } else if ([itemIdentifier compare:kFavouriteToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
         item.title = @"Favourite";
         item.paletteLabel = @"Favourite";
         item.toolTip = @"Favourite";
-        NSString *symbol = (nil != self.viewModel.selectedAsset) && (self.viewModel.selectedAsset.favourite) ? @"heart.fill" : @"heart";
+        NSString *symbol = ([[self.viewModel selectedAssetIndexPaths] count] == 1) && ([self.viewModel.selectedAssets anyObject].favourite) ? @"heart.fill" : @"heart";
         item.image = [NSImage imageWithSystemSymbolName:symbol accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(toggleFavourite:);
         item.autovalidates = NO;
-        item.enabled = nil != self.viewModel.selectedAsset;
-
+        item.enabled = [[self.viewModel selectedAssetIndexPaths] count] == 1;
+        
         return item;
     } else if ([itemIdentifier compare:kItemDisplayStyleItemIdentifier] == NSOrderedSame) {
-
+        
         NSArray<NSString *> *titles = @[
             @"Grid",
             @"Single"
         ];
-
+        
         NSArray<NSImage *> *images = @[
             [NSImage imageWithSystemSymbolName:@"square.grid.2x2" accessibilityDescription:nil],
             [NSImage imageWithSystemSymbolName:@"square" accessibilityDescription:nil]
         ];
-
+        
         NSToolbarItemGroup *group = [NSToolbarItemGroup groupWithItemIdentifier:itemIdentifier
                                                                          images:images
                                                                   selectionMode:NSToolbarItemGroupSelectionModeSelectOne
@@ -752,12 +781,11 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
                                                                          target:self
                                                                          action:@selector(setViewStyle:)];
         group.selectedIndex = self.assetsDisplay.displayStyle;
-
+        
         return group;
     } else {
         return [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
     }
 }
-
 
 @end

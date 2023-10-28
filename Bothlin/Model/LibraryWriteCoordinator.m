@@ -14,6 +14,7 @@
 #import "AssetExtension.h"
 #import "Helpers.h"
 #import "NSURL+SecureAccess.h"
+#import "NSSet+Functional.h"
 
 NSErrorDomain __nonnull const LibraryWriteCoordinatorErrorDomain = @"com.digitalflapjack.LibraryController";
 typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinatorErrorCode) {
@@ -430,22 +431,32 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     });
 }
 
-- (void)toggleFavouriteState:(NSManagedObjectID *)assetID
-                    callback:(nullable void (^)(BOOL success, NSError * _Nullable error, BOOL newState)) callback {
+- (void)setFavouriteStateOnAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+                         newState:(BOOL)state
+                         callback:(nullable void (^)(BOOL success, NSError * _Nullable error, BOOL newState)) callback {
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
-        __block BOOL newState = NO;
         [self.managedObjectContext performBlockAndWait:^{
-            Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
-                                                                     error:&error];
+            // This would be a map, but we can't guarantee a successful lookup, so
+            // do a compactMap and check that we got what we wanted after.
+            NSSet<Asset *> *assets = [assetIDs compactMapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull assetID) {
+                NSError *innerError = nil;
+                Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
+                                                                         error:&innerError];
+                if (nil != innerError) {
+                    error = innerError;
+                }
+                return asset;
+            }];
             if (nil != error) {
-                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", assetID, error.localizedDescription);
                 return;
             }
-            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", assetID);
-            asset.favourite = !asset.favourite;
-            newState = asset.favourite;
+            NSAssert([assetIDs count] != [assets count], @"Got no error but lost assets");
+
+            for (Asset *asset in assets) {
+                asset.favourite = state;
+            }
             success = [self.managedObjectContext save:&error];
         }];
         if ((nil == error) && success) {
@@ -456,32 +467,40 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                     return;
                 }
                 [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:@[assetID]}];
+                                             didUpdate:@{NSUpdatedObjectsKey:assetIDs}];
             });
         }
 
         if (nil != callback) {
             dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-                callback(success, error, newState);
+                callback(success, error, state);
             });
         }
     });
 }
 
-- (void)addAsset:(NSManagedObjectID *)assetID
-         toGroup:(NSManagedObjectID *)groupID
-        callback:(void (^)(BOOL success, NSError *error)) callback {
+- (void)addAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+          toGroup:(NSManagedObjectID *)groupID
+         callback:(void (^)(BOOL success, NSError *error)) callback {
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
         [self.managedObjectContext performBlockAndWait:^{
-            Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
-                                                                     error:&error];
+            // This would be a map, but we can't guarantee a successful lookup, so
+            // do a compactMap and check that we got what we wanted after.
+            NSSet<Asset *> *assets = [assetIDs compactMapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull assetID) {
+                NSError *innerError = nil;
+                Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
+                                                                         error:&innerError];
+                if (nil != innerError) {
+                    error = innerError;
+                }
+                return asset;
+            }];
             if (nil != error) {
-                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", assetID, error.localizedDescription);
-                return;
+              return;
             }
-            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", assetID);
+            NSAssert([assetIDs count] != [assets count], @"Got no error but lost assets");
 
             Group *group = [self.managedObjectContext existingObjectWithID:groupID
                                                                      error:&error];
@@ -489,9 +508,9 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 NSAssert(nil == group, @"Got error and item fetching object with ID %@: %@", groupID, error.localizedDescription);
                 return;
             }
-            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", groupID);
+            NSAssert(nil != group, @"Got no error but also no group fetching object with ID %@", groupID);
 
-            [group addContains:[NSSet setWithObject:asset]];
+            [group addContains:assets];
 
             success = [self.managedObjectContext save:&error];
         }];
@@ -503,7 +522,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                     return;
                 }
                 [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:@[assetID, groupID]}];
+                                             didUpdate:@{NSUpdatedObjectsKey:[[assetIDs allObjects] arrayByAddingObject:groupID]}];
             });
         }
 
@@ -515,20 +534,28 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     });
 }
 
-- (void)removeAsset:(NSManagedObjectID *)assetID
-          fromGroup:(NSManagedObjectID *)groupID
-           callback:(void (^)(BOOL success, NSError *error)) callback {
+- (void)removeAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+           fromGroup:(NSManagedObjectID *)groupID
+            callback:(void (^)(BOOL success, NSError *error)) callback {
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
         [self.managedObjectContext performBlockAndWait:^{
-            Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
-                                                                     error:&error];
+            // This would be a map, but we can't guarantee a successful lookup, so
+            // do a compactMap and check that we got what we wanted after.
+            NSSet<Asset *> *assets = [assetIDs compactMapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull assetID) {
+                NSError *innerError = nil;
+                Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
+                                                                         error:&innerError];
+                if (nil != innerError) {
+                    error = innerError;
+                }
+                return asset;
+            }];
             if (nil != error) {
-                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", assetID, error.localizedDescription);
                 return;
             }
-            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", assetID);
+            NSAssert([assetIDs count] != [assets count], @"Got no error but lost assets");
 
             Group *group = [self.managedObjectContext existingObjectWithID:groupID
                                                                      error:&error];
@@ -536,9 +563,9 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 NSAssert(nil == group, @"Got error and item fetching object with ID %@: %@", groupID, error.localizedDescription);
                 return;
             }
-            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", groupID);
+            NSAssert(nil != group, @"Got no error but also no group fetching object with ID %@", groupID);
 
-            [group removeContains:[NSSet setWithObject:asset]];
+            [group removeContains:assets];
 
             success = [self.managedObjectContext save:&error];
         }];
@@ -550,7 +577,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                     return;
                 }
                 [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:@[assetID, groupID]}];
+                                             didUpdate:@{NSUpdatedObjectsKey:[[assetIDs allObjects] arrayByAddingObject:groupID]}];
             });
         }
 
@@ -562,24 +589,34 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     });
 }
 
-- (void)toggleSoftDeleteAsset:(NSManagedObjectID *)assetID
-                     callback:(void (^)(BOOL success, NSError *error)) callback {
+- (void)toggleSoftDeleteAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+                      callback:(void (^)(BOOL success, NSError *error)) callback {
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
         [self.managedObjectContext performBlockAndWait:^{
-            Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
-                                                                     error:&error];
+            // This would be a map, but we can't guarantee a successful lookup, so
+            // do a compactMap and check that we got what we wanted after.
+            NSSet<Asset *> *assets = [assetIDs compactMapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull assetID) {
+                NSError *innerError = nil;
+                Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
+                                                                         error:&innerError];
+                if (nil != innerError) {
+                    error = innerError;
+                }
+                return asset;
+            }];
             if (nil != error) {
-                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", assetID, error.localizedDescription);
                 return;
             }
-            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", assetID);
+            NSAssert([assetIDs count] != [assets count], @"Got no error but lost assets");
 
-            if (nil == asset.deletedAt) {
-                asset.deletedAt = [NSDate now];
-            } else {
-                asset.deletedAt = nil;
+            for (Asset *asset in assets) {
+                if (nil == asset.deletedAt) {
+                    asset.deletedAt = [NSDate now];
+                } else {
+                    asset.deletedAt = nil;
+                }
             }
 
             success = [self.managedObjectContext save:&error];
@@ -592,7 +629,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                     return;
                 }
                 [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:@[assetID]}];
+                                             didUpdate:@{NSUpdatedObjectsKey:[assetIDs allObjects]}];
             });
         }
 

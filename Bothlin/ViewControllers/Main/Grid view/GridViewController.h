@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol GridViewControllerDelegate <NSObject>
 
 - (void)gridViewController:(GridViewController *)gridViewController
-        selectionDidChange:(NSIndexPath *)selectedIndexPath;
+        selectionDidChange:(NSSet<NSIndexPath *> *)selectedIndexPaths;
 
 - (void)gridViewController:(GridViewController *)gridViewController
          doubleClickedItem:(Asset *)item;
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO: Better naming needed, but I hope to remove this endless delegate chain
 // at some point, as it's somewhat tedious.
 - (BOOL)gridViewController:(GridViewController *)gridViewController
-                      item:(Asset *)item
+                    assets:(NSSet<Asset *> *)assets
    wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
 
 @end
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readwrite) id<GridViewControllerDelegate> delegate;
 
 - (void)setAssets:(NSArray<Asset *> *)assets
-     withSelected:(NSIndexPath *)selected;
+     withSelected:(NSSet<NSIndexPath *> *)selected;
 
 @end
 

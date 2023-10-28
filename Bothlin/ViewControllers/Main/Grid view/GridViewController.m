@@ -40,9 +40,11 @@
 
 #pragma mark - Data management
 
-- (void)setAssets:(NSArray<Asset *> *)assets withSelected:(NSIndexPath *)indexPath {
-    NSParameterAssert(nil != indexPath);
+- (void)setAssets:(NSArray<Asset *> *)assets withSelected:(NSSet<NSIndexPath *> *)indexPaths {
+    NSParameterAssert(nil != assets);
+    NSParameterAssert(nil != indexPaths);
     dispatch_assert_queue(dispatch_get_main_queue());
+
     __block BOOL updated = NO;
     __block NSSet<NSIndexPath *> *updatedCells = [NSSet set];
     if ([assets count] == [self.contents count]) {
@@ -66,20 +68,12 @@
         self.contents = assets;
     }
 
-    BOOL updatedSelection = NO;
-    NSInteger index = [indexPath item];
-    if (NSNotFound != index) {
-        NSIndexSet *currentSelection = [self.collectionView selectionIndexes];
-        NSAssert([currentSelection count] < 2, @"We currently allow just one selection!");
-        if (0 == [currentSelection count]) {
-            updatedSelection = YES;
-        } else {
-            NSUInteger current = [currentSelection firstIndex];
-            if (current != index) {
-                updatedSelection = YES;
-            }
-        }
-    }
+    NSIndexSet *currentSelection = [self.collectionView selectionIndexes];
+    NSMutableSet<NSIndexPath *> *reformedCurrent = [NSMutableSet set];
+    [currentSelection enumerateIndexesUsingBlock:^(NSUInteger idx, __unused BOOL * _Nonnull stop) {
+        [reformedCurrent addObject:[NSIndexPath indexPathForItem:(NSInteger)idx inSection:0]];
+    }];
+    BOOL updatedSelection = ![indexPaths isEqualToSet:reformedCurrent];
 
     if (NO != updated) {
         [self.collectionView reloadData];
@@ -88,8 +82,9 @@
             [self.collectionView reloadItemsAtIndexPaths:updatedCells];
         }
     }
-    if ((NO != updatedSelection) && (NSNotFound != index)) {
-        [self.collectionView selectItemsAtIndexPaths:[NSSet setWithObject:indexPath]
+    if ((NO != updatedSelection) && ([indexPaths count] > 0)) {
+        NSLog(@"Setting items: %@", indexPaths);
+        [self.collectionView selectItemsAtIndexPaths:indexPaths
                                       scrollPosition:NSCollectionViewScrollPositionTop];
     }
 }
@@ -176,18 +171,27 @@
 
 #pragma mark - NSCollectionViewDelegate
 
-- (void)collectionView:(NSCollectionView *)collectionView didSelectItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
-    // TODO: One day, support multiple items
-    NSAssert(1 == [indexPaths count], @"User selected more/less than one item: %lu", [indexPaths count]);
-    NSIndexPath *indexPath = [indexPaths anyObject];
+- (void)selectionChanged {
+    NSIndexSet *selectedRanges = [self.collectionView selectionIndexes];
+    NSLog(@"\tselected ranges: %@", selectedRanges);
+    NSMutableSet<NSIndexPath *> *collectedIndexPaths = [NSMutableSet set];
+    [selectedRanges enumerateIndexesUsingBlock:^(NSUInteger idx, __unused BOOL * _Nonnull stop) {
+        [collectedIndexPaths addObject:[NSIndexPath indexPathForItem:(NSInteger)idx inSection:0]];
+    }];
     [self.delegate gridViewController:self
-                   selectionDidChange:indexPath];
+                   selectionDidChange:[NSSet setWithSet:collectedIndexPaths]];
 }
 
-- (void)collectionView:(NSCollectionView *)collectionView didDeselectItemsAtIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
-    NSAssert(1 == [indexPaths count], @"User selected more/less than one item: %lu", [indexPaths count]);
-    [self.delegate gridViewController:self
-                   selectionDidChange:[[NSIndexPath alloc] init]];
+- (void)collectionView:(NSCollectionView *)collectionView didSelectItemsAtIndexPaths:(__unused NSSet<NSIndexPath *> *)indexPaths {
+    // The item passed to us here is just what was added, not the entire set, so we need to build that ourselves
+    NSLog(@"delegate select items %@", indexPaths);
+    [self selectionChanged];
+}
+
+- (void)collectionView:(NSCollectionView *)collectionView didDeselectItemsAtIndexPaths:(__unused NSSet<NSIndexPath *> *)indexPaths {
+    // This again is just the changes, and for now we want to have just the final amount
+    NSLog(@"delegate deselect items %@", indexPaths);
+    [self selectionChanged];
 }
 
 
@@ -199,12 +203,13 @@
 }
 
 - (BOOL)gridViewItem:(GridViewItem *)gridViewItem wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem {
+    // TODO: What happens on multiple drag?
     id<GridViewControllerDelegate> delegate = self.delegate;
     if (nil == delegate) {
         return NO;
     }
     return [delegate gridViewController:self
-                                   item:gridViewItem.asset
+                                 assets:[NSSet setWithObject:gridViewItem.asset]
                 wasDraggedOnSidebarItem:sidebarItem];
 }
 

@@ -39,8 +39,8 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 // TODO: Better naming needed, but I hope to remove this endless delegate chain
 // at some point, as it's somewhat tedious.
 - (BOOL)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController
-                          item:(Asset *)item
-       wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
+                         assets:(NSSet<Asset *> *)assets
+        wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
 
 @end
 
@@ -51,7 +51,7 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 @property (nonatomic, readwrite) ItemsDisplayStyle displayStyle;
 
 - (void)setAssets:(NSArray<Asset *> *)assets
-     withSelected:(NSIndexPath *)selected;
+     withSelected:(NSSet<NSIndexPath *> *)selected;
 
 @end
 

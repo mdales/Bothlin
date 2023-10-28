@@ -30,7 +30,7 @@
                                 <rect key="frame" x="1" y="1" width="725" height="505"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <collectionView selectable="YES" allowsEmptySelection="NO" id="ZMD-KV-h7a">
+                                    <collectionView selectable="YES" allowsEmptySelection="NO" allowsMultipleSelection="YES" id="ZMD-KV-h7a">
                                         <rect key="frame" x="0.0" y="0.0" width="725" height="505"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                         <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="zrK-dz-NZd">

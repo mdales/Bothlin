@@ -36,19 +36,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)createGroup:(NSString *)name
            callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
-- (void)toggleFavouriteState:(NSManagedObjectID *)assetID
-                    callback:(nullable void (^)(BOOL success, NSError * _Nullable error, BOOL newState)) callback;
+- (void)setFavouriteStateOnAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+                         newState:(BOOL)state
+                         callback:(nullable void (^)(BOOL success, NSError * _Nullable error, BOOL newState)) callback;
 
-- (void)addAsset:(NSManagedObjectID *)assetID
-         toGroup:(NSManagedObjectID *)groupID
-        callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
+- (void)addAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+          toGroup:(NSManagedObjectID *)groupID
+         callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
-- (void)removeAsset:(NSManagedObjectID *)assetID
-          fromGroup:(NSManagedObjectID *)groupID
-           callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
+- (void)removeAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+           fromGroup:(NSManagedObjectID *)groupID
+            callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
-- (void)toggleSoftDeleteAsset:(NSManagedObjectID *)assetID
-                     callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
+- (void)toggleSoftDeleteAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+                      callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
 @end
 
