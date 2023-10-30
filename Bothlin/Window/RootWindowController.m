@@ -61,11 +61,11 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         self->_viewModel = [[LibraryViewModel alloc] initWithViewContext:viewContext];
 
         self->_sidebarObserver = [KVOBox observeObject:self->_viewModel
-                                               keyPath:@"sidebarItems"];
+                                               keyPath:NSStringFromSelector(@selector(sidebarItems))];
         self->_assetsObserver = [KVOBox observeObject:self->_viewModel
-                                             keyPath:@"assets"];
+                                              keyPath:NSStringFromSelector(@selector(assets))];
         self->_selectedObserver = [KVOBox observeObject:self->_viewModel
-                                                keyPath:@"selectedAssetIndexPath"];
+                                                keyPath:NSStringFromSelector(@selector(selectedAssetIndexPaths))];
     }
     return self;
 }
@@ -678,7 +678,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     if (nil == selectedAsset) {
         return;
     }
-    [self setFavouriteStateOnAssets:[NSSet setWithObject:selectedAsset]
+    [self setFavouriteStateOnAssets:[NSSet setWithObject:selectedAsset.objectID]
                            newState:!selectedAsset.favourite
                       userInitiated:YES];
 }

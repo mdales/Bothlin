@@ -93,7 +93,7 @@ NSArray<NSString *> * const testTags = @[
         // assets in the current view on assets.
         val = [self->_selectedAssetIndexPaths compactMapUsingBlock:^id _Nullable(NSIndexPath * _Nonnull object) {
             NSInteger index = [object item];
-            if ((NSNotFound == index) || (0 > index) || ([self->_assets count] >= index)) {
+            if ((NSNotFound == index) || (0 > index) || ([self->_assets count] < index)) {
                 return nil;
             }
             return [self->_assets objectAtIndex:(NSUInteger)index];
@@ -289,14 +289,14 @@ NSArray<NSString *> * const testTags = @[
         }
     }
 
-    [self willChangeValueForKey:@"assets"];
-    [self willChangeValueForKey:@"selectedAssetIndexPaths"];
+    [self willChangeValueForKey:NSStringFromSelector(@selector(assets))];
+    [self willChangeValueForKey:NSStringFromSelector(@selector(selectedAssetIndexPaths))];
 
     self->_assets = result;
     self->_selectedAssetIndexPaths = newSelectionIndexPaths;
 
-    [self didChangeValueForKey:@"assets"];
-    [self didChangeValueForKey:@"selectedAssetIndexPaths"];
+    [self didChangeValueForKey:NSStringFromSelector(@selector(assets))];
+    [self didChangeValueForKey:NSStringFromSelector(@selector(selectedAssetIndexPaths))];
 
     return YES;
 }
