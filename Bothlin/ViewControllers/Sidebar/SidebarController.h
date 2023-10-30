@@ -19,6 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)sidebarController:(SidebarController *)sidebarController
   didChangeSelectedOption:(SidebarItem *)selectedSidebarItem;
 
+- (BOOL)sidebarController:(SidebarController *)sidebearController
+       recievedIndexPaths:(NSSet<NSIndexPath *> *)indexPathSet
+                   onItem:(SidebarItem *)sidebarItem;
+
 @end
 
 @interface SidebarController : NSViewController <NSOutlineViewDataSource, NSOutlineViewDelegate>

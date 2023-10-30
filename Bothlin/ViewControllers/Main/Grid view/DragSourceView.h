@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol DragSourceViewDelegate <NSObject>
 
-- (id<NSPasteboardWriting>)pasteboardWriterForDragSourceView:(DragSourceView *)dragSourceView;
+- (id<NSPasteboardWriting>)pasteboardWriterForDragSourceView:(DragSourceView * _Nullable)dragSourceView;
 - (NSImage*)draggingImageForDragSourceView:(DragSourceView *)dragSourceView;
 - (void)dragSourceView:(DragSourceView *)dragSourceView
             wasClicked:(NSInteger)count;

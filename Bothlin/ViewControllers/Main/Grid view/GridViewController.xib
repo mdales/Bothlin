@@ -19,7 +19,7 @@
             <rect key="frame" x="0.0" y="0.0" width="727" height="507"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zH8-ez-kPS" customClass="DragTargetView">
+                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zH8-ez-kPS">
                     <rect key="frame" x="0.0" y="0.0" width="727" height="507"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <subviews>

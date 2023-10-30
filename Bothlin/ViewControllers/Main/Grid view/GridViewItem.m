@@ -8,6 +8,7 @@
 #import "GridViewItem.h"
 #import "AssetExtension.h"
 #import "NSURL+SecureAccess.h"
+#import "AssetPromiseProvider.h"
 
 @interface GridViewItem ()
 
@@ -35,7 +36,7 @@
     [doubleClickGesture setDelaysPrimaryMouseButtonEvents:NO];
     [self.view addGestureRecognizer:doubleClickGesture];
 
-    self.dragSourceView.delegate = self;
+//    self.dragSourceView.delegate = self;
 }
 
 - (void)viewDidAppear {
@@ -47,7 +48,6 @@
 }
 
 - (void)setSelected:(BOOL)value {
-    NSLog(@"item %@ -> %d", self.asset.name, value);
     [super setSelected:value];
     NSColor *bgColor = value ? [NSColor selectedControlColor] : [NSColor clearColor];
     self.view.layer.backgroundColor = bgColor.CGColor;
@@ -60,10 +60,12 @@
 
 #pragma mark - DragSourceViewDelegate
 
-- (id<NSPasteboardWriting>)pasteboardWriterForDragSourceView:(DragSourceView *)dragSourceView {
-    NSFilePromiseProvider *provider = [[NSFilePromiseProvider alloc] initWithFileType:self.asset.type
-                                                                             delegate:self];
-    provider.userInfo = self.asset;
+- (id<NSPasteboardWriting>)pasteboardWriterForDragSourceView:(__unused DragSourceView * _Nullable)dragSourceView {
+    AssetPromiseProvider *provider = [[AssetPromiseProvider alloc] initWithFileType:self.asset.type
+                                                                           delegate:self];
+    provider.userInfo = @{
+        kAssetPromiseProviderURLKey:[NSURL fileURLWithPath:self.asset.path],
+    };
     return provider;
 }
 

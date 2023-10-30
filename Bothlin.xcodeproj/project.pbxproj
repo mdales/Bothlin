@@ -60,6 +60,9 @@
 		4CB8861E2ABA2CA900968B0F /* LibraryWriteCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */; };
 		4CB886202ABA2CA900968B0F /* LibraryWriteCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */; };
 		4CB886692ABB67E100968B0F /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
+		4CBD40B62AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBD40B52AEECB2000A8EB5A /* AssetPromiseProvider.m */; };
+		4CBD40B72AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBD40B52AEECB2000A8EB5A /* AssetPromiseProvider.m */; };
+		4CBD40B82AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBD40B52AEECB2000A8EB5A /* AssetPromiseProvider.m */; };
 		4CBF17512AB5F176001F7984 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBF17502AB5F176001F7984 /* AppDelegate.m */; };
 		4CBF17532AB5F177001F7984 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CBF17522AB5F177001F7984 /* Assets.xcassets */; };
 		4CBF17562AB5F177001F7984 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CBF17542AB5F177001F7984 /* MainMenu.xib */; };
@@ -145,6 +148,8 @@
 		4CB8861C2ABA2CA900968B0F /* LibraryWriteCoordinator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryWriteCoordinator.h; sourceTree = "<group>"; };
 		4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryWriteCoordinator.m; sourceTree = "<group>"; };
 		4CB886672ABB67E100968B0F /* LibraryModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LibraryModel.xcdatamodel; sourceTree = "<group>"; };
+		4CBD40B42AEECB2000A8EB5A /* AssetPromiseProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AssetPromiseProvider.h; sourceTree = "<group>"; };
+		4CBD40B52AEECB2000A8EB5A /* AssetPromiseProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AssetPromiseProvider.m; sourceTree = "<group>"; };
 		4CBF174C2AB5F176001F7984 /* Bothlin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bothlin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CBF174F2AB5F176001F7984 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		4CBF17502AB5F176001F7984 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -290,6 +295,8 @@
 				4C011A0C2AC5D178004A94C4 /* AssetExtension.m */,
 				4CB8861C2ABA2CA900968B0F /* LibraryWriteCoordinator.h */,
 				4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */,
+				4CBD40B42AEECB2000A8EB5A /* AssetPromiseProvider.h */,
+				4CBD40B52AEECB2000A8EB5A /* AssetPromiseProvider.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -555,6 +562,7 @@
 				4CD0A0332ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */,
 				4CC9EA7F2ADFC28A00D33E5C /* KVOBox.m in Sources */,
 				4CA484692AD67CB60096C31F /* DragSourceView.m in Sources */,
+				4CBD40B62AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */,
 				4C960F422AD7D47E0053C631 /* SidebarItem.m in Sources */,
 				4C011A0D2AC5D178004A94C4 /* AssetExtension.m in Sources */,
 				4CBF17582AB5F177001F7984 /* main.m in Sources */,
@@ -574,6 +582,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CBD40B72AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */,
 				4CC9EA802ADFC28A00D33E5C /* KVOBox.m in Sources */,
 				4C1F01CA2AD7EED400E4CCD7 /* NSArray+FunctionalTests.m in Sources */,
 				4C960F472AD7D8430053C631 /* NSArray+Functional.m in Sources */,
@@ -587,6 +596,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CBD40B82AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */,
 				4C9544B72AECE613007205A9 /* NSSet+Functional.m in Sources */,
 				4C1F01CB2AD7F13600E4CCD7 /* AppDelegate.m in Sources */,
 				4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,

@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Only access on mainQ
 @property (nonatomic, weak, readwrite) IBOutlet NSCollectionView *collectionView;
-@property (nonatomic, weak, readwrite) IBOutlet DragTargetView *dragTargetView;
+@property (nonatomic, weak, readwrite) IBOutlet NSView *dragTargetView;
 @property (nonatomic, weak, readwrite) id<GridViewControllerDelegate> delegate;
 
 - (void)setAssets:(NSArray<Asset *> *)assets

@@ -336,12 +336,89 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
 #pragma mark - SidebarControllerDelegate
 
-- (void)addGroupViaSidebarController:(SidebarController *)sidebarController {
+- (void)addGroupViaSidebarController:(__unused SidebarController *)sidebarController {
     [self showGroupCreatePanel:sidebarController];
 }
 
-- (void)sidebarController:(SidebarController *)sidebarController didChangeSelectedOption:(SidebarItem *)sidebarItem {
+- (void)sidebarController:(__unused SidebarController *)sidebarController didChangeSelectedOption:(SidebarItem *)sidebarItem {
     [self.viewModel setSelectedSidebarItem:sidebarItem];
+}
+
+- (BOOL)sidebarController:(__unused SidebarController *)sidebearController
+       recievedIndexPaths:(NSSet<NSIndexPath *> *)indexPathSet
+                   onItem:(SidebarItem *)sidebarItem {
+    dispatch_assert_queue(dispatch_get_main_queue());
+    NSParameterAssert(nil != indexPathSet);
+    NSParameterAssert(nil != sidebarItem);
+
+    if ([indexPathSet count] == 0) {
+        return NO;
+    }
+
+    NSArray<Asset *> *allAssets = self.viewModel.assets;
+    NSSet<Asset *> *assets = [indexPathSet compactMapUsingBlock:^id _Nullable(NSIndexPath * _Nonnull object) {
+        NSInteger index = [object item];
+        if ((NSNotFound == index) || (0 > index) || ([allAssets count] < index)) {
+            return nil;
+        }
+        return [allAssets objectAtIndex:(NSUInteger)index];
+    }];
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
+
+    BOOL accepted = NO;
+    switch (sidebarItem.dragResponseType) {
+        case SidebarItemDragResponseGroup:
+            if (nil != sidebarItem.relatedOject) {
+                [library addAssets:[assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }]
+                           toGroup:sidebarItem.relatedOject
+                          callback:^(BOOL success, NSError * _Nonnull error) {
+                    if (nil != error) {
+                        NSAssert(NO == success, @"Got error and success");
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            NSAlert *alert = [NSAlert alertWithError:error];
+                            [alert runModal];
+                        });
+                    }
+                    NSAssert(NO != success, @"got no error and no success");
+                }];
+            }
+            accepted = YES;
+            break;
+        case SidebarItemDragResponseTrash: {
+            [library toggleSoftDeleteAssets:[assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }]
+                                   callback:^(BOOL success, NSError * _Nonnull error) {
+                if (nil != error) {
+                    NSAssert(NO == success, @"Got error and success");
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSAlert *alert = [NSAlert alertWithError:error];
+                        [alert runModal];
+                    });
+                }
+                NSAssert(NO != success, @"got no error and no success");
+            }];
+            accepted = YES;
+        }
+            break;
+        case SidebarItemDragResponseFavourite: {
+            // In a mixed set, only toggle those that are not currently favourited
+            NSSet<Asset *> *notFavourited = [assets compactMapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
+                return asset.favourite ? nil : asset;
+            }];
+
+            if (0 < [notFavourited count]) {
+                [self setFavouriteStateOnAssets:[assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }]
+                                       newState:![assets anyObject].favourite
+                                  userInitiated:YES];
+            }
+            accepted = YES;
+        }
+            break;
+        default:
+            break;
+    }
+    return accepted;
 }
 
 

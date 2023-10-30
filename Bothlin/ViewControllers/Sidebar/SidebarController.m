@@ -10,6 +10,7 @@
 #import "TableCellWithButtonView.h"
 #import "DragSourceView.h"
 #import "GridViewItem.h"
+#import "AssetPromiseProvider.h"
 
 @implementation SidebarController
 
@@ -140,23 +141,61 @@
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView 
-         acceptDrop:(id<NSDraggingInfo>)dragInfo
+         acceptDrop:(id<NSDraggingInfo>)draggingInfo
                item:(id)item
          childIndex:(NSInteger)index {
-    if (nil == item) {
+    NSParameterAssert(nil != item);
+    NSParameterAssert([item isKindOfClass:[SidebarItem class]]);
+    id<SidebarControllerDelegate> delegate = self.delegate;
+    if (nil == delegate) {
         return NO;
     }
-    NSAssert([item isKindOfClass:[SidebarItem class]], @"Unexpected class for item");
     SidebarItem *sidebarItem = (SidebarItem *)item;
     if (SidebarItemDragResponseNone == sidebarItem.dragResponseType) {
         return NO;
     }
 
-    if (NO == [[dragInfo draggingSource] isKindOfClass:[DragSourceView class]]) {
+    if (NO == [[draggingInfo draggingSource] isKindOfClass:[NSCollectionView class]]) {
         return NO;
     }
-    DragSourceView *source = (DragSourceView *)[dragInfo draggingSource];
-    return [source wasDroppedOnSidebarItem:sidebarItem];
+    NSCollectionView *source = (NSCollectionView *)[draggingInfo draggingSource];
+    NSMutableSet<NSIndexPath *> *indexPathSet = [NSMutableSet set];
+    [draggingInfo enumerateDraggingItemsWithOptions:NSDraggingItemEnumerationConcurrent // TODO: copied from example, feels unsafe
+                                            forView:source
+                                            classes:@[[NSPasteboardItem class]]
+                                      searchOptions:@{}
+                                         usingBlock:^(NSDraggingItem * _Nonnull draggingItem, __unused NSInteger idx, __unused BOOL * _Nonnull stop) {
+        if ([draggingItem.item isKindOfClass:[NSPasteboardItem class]]) {
+            NSPasteboardItem *item = (NSPasteboardItem *)draggingItem.item;
+            if ([item.types indexOfObject:kAssetProviderType] == NSNotFound) {
+                return;
+            }
+
+            id maybedata = [item dataForType:kAssetProviderType];
+            if (nil == maybedata) {
+                return;
+            }
+            NSError *error = nil;
+            id maybeIndexPath = [NSKeyedUnarchiver unarchiveTopLevelObjectWithData:maybedata
+                                                                             error:&error];
+            if (nil != error) {
+                NSAssert(nil == maybeIndexPath, @"got error and data");
+                NSLog(@"error: %@", error);
+                return;
+            }
+            NSAssert(nil != maybeIndexPath, @"Got no error but no data");
+            NSAssert([maybeIndexPath isKindOfClass:[NSIndexPath class]], @"expected index path");
+            [indexPathSet addObject:maybeIndexPath];
+        }
+    }];
+
+    if ([indexPathSet count] == 0) {
+        return NO;
+    }
+
+    return [delegate sidebarController:self
+                    recievedIndexPaths:[NSSet setWithSet:indexPathSet]
+                                onItem:item];
 }
 
 @end

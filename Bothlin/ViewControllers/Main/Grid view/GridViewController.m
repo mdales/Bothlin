@@ -8,6 +8,7 @@
 #import "GridViewController.h"
 #import "Asset+CoreDataClass.h"
 #import "Helpers.h"
+#import "AssetPromiseProvider.h"
 
 @interface GridViewController ()
 
@@ -35,7 +36,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.dragTargetView.delegate = self;
+//    self.dragTargetView.delegate = self;
 }
 
 #pragma mark - Data management
@@ -83,10 +84,19 @@
         }
     }
     if ((NO != updatedSelection) && ([indexPaths count] > 0)) {
-        NSLog(@"Setting items: %@", indexPaths);
         [self.collectionView selectItemsAtIndexPaths:indexPaths
                                       scrollPosition:NSCollectionViewScrollPositionTop];
     }
+}
+
+- (void)selectionChanged {
+    NSIndexSet *selectedRanges = [self.collectionView selectionIndexes];
+    NSMutableSet<NSIndexPath *> *collectedIndexPaths = [NSMutableSet set];
+    [selectedRanges enumerateIndexesUsingBlock:^(NSUInteger idx, __unused BOOL * _Nonnull stop) {
+        [collectedIndexPaths addObject:[NSIndexPath indexPathForItem:(NSInteger)idx inSection:0]];
+    }];
+    [self.delegate gridViewController:self
+                   selectionDidChange:[NSSet setWithSet:collectedIndexPaths]];
 }
 
 
@@ -169,28 +179,81 @@
     return viewItem;
 }
 
-#pragma mark - NSCollectionViewDelegate
 
-- (void)selectionChanged {
-    NSIndexSet *selectedRanges = [self.collectionView selectionIndexes];
-    NSLog(@"\tselected ranges: %@", selectedRanges);
-    NSMutableSet<NSIndexPath *> *collectedIndexPaths = [NSMutableSet set];
-    [selectedRanges enumerateIndexesUsingBlock:^(NSUInteger idx, __unused BOOL * _Nonnull stop) {
-        [collectedIndexPaths addObject:[NSIndexPath indexPathForItem:(NSInteger)idx inSection:0]];
-    }];
-    [self.delegate gridViewController:self
-                   selectionDidChange:[NSSet setWithSet:collectedIndexPaths]];
+#pragma mark - NSCollectionViewDelegate Drag Out
+
+- (BOOL)collectionView:(NSCollectionView *)collectionView canDragItemsAtIndexes:(NSIndexSet *)indexes withEvent:(NSEvent *)event {
+    return YES;
 }
+
+- (id<NSPasteboardWriting>)collectionView:(NSCollectionView *)collectionView pasteboardWriterForItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSParameterAssert(nil != indexPath);
+
+    // This is a bit of an odd arrangement, due to how drag was originally implemented
+    GridViewItem *item = (GridViewItem *)[self.collectionView itemAtIndexPath:indexPath];
+    AssetPromiseProvider *provider = [[AssetPromiseProvider alloc] initWithFileType:item.asset.type
+                                                                           delegate:item]; // TODO: shoudl be self
+
+    NSError *error = nil;
+    NSData *archivedIndexPath = [NSKeyedArchiver archivedDataWithRootObject:indexPath
+                                                      requiringSecureCoding:YES
+                                                                      error:&error];
+    NSAssert(nil == error, @"Failed to archive indexPath %@: %@", indexPath, error);
+
+    provider.userInfo = @{
+        kAssetPromiseProviderURLKey:[NSURL fileURLWithPath:item.asset.path],
+        kAssetPromiseProviderIndexPathKey:archivedIndexPath
+    };
+    return provider;
+}
+
+
+#pragma mark - NSCollectionViewDelegate Drag In
+
+- (NSDragOperation)collectionView:(NSCollectionView *)collectionView 
+                     validateDrop:(id<NSDraggingInfo>)draggingInfo
+                proposedIndexPath:(NSIndexPath * _Nonnull __autoreleasing *)proposedDropIndexPath
+                    dropOperation:(NSCollectionViewDropOperation *)proposedDropOperation {
+    // if the source of the drag is this collection view, ignore it as we don't support
+    // re-arranging of items.
+    id draggingSource = [draggingInfo draggingSource];
+    if (draggingSource == self.collectionView) {
+        return NSDragOperationNone;
+    }
+
+    // TODO: probably see what other sources there area
+    return NSDragOperationCopy;
+}
+
+- (BOOL)collectionView:(NSCollectionView *)collectionView 
+            acceptDrop:(id<NSDraggingInfo>)draggingInfo
+                 index:(NSInteger)index
+         dropOperation:(NSCollectionViewDropOperation)dropOperation {
+    dispatch_assert_queue(dispatch_get_main_queue());
+    id<GridViewControllerDelegate> delegate = self.delegate;
+    if (nil == delegate) {
+        return NO;
+    }
+
+    NSPasteboard *pasteboard = draggingInfo.draggingPasteboard;
+    if (nil == pasteboard) {
+        return NO;
+    }
+    NSArray<NSURL *> *objects = [pasteboard readObjectsForClasses:@[[NSURL class]]
+                                                          options:nil];
+    return [delegate gridViewController:self
+                  didReceiveDroppedURLs:[NSSet setWithArray:objects]];
+}
+
+#pragma mark - NSCollectionViewDelegate General
 
 - (void)collectionView:(NSCollectionView *)collectionView didSelectItemsAtIndexPaths:(__unused NSSet<NSIndexPath *> *)indexPaths {
     // The item passed to us here is just what was added, not the entire set, so we need to build that ourselves
-    NSLog(@"delegate select items %@", indexPaths);
     [self selectionChanged];
 }
 
 - (void)collectionView:(NSCollectionView *)collectionView didDeselectItemsAtIndexPaths:(__unused NSSet<NSIndexPath *> *)indexPaths {
     // This again is just the changes, and for now we want to have just the final amount
-    NSLog(@"delegate deselect items %@", indexPaths);
     [self selectionChanged];
 }
 

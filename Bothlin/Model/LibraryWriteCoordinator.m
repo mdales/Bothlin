@@ -452,7 +452,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             if (nil != error) {
                 return;
             }
-            NSAssert([assetIDs count] != [assets count], @"Got no error but lost assets");
+            NSAssert([assetIDs count] == [assets count], @"Got no error but lost assets");
 
             for (Asset *asset in assets) {
                 asset.favourite = state;
@@ -467,7 +467,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                     return;
                 }
                 [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:assetIDs}];
+                                             didUpdate:@{NSUpdatedObjectsKey:[assetIDs allObjects]}];
             });
         }
 
@@ -500,7 +500,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             if (nil != error) {
               return;
             }
-            NSAssert([assetIDs count] != [assets count], @"Got no error but lost assets");
+            NSAssert([assetIDs count] == [assets count], @"Got no error but lost assets");
 
             Group *group = [self.managedObjectContext existingObjectWithID:groupID
                                                                      error:&error];

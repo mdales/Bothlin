@@ -72,7 +72,6 @@ NSArray<NSString *> * const testTags = @[
 }
 
 - (void)setSelectedAssetIndexPaths:(NSSet<NSIndexPath *> *)indexPaths {
-    NSLog(@"%@ -> %@", self->_selectedAssetIndexPaths, indexPaths);
     NSParameterAssert(nil != indexPaths);
     dispatch_assert_queue_not(self.syncQ);
     dispatch_sync(self.syncQ, ^{
@@ -147,7 +146,7 @@ NSArray<NSString *> * const testTags = @[
 #pragma mark - LibraryWriteCoordinatorDelegate
 
 - (void)libraryWriteCoordinator:(__unused LibraryWriteCoordinator *)libraryWriteCoordinator 
-                      didUpdate:(NSDictionary *)changeNotificationData {
+                      didUpdate:(NSDictionary<NSString *, NSArray<NSManagedObjectID *> *> *)changeNotificationData {
     dispatch_assert_queue(dispatch_get_main_queue());
 
     [NSManagedObjectContext mergeChangesFromRemoteContextSave:changeNotificationData
@@ -269,8 +268,9 @@ NSArray<NSString *> * const testTags = @[
     // Are any of the old selected assets in the new data? If so, keep them selected?
     // If not default to just having the most recent by time
     // TODO: one day the assumption this is the last item will not be true
-    NSIndexPath *newSelectionIndexPath = [result count] > 0 ? [NSIndexPath indexPathForItem:((NSInteger)[result count] - 1) inSection:0] : [[NSIndexPath alloc] init];
-    NSSet<NSIndexPath *> *newSelectionIndexPaths = [NSSet setWithObject:newSelectionIndexPath];
+    NSSet<NSIndexPath *> *newSelectionIndexPaths = [result count] > 0 ?
+        [NSSet setWithObject: [NSIndexPath indexPathForItem:((NSInteger)[result count] - 1) inSection:0]] :
+        [NSSet set];
     if (([result count] > 0) && ([self->_assets count] > 0)) {
         NSSet<NSIndexPath *> *selected = [self->_selectedAssetIndexPaths compactMapUsingBlock:^id _Nullable(NSIndexPath * _Nonnull indexPath) {
             NSInteger idx = [indexPath item];
