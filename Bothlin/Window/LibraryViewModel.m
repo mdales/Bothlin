@@ -325,7 +325,10 @@ NSArray<NSString *> * const testTags = @[
                                                 dragResponseType:SidebarItemDragResponseNone
                                                         children:[groups mapUsingBlock:^SidebarItem * _Nonnull(Group * _Nonnull group) {
         NSFetchRequest *groupRequest = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
-        [groupRequest setPredicate:[NSPredicate predicateWithFormat: @"ANY groups == %@", group]];
+        NSPredicate *groupPredicate = [NSPredicate predicateWithFormat: @"ANY groups == %@", group];
+        NSPredicate *notDeletedPredicate = [NSPredicate predicateWithFormat: @"deletedAt == nil"];
+        NSCompoundPredicate *combindedGroupPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[groupPredicate, notDeletedPredicate]];
+        [groupRequest setPredicate:combindedGroupPredicate];
         return [[SidebarItem alloc] initWithTitle:group.name
                                        symbolName:nil
                                  dragResponseType:SidebarItemDragResponseGroup
