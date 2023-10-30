@@ -75,6 +75,11 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
     [defaults registerDefaults:initialDefaultValues];
 }
 
+- (void)applicationDidBecomeActive:(NSNotification *)notification {
+    if (NO ==[self.mainWindowController.window isVisible]) {
+        [self.mainWindowController showWindow:nil];
+    }
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification * _Nonnull)aNotification {
     [AppDelegate makeInitialDefaults];
