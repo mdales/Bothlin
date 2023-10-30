@@ -8,7 +8,6 @@
 #import "SidebarController.h"
 #import "SidebarItem.h"
 #import "TableCellWithButtonView.h"
-#import "DragSourceView.h"
 #import "GridViewItem.h"
 #import "AssetPromiseProvider.h"
 

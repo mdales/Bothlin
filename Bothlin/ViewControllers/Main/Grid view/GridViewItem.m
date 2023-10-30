@@ -58,55 +58,9 @@
     [self.delegate gridViewItemWasDoubleClicked:self];
 }
 
-#pragma mark - DragSourceViewDelegate
-
-- (id<NSPasteboardWriting>)pasteboardWriterForDragSourceView:(__unused DragSourceView * _Nullable)dragSourceView {
-    AssetPromiseProvider *provider = [[AssetPromiseProvider alloc] initWithFileType:self.asset.type
-                                                                           delegate:self];
-    provider.userInfo = @{
-        kAssetPromiseProviderURLKey:[NSURL fileURLWithPath:self.asset.path],
-    };
-    return provider;
-}
-
-- (NSImage*)draggingImageForDragSourceView:(DragSourceView *)dragSourceView {
-    NSRect targetRect = [dragSourceView frame];
-    NSImage *dragImage = [[NSImage alloc] initWithSize:targetRect.size];
-    NSBitmapImageRep *imageRep = [self.imageView bitmapImageRepForCachingDisplayInRect:targetRect];
-    if (nil != imageRep) {
-        [self.imageView cacheDisplayInRect:targetRect
-                          toBitmapImageRep:imageRep];
-        [dragImage addRepresentation:imageRep];
-    }
-    return dragImage;
-}
-
-- (void)dragSourceView:(DragSourceView *)dragSourceView wasClicked:(NSInteger)count {
-    NSCollectionView *collectionView = self.collectionView;
-    NSAssert(nil != collectionView, @"Assumed view item had collection view");
-
-    if (1 == count) {
-//        NSIndexPath *index = [collectionView indexPathForItem:self];
-//        NSIndexSet *indexSet = [[NSIndexSet alloc] initWithIndex:(NSUInteger)[index item]];
-//        [collectionView setSelectionIndexes:indexSet];
-//        // TODO: be less gross once you've finished replumbing
-//        [collectionView.delegate collectionView:collectionView
-//                     didSelectItemsAtIndexPaths:[NSSet setWithObject:index]];
-    } else if (2 == count) {
-        [self.delegate gridViewItemWasDoubleClicked:self];
-    }
-}
-
-- (BOOL)dragSourceWasDroppedOnSidebar:(SidebarItem *)sidebarItem {
-    id<GridViewItemDelegate> delegate = self.delegate;
-    if (nil == delegate) {
-        return NO;
-    }
-    return [delegate gridViewItem:self
-          wasDraggedOnSidebarItem:sidebarItem];
-}
-
 #pragma mark - NSFilePromiseProviderDelegate
+
+// TODO: move this code to GridViewController which now creates the promise
 
 - (NSString*)filePromiseProvider:(NSFilePromiseProvider *)filePromiseProvider
                  fileNameForType:(NSString *)fileType {

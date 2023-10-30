@@ -7,8 +7,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "DragSourceView.h"
-
 @class Asset;
 @class SidebarItem;
 
@@ -24,7 +22,7 @@ wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
 
 @end
 
-@interface GridViewItem : NSCollectionViewItem <DragSourceViewDelegate, NSFilePromiseProviderDelegate>
+@interface GridViewItem : NSCollectionViewItem <NSFilePromiseProviderDelegate>
 
 @property (nonatomic, weak, readwrite) IBOutlet NSView *dragSourceView;
 @property (nonatomic, weak, readwrite) IBOutlet NSImageView *favouriteIndicator;
