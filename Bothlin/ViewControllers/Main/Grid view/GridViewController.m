@@ -36,6 +36,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self.collectionView setDraggingSourceOperationMask:NSDragOperationCopy
+                                               forLocal:NO];
 //    self.dragTargetView.delegate = self;
 }
 

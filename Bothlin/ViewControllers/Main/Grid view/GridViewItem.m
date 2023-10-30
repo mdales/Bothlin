@@ -117,15 +117,15 @@
     return self.workQueue;
 }
 
-- (void)filePromiseProvider:(NSFilePromiseProvider *)filePromiseProvider writePromiseToURL:(NSURL *)destinationURL completionHandler:(void (^)(NSError * _Nullable))completionHandler {
+- (void)filePromiseProvider:(NSFilePromiseProvider *)filePromiseProvider 
+          writePromiseToURL:(NSURL *)destinationURL
+          completionHandler:(void (^)(NSError * _Nullable))completionHandler {
     if (nil == filePromiseProvider.userInfo) {
         return;
     }
-    NSAssert([filePromiseProvider.userInfo isKindOfClass:[Asset class]], @"File promise info not of correct class");
-    Asset *item = (Asset *)filePromiseProvider.userInfo;
 
     __block NSError *error = nil;
-    NSURL *sourceURL = [item decodeSecureURL:&error];
+    NSURL *sourceURL = [self.asset decodeSecureURL:&error];
     if (nil != error) {
         NSAssert(nil == sourceURL, @"both both error and url");
         completionHandler(error);
