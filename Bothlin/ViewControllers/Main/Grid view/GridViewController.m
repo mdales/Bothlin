@@ -9,6 +9,7 @@
 #import "Asset+CoreDataClass.h"
 #import "Helpers.h"
 #import "AssetPromiseProvider.h"
+#import "NSArray+Functional.h"
 
 @interface GridViewController ()
 
@@ -36,9 +37,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    self.dragTargetView.delegate = self;
+
     [self.collectionView setDraggingSourceOperationMask:NSDragOperationCopy
                                                forLocal:NO];
-//    self.dragTargetView.delegate = self;
 }
 
 #pragma mark - Data management
@@ -209,43 +212,6 @@
     return provider;
 }
 
-
-#pragma mark - NSCollectionViewDelegate Drag In
-
-- (NSDragOperation)collectionView:(NSCollectionView *)collectionView 
-                     validateDrop:(id<NSDraggingInfo>)draggingInfo
-                proposedIndexPath:(NSIndexPath * _Nonnull __autoreleasing *)proposedDropIndexPath
-                    dropOperation:(NSCollectionViewDropOperation *)proposedDropOperation {
-    // if the source of the drag is this collection view, ignore it as we don't support
-    // re-arranging of items.
-    id draggingSource = [draggingInfo draggingSource];
-    if (draggingSource == self.collectionView) {
-        return NSDragOperationNone;
-    }
-
-    // TODO: probably see what other sources there area
-    return NSDragOperationCopy;
-}
-
-- (BOOL)collectionView:(NSCollectionView *)collectionView 
-            acceptDrop:(id<NSDraggingInfo>)draggingInfo
-                 index:(NSInteger)index
-         dropOperation:(NSCollectionViewDropOperation)dropOperation {
-    dispatch_assert_queue(dispatch_get_main_queue());
-    id<GridViewControllerDelegate> delegate = self.delegate;
-    if (nil == delegate) {
-        return NO;
-    }
-
-    NSPasteboard *pasteboard = draggingInfo.draggingPasteboard;
-    if (nil == pasteboard) {
-        return NO;
-    }
-    NSArray<NSURL *> *objects = [pasteboard readObjectsForClasses:@[[NSURL class]]
-                                                          options:nil];
-    return [delegate gridViewController:self
-                  didReceiveDroppedURLs:[NSSet setWithArray:objects]];
-}
 
 #pragma mark - NSCollectionViewDelegate General
 
