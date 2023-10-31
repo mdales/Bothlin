@@ -74,6 +74,8 @@
 		4CD0A0342ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD0A0322ADA918700BFFF7D /* TableCellWithButtonView.m */; };
 		4CD0A0372ADD3F8C00BFFF7D /* LibraryViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD0A0362ADD3F8C00BFFF7D /* LibraryViewModel.m */; };
 		4CD0A0382ADD3F8C00BFFF7D /* LibraryViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD0A0362ADD3F8C00BFFF7D /* LibraryViewModel.m */; };
+		4CE194D82AF0F2AA00F1C1A4 /* GridViewItemRootView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CE194D72AF0F2AA00F1C1A4 /* GridViewItemRootView.m */; };
+		4CE194D92AF0F2AA00F1C1A4 /* GridViewItemRootView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CE194D72AF0F2AA00F1C1A4 /* GridViewItemRootView.m */; };
 		4CE8776A2AD93E81004FF342 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4CE877692AD93E81004FF342 /* Credits.rtf */; };
 		4CE8776B2AD93E81004FF342 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4CE877692AD93E81004FF342 /* Credits.rtf */; };
 		4CFB4D382AD08D98006F6F7E /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CFB4D372AD08D98006F6F7E /* Quartz.framework */; };
@@ -162,6 +164,8 @@
 		4CD0A0322ADA918700BFFF7D /* TableCellWithButtonView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TableCellWithButtonView.m; sourceTree = "<group>"; };
 		4CD0A0352ADD3F8C00BFFF7D /* LibraryViewModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryViewModel.h; sourceTree = "<group>"; };
 		4CD0A0362ADD3F8C00BFFF7D /* LibraryViewModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryViewModel.m; sourceTree = "<group>"; };
+		4CE194D62AF0F2AA00F1C1A4 /* GridViewItemRootView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GridViewItemRootView.h; sourceTree = "<group>"; };
+		4CE194D72AF0F2AA00F1C1A4 /* GridViewItemRootView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GridViewItemRootView.m; sourceTree = "<group>"; };
 		4CE877692AD93E81004FF342 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		4CFB4D372AD08D98006F6F7E /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		4CFB4D392AD18119006F6F7E /* DragTargetView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetView.h; sourceTree = "<group>"; };
@@ -375,6 +379,8 @@
 				4C960F3B2AD70CF70053C631 /* GridViewItem.xib */,
 				4C960F392AD70CF70053C631 /* GridViewItem.h */,
 				4C960F3A2AD70CF70053C631 /* GridViewItem.m */,
+				4CE194D62AF0F2AA00F1C1A4 /* GridViewItemRootView.h */,
+				4CE194D72AF0F2AA00F1C1A4 /* GridViewItemRootView.m */,
 			);
 			path = "Grid view";
 			sourceTree = "<group>";
@@ -553,6 +559,7 @@
 				4C9544B52AECE613007205A9 /* NSSet+Functional.m in Sources */,
 				4C0119A02AC5AA45004A94C4 /* RootWindowController.m in Sources */,
 				4C011A032AC5B14B004A94C4 /* SingleViewController.m in Sources */,
+				4CE194D82AF0F2AA00F1C1A4 /* GridViewItemRootView.m in Sources */,
 				4CD0A0332ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */,
 				4CC9EA7F2ADFC28A00D33E5C /* KVOBox.m in Sources */,
 				4CBD40B62AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */,
@@ -594,6 +601,7 @@
 				4C1F01CB2AD7F13600E4CCD7 /* AppDelegate.m in Sources */,
 				4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
 				4CC9EA812ADFC28A00D33E5C /* KVOBox.m in Sources */,
+				4CE194D92AF0F2AA00F1C1A4 /* GridViewItemRootView.m in Sources */,
 				4C960F3D2AD70CF70053C631 /* GridViewItem.m in Sources */,
 				4CD0A0342ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */,
 				4C37FBD02AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,

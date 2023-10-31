@@ -30,13 +30,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    NSClickGestureRecognizer *doubleClickGesture = [[NSClickGestureRecognizer alloc] initWithTarget:self
-                                                                                             action:@selector(onDoubleClick:)];
-    [doubleClickGesture setNumberOfClicksRequired:2];
-    [doubleClickGesture setDelaysPrimaryMouseButtonEvents:NO];
-    [self.view addGestureRecognizer:doubleClickGesture];
-
-//    self.dragSourceView.delegate = self;
+    GridViewItemRootView *rootView = (GridViewItemRootView *)self.view;
+    rootView.delegate = self;
 }
 
 - (void)viewDidAppear {
@@ -53,8 +48,10 @@
     self.view.layer.backgroundColor = bgColor.CGColor;
 }
 
-- (void)onDoubleClick:(NSGestureRecognizer *)sender {
-    dispatch_assert_queue(dispatch_get_main_queue());
+
+#pragma mark - GridViewItemRootViewDelegate
+
+- (void)gridViewRootViewWasDoubleClicked:(__unused GridViewItemRootView *)gridViewItemRootView {
     [self.delegate gridViewItemWasDoubleClicked:self];
 }
 

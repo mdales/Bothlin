@@ -17,23 +17,30 @@
     return self;
 }
 
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
-//    NSLog(@"entered: %lx", sender.draggingSourceOperationMask);
-    return (NSDragOperationCopy | NSDragOperationMove) & sender.draggingSourceOperationMask;
+- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)draggingInfo {
+    if (NO != [[draggingInfo draggingSource] isKindOfClass:[NSCollectionView class]]) {
+        return NSDragOperationNone;
+    }
+    return (NSDragOperationCopy | NSDragOperationMove) & draggingInfo.draggingSourceOperationMask;
 }
 
-- (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender {
-//    NSLog(@"updated: %lx", sender.draggingSourceOperationMask);
-    return (NSDragOperationCopy | NSDragOperationMove) & sender.draggingSourceOperationMask;
+- (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)draggingInfo {
+    if (NO != [[draggingInfo draggingSource] isKindOfClass:[NSCollectionView class]]) {
+        return NSDragOperationNone;
+    }
+    return (NSDragOperationCopy | NSDragOperationMove) & draggingInfo.draggingSourceOperationMask;
 }
 
-- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)draggingInfo {
+    if (NO != [[draggingInfo draggingSource] isKindOfClass:[NSCollectionView class]]) {
+        return NSDragOperationNone;
+    }
     id<DragTargetViewDelegate> delegate = self.delegate;
     if (nil == delegate) {
         return NO;
     }
     return [delegate dragTargetView:self
-                         handleDrag:sender];
+                         handleDrag:draggingInfo];
 }
 
 //- (void)drawRect:(NSRect)dirtyRect {

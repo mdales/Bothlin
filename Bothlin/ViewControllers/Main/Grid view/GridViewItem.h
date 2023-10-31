@@ -6,6 +6,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "GridViewItemRootView.h"
 
 @class Asset;
 @class SidebarItem;
@@ -17,14 +18,11 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol GridViewItemDelegate <NSObject>
 
 - (void)gridViewItemWasDoubleClicked:(GridViewItem *)gridViewItem;
-- (BOOL)gridViewItem:(GridViewItem *)gridViewItem
-wasDraggedOnSidebarItem:(SidebarItem *)sidebarItem;
 
 @end
 
-@interface GridViewItem : NSCollectionViewItem <NSFilePromiseProviderDelegate>
+@interface GridViewItem : NSCollectionViewItem <NSFilePromiseProviderDelegate, GridViewItemRootViewDelegate>
 
-@property (nonatomic, weak, readwrite) IBOutlet NSView *dragSourceView;
 @property (nonatomic, weak, readwrite) IBOutlet NSImageView *favouriteIndicator;
 
 @property (nonatomic, weak, readwrite) id<GridViewItemDelegate> delegate;
