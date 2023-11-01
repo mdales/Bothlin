@@ -13,6 +13,12 @@
 #import "Helpers.h"
 #import "SidebarItem.h"
 
+typedef NS_ENUM(NSUInteger, LibraryViewModelReloaadCause) {
+    LibraryViewModelReloaadCauseUnknwn = 0,
+    LibraryViewModelReloaadCauseUpdate,
+    LibraryViewModelReloaadCauseViewChange,
+};
+
 NSArray<NSString *> * const testTags = @[
     @"Minecraft",
     @"QGIS",
@@ -133,7 +139,8 @@ NSArray<NSString *> * const testTags = @[
         self->_selectedSidebarItem = selectedSidebarItem;
 
         NSError *error = nil;
-        BOOL success = [self reloadAssets:&error];
+        BOOL success = [self reloadAssetsWithCause:LibraryViewModelReloaadCauseViewChange
+                                             error:&error];
         if (nil != error) {
             NSAssert(NO == success, @"Got error but also success");
             [self.delegate libraryViewModel:self
@@ -185,7 +192,8 @@ NSArray<NSString *> * const testTags = @[
         // before we end up down a perfect diffing rabbit hole.
         dispatch_sync(self.syncQ, ^{
             NSError *error = nil;
-            BOOL success = [self reloadAssets:&error];
+            BOOL success = [self reloadAssetsWithCause:LibraryViewModelReloaadCauseUpdate
+                                                 error:&error];
             if (nil != error) {
                 [self.delegate libraryViewModel:self
                                hadErrorOnUpdate:error];
@@ -235,7 +243,10 @@ NSArray<NSString *> * const testTags = @[
     return YES;
 }
 
-- (BOOL)reloadAssets:(NSError **)error {
+- (BOOL)reloadAssetsWithCause:(__unused LibraryViewModelReloaadCause)reloadCause
+                        error:(NSError **)error {
+    // TODO: plumb in reloadCause to let us make a more sensible selection
+    // when an item is deleted from the current view vs we changed views entirely
     dispatch_assert_queue(self.syncQ);
     dispatch_assert_queue(dispatch_get_main_queue());
 
