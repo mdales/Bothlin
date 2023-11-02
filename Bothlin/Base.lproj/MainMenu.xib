@@ -12,7 +12,12 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <customObject id="Voe-Tx-rLC" customClass="AppDelegate"/>
+        <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
+            <connections>
+                <outlet property="deleteAssetMenuItem" destination="1P2-CE-OYN" id="CsF-Ue-eu4"/>
+                <outlet property="emptyTrashMenuItem" destination="T2w-U5-gdQ" id="d3E-7l-ija"/>
+            </connections>
+        </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
@@ -85,6 +90,12 @@ CA
 </string>
                                 <connections>
                                     <action selector="deleteSelectedItems:" target="-1" id="xUd-yd-tXd"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Empty Trash..." id="T2w-U5-gdQ">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="emptyTrash:" target="Voe-Tx-rLC" id="yTH-wS-tlE"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="269-Cx-ejh"/>

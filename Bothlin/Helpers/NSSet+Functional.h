@@ -12,7 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NSSet<__covariant ObjectType> (Functional)
 
 - (NSSet *)mapUsingBlock:(id (^)(ObjectType object))block;
-
 - (NSSet *)compactMapUsingBlock:(id _Nullable (^)(ObjectType object))block;
 
 @end

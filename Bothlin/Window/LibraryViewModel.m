@@ -29,6 +29,7 @@ NSArray<NSString *> * const testTags = @[
 
 @property (nonatomic, strong, readonly, nonnull) dispatch_queue_t syncQ;
 @property (nonatomic, strong, readonly, nonnull) NSManagedObjectContext *viewContext;
+@property (nonatomic, strong, readonly, nonnull) NSString *trashDisplayName;
 
 @property (nonatomic, strong, readwrite) NSArray<Asset *> *assets;
 @property (nonatomic, strong, readwrite) NSArray<Group *> *groups;
@@ -44,14 +45,19 @@ NSArray<NSString *> * const testTags = @[
 @synthesize groups = _groups;
 @synthesize selectedSidebarItem = _selectedSidebarItem;
 
-- (instancetype)initWithViewContext:(NSManagedObjectContext *)viewContext {
+- (instancetype)initWithViewContext:(NSManagedObjectContext *)viewContext
+                   trashDisplayName:(NSString *)trashDisplayName {
+    NSParameterAssert(nil != viewContext);
+    NSParameterAssert(nil != trashDisplayName);
     self = [super init];
     if (nil != self) {
         self->_syncQ = dispatch_queue_create("com.digitalflapjack.LibraryViewModel.syncQ", DISPATCH_QUEUE_SERIAL);
         self->_viewContext = viewContext;
         self->_assets = @[];
         self->_selectedAssetIndexPaths = [NSSet set];
-        self->_sidebarItems = [LibraryViewModel buildMenuWithGroups:@[]];
+        self->_sidebarItems = [LibraryViewModel buildMenuWithGroups:@[]
+                                                   trashDisplayName:trashDisplayName];
+        self->_trashDisplayName = [NSString stringWithString:trashDisplayName];
     }
     return self;
 }
@@ -170,7 +176,12 @@ NSArray<NSString *> * const testTags = @[
     if (nil == updated) {
         updated = @[];
     }
-    NSArray<NSManagedObjectID *> *all = [inserted arrayByAddingObjectsFromArray:updated];
+    NSArray<NSManagedObjectID *> *deleted = changeNotificationData[NSDeletedObjectsKey];
+    if (nil == deleted) {
+        deleted = @[];
+    }
+
+    NSArray<NSManagedObjectID *> *all = [[inserted arrayByAddingObjectsFromArray:updated] arrayByAddingObjectsFromArray:deleted];
 
     NSArray<NSString *> *allClasses = [all mapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull object) {
         return [[object entity] name];
@@ -237,7 +248,8 @@ NSArray<NSString *> * const testTags = @[
 
     dispatch_sync(self.syncQ, ^{
         self.groups = result;
-        self.sidebarItems = [LibraryViewModel buildMenuWithGroups:result];
+        self.sidebarItems = [LibraryViewModel buildMenuWithGroups:result
+                                                 trashDisplayName:self.trashDisplayName];
     });
 
     return YES;
@@ -312,7 +324,8 @@ NSArray<NSString *> * const testTags = @[
     return YES;
 }
 
-+ (SidebarItem * _Nonnull)buildMenuWithGroups:(NSArray<Group *> * _Nonnull)groups {
++ (SidebarItem * _Nonnull)buildMenuWithGroups:(NSArray<Group *> * _Nonnull)groups
+                             trashDisplayName:(NSString *)trashDisplayName {
     NSFetchRequest *everythingRequest = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
     [everythingRequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt == nil"]];
     SidebarItem *everything = [[SidebarItem alloc] initWithTitle:@"Everything"
@@ -364,9 +377,11 @@ NSArray<NSString *> * const testTags = @[
                                               fetchRequest:nil
                                              relatedObject:nil];
 
+
+
     NSFetchRequest *trashReequest = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
     [trashReequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt != nil"]];
-    SidebarItem *trash = [[SidebarItem alloc] initWithTitle:@"Trash"
+    SidebarItem *trash = [[SidebarItem alloc] initWithTitle:trashDisplayName
                                                  symbolName:@"trash"
                                            dragResponseType:SidebarItemDragResponseTrash
                                                    children:nil

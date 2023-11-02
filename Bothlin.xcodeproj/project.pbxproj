@@ -143,6 +143,7 @@
 		4C960F452AD7D8430053C631 /* NSArray+Functional.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Functional.m"; sourceTree = "<group>"; };
 		4C9D91F12AC2C9B400E42251 /* Bothlin.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Bothlin.entitlements; sourceTree = "<group>"; };
 		4CA644762AE5AF0B005A00D3 /* QuickLookThumbnailing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookThumbnailing.framework; path = System/Library/PrivateFrameworks/QuickLookThumbnailing.framework; sourceTree = SDKROOT; };
+		4CAD24582AF3900700571CA4 /* en-GB */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en-GB"; path = "en-GB.lproj/MainMenu.strings"; sourceTree = "<group>"; };
 		4CB8861C2ABA2CA900968B0F /* LibraryWriteCoordinator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryWriteCoordinator.h; sourceTree = "<group>"; };
 		4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryWriteCoordinator.m; sourceTree = "<group>"; };
 		4CB886672ABB67E100968B0F /* LibraryModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LibraryModel.xcdatamodel; sourceTree = "<group>"; };
@@ -489,6 +490,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"en-GB",
 			);
 			mainGroup = 4CBF17432AB5F176001F7984;
 			productRefGroup = 4CBF174D2AB5F176001F7984 /* Products */;
@@ -644,6 +646,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				4CBF17552AB5F177001F7984 /* Base */,
+				4CAD24582AF3900700571CA4 /* en-GB */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -655,6 +658,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -715,6 +719,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";

@@ -50,7 +50,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 @implementation RootWindowController
 
 - (instancetype)initWithWindowNibName:(NSNibName)windowNibName
-                          viewContext:(NSManagedObjectContext *)viewContext {
+                          viewContext:(NSManagedObjectContext *)viewContext
+                     trashDisplayName:(NSString *)trashDisplayName {
     self = [super initWithWindowNibName:windowNibName];
     if (nil != self) {
         self->_sidebar = [[SidebarController alloc] initWithNibName:@"SidebarController" bundle:nil];
@@ -58,7 +59,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         self->_details = [[DetailsController alloc] initWithNibName:@"DetailsController" bundle:nil];
         self->_splitViewController = [[NSSplitViewController alloc] init];
         self->_progressView = [[ToolbarProgressView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 250.0, 28.0)];
-        self->_viewModel = [[LibraryViewModel alloc] initWithViewContext:viewContext];
+        self->_viewModel = [[LibraryViewModel alloc] initWithViewContext:viewContext
+                                                        trashDisplayName:trashDisplayName];
 
         self->_sidebarObserver = [KVOBox observeObject:self->_viewModel
                                                keyPath:NSStringFromSelector(@selector(sidebarItems))];

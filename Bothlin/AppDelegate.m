@@ -16,6 +16,8 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
 
 @interface AppDelegate ()
 
+@property (nonatomic, strong, readwrite) NSString *trashDisplayName;
+
 @property (nonatomic, strong, readwrite) RootWindowController *mainWindowController;
 @property (nonatomic, strong, readwrite) SettingsWindowController *settingsWindowController;
 
@@ -88,8 +90,27 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
     NSPersistentStoreCoordinator *store = self.persistentContainer.persistentStoreCoordinator;
     self->_libraryController = [[LibraryWriteCoordinator alloc] initWithPersistentStore:store];
 
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSError *error = nil;
+    NSURL *trashURL = [fm URLForDirectory:NSTrashDirectory
+                                 inDomain:NSAllDomainsMask
+                        appropriateForURL:nil
+                                   create:NO
+                                    error:&error];
+    self.trashDisplayName = @"Trash";
+    if (nil != error) {
+        NSAssert(nil == trashURL, @"Got error and return value");
+        // Renaming the menu item isn't essential, so just log the failure and move on
+        NSLog(@"Failed to get trash URL: %@", error);
+    } else {
+        NSAssert(nil != trashURL, @"Got no error and no value");
+        self.trashDisplayName = [fm displayNameAtPath:[trashURL path]];
+        [self.emptyTrashMenuItem setTitle:[NSString stringWithFormat:@"Empty %@...", self.trashDisplayName]];
+    }
+
     self.mainWindowController = [[RootWindowController alloc] initWithWindowNibName:@"RootWindowController"
-                                                                        viewContext:self.persistentContainer.viewContext];
+                                                                        viewContext:self.persistentContainer.viewContext
+                                                                   trashDisplayName:self.trashDisplayName];
     [self.mainWindowController showWindow:nil];
 }
 
@@ -120,6 +141,32 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
 
 - (IBAction)createGroup:(id _Nullable)sender {
     [self.mainWindowController showGroupCreatePanel:sender];
+}
+
+- (IBAction)emptyTrash:(id)sender {
+    NSAlert *alert = [[NSAlert alloc] init];
+    // TODO: Get an indication of how many items we'll remove
+    alert.messageText = [NSString stringWithFormat:@"Emptying %@", self.trashDisplayName];
+    alert.informativeText = @"Permenently removing assets from $APP, this can not be undone.";
+    [alert addButtonWithTitle:@"Cancel"];
+    [alert addButtonWithTitle:@"OK"];
+    [alert beginSheetModalForWindow:self.mainWindowController.window
+                  completionHandler:^(NSModalResponse returnCode) {
+        if (NSAlertFirstButtonReturn == returnCode) {
+            return;
+        }
+        NSAssert(NSAlertSecondButtonReturn == returnCode, @"Expected button %ld, got %ld", NSAlertSecondButtonReturn, returnCode);
+        [self.libraryController moveDeletedAssetsToTrash:^(BOOL success, NSError * _Nullable error) {
+            if (nil != error) {
+                NSAssert(NO == success, @"Got error but succcess");
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSAlert *alert = [NSAlert alertWithError:error];
+                    [alert runModal];
+                });
+            }
+            NSAssert(NO != success, @"Got no error but not success");
+        }];
+    }];
 }
 
 

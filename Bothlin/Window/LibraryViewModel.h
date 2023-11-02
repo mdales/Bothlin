@@ -36,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SidebarItem *sidebarItems;
 @property (nonatomic, strong, readwrite) SidebarItem *selectedSidebarItem;
 
-- (instancetype)initWithViewContext:(NSManagedObjectContext *)viewContext;
+- (instancetype)initWithViewContext:(NSManagedObjectContext *)viewContext
+                   trashDisplayName:(NSString *)trashDisplayName;
 
 - (BOOL)reloadGroups:(NSError **)error;
 

@@ -14,7 +14,7 @@
 
 @implementation NSArray_FunctionalTests
 
-- (void)testEmpty {
+- (void)testMapEmpty {
     NSArray<NSString *> *data = @[];
     NSArray<NSNumber *> *result = [data mapUsingBlock:^id _Nonnull(NSString * _Nonnull object) {
         return @([object length]);
@@ -22,12 +22,41 @@
     XCTAssertTrue([result isEqualToArray:@[]], @"Expected empty array as result");
 }
 
-- (void)testSimple {
+- (void)testMapSimple {
     NSArray<NSString *> *data = @[@"one", @"two", @"three"];
     NSArray<NSNumber *> *result = [data mapUsingBlock:^id _Nonnull(NSString * _Nonnull object) {
         return @([object length]);
     }];
     NSArray<NSNumber *> *expected = @[@(3), @(3), @(5)];
+    XCTAssertTrue([result isEqualToArray:expected], @"Expected results incorrect");
+}
+
+- (void)testCompactMapEmpty {
+    NSArray<NSString *> *data = @[];
+    NSArray<NSNumber *> *result = [data compactMapUsingBlock:^id _Nonnull(NSString * _Nonnull object) {
+        return @([object length]);
+    }];
+    XCTAssertTrue([result isEqualToArray:@[]], @"Expected empty array as result");
+}
+
+- (void)testCompactMapSimple {
+    NSArray<NSString *> *data = @[@"one", @"two", @"three"];
+    NSArray<NSNumber *> *result = [data compactMapUsingBlock:^id _Nonnull(NSString * _Nonnull object) {
+        return @([object length]);
+    }];
+    NSArray<NSNumber *> *expected = @[@(3), @(3), @(5)];
+    XCTAssertTrue([result isEqualToArray:expected], @"Expected results incorrect");
+}
+
+- (void)testCompactMapSomeMissing {
+    NSArray<NSString *> *data = @[@"one", @"two", @"three"];
+    NSArray<NSNumber *> *result = [data compactMapUsingBlock:^id _Nonnull(NSString * _Nonnull object) {
+        if ([object length] > 4) {
+            return @([object length]);
+        }
+        return nil;
+    }];
+    NSArray<NSNumber *> *expected = @[@(5)];
     XCTAssertTrue([result isEqualToArray:expected], @"Expected results incorrect");
 }
 

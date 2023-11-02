@@ -14,6 +14,7 @@
 #import "AssetExtension.h"
 #import "Helpers.h"
 #import "NSURL+SecureAccess.h"
+#import "NSArray+Functional.h"
 #import "NSSet+Functional.h"
 
 NSErrorDomain __nonnull const LibraryWriteCoordinatorErrorDomain = @"com.digitalflapjack.LibraryController";
@@ -630,6 +631,84 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 }
                 [self.delegate libraryWriteCoordinator:self
                                              didUpdate:@{NSUpdatedObjectsKey:[assetIDs allObjects]}];
+            });
+        }
+
+        if (nil != callback) {
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                callback(success, error);
+            });
+        }
+    });
+}
+
+
+- (void)moveDeletedAssetsToTrash:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback {
+    dispatch_sync(self.dataQ, ^() {
+        __block NSError *error = nil;
+        __block BOOL success = NO;
+        __block NSArray<NSManagedObjectID *> *deletedItems = nil;
+        [self.managedObjectContext performBlockAndWait:^{
+            NSFetchRequest *trashReequest = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
+            [trashReequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt != nil"]];
+            NSArray<Asset *> *result = [self.managedObjectContext executeFetchRequest:trashReequest
+                                                                                error:&error];
+            if (nil != error) {
+                NSAssert(nil == result, @"Got error and result!");
+                return;
+            }
+            NSAssert(nil != result, @"Got no error and no result");
+
+            NSArray<NSURL *> *thumbnailPaths = [result compactMapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
+                if (nil == asset.thumbnailPath) {
+                    return nil;
+                }
+                return [NSURL fileURLWithPath:asset.thumbnailPath];
+            }];
+            NSArray<NSURL *> *assetPaths = [result mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
+                NSAssert(nil != asset.path, @"All assets should have a path!");
+                return [NSURL fileURLWithPath:asset.path];
+            }];
+
+            NSFileManager *fm = [NSFileManager defaultManager];
+            for (Asset *asset in result) {
+                [self.managedObjectContext deleteObject:asset];
+            }
+            success = [self.managedObjectContext save:&error];
+            deletedItems = [result mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
+                return asset.objectID;
+            }];
+            if (success) {
+                for (NSURL *thumbnailPath in thumbnailPaths) {
+                    NSError *innerError = nil;
+                    [fm removeItemAtURL:thumbnailPath
+                                  error:&innerError];
+                    if (nil != innerError) {
+                        // Just warn on this failure, accept leaking thumbnails as better than distressing user
+                        NSLog(@"Failed to remove thumbnail %@: %@", thumbnailPath, innerError);
+                    }
+                }
+                for (NSURL *path in assetPaths) {
+                    NSError *innerError = nil;
+                    [fm trashItemAtURL:path
+                      resultingItemURL:nil
+                                 error:&innerError];
+                    if (nil != innerError) {
+                        // Just warn on this failure, accept leaking thumbnails as better than distressing user
+                        NSLog(@"Failed to remove asset %@: %@", path, innerError);
+                    }
+                }
+            }
+        }];
+        if ((nil == error) && success) {
+            @weakify(self);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+                [self.delegate libraryWriteCoordinator:self
+                                             didUpdate:@{NSDeletedObjectsKey:deletedItems}];
             });
         }
 

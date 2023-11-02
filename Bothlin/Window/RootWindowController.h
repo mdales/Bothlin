@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithWindowNibName:(NSNibName)windowNibName __attribute__((unavailable("Use more specific constructor")));
 - (instancetype)initWithWindowNibName:(NSNibName)windowNibName
-                          viewContext:(NSManagedObjectContext *)viewContext;
+                          viewContext:(NSManagedObjectContext *)viewContext
+                     trashDisplayName:(NSString *)trashDisplayName;
 
 // Menu and toolbar actions
 - (IBAction)import:(id)sender;

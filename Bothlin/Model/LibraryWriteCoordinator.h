@@ -51,6 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)toggleSoftDeleteAssets:(NSSet<NSManagedObjectID *> *)assetIDs
                       callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
 
+- (void)moveDeletedAssetsToTrash:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
+
 @end
 
 NS_ASSUME_NONNULL_END
