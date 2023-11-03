@@ -763,7 +763,11 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSToolbarItemIdentifier)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag {
     
     if ([itemIdentifier compare:kSearchToolbarItemIdentifier] == NSOrderedSame) {
-        return [[NSSearchToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+        NSSearchToolbarItem *item = [[NSSearchToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+        item.searchField.delegate = self;
+        item.searchField.target = self;
+        item.searchField.action = @selector(searchFieldUpdated:);
+        return item;
     } else if ([itemIdentifier compare:kImportToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
         item.title = @"Import";
@@ -865,6 +869,21 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     } else {
         return [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
     }
+}
+
+
+#pragma mark - NSSearchFieldDelegate
+
+- (void)searchFieldDidStartSearching:(NSSearchField *)sender {
+    NSLog(@"started %@", [sender stringValue]);
+}
+
+- (void)searchFieldDidEndSearching:(NSSearchField *)sender {
+    NSLog(@"ending");
+}
+
+- (void)searchFieldUpdated:(NSSearchField *)sender {
+    NSLog(@"updated %@", [sender stringValue]);
 }
 
 @end
