@@ -13,10 +13,11 @@
 #import "Helpers.h"
 #import "SidebarItem.h"
 
-typedef NS_ENUM(NSUInteger, LibraryViewModelReloaadCause) {
-    LibraryViewModelReloaadCauseUnknwn = 0,
-    LibraryViewModelReloaadCauseUpdate,
-    LibraryViewModelReloaadCauseViewChange,
+typedef NS_ENUM(NSUInteger, LibraryViewModelReloadCause) {
+    LibraryViewModelReloadCauseUnknwn = 0,
+    LibraryViewModelReloadCauseUpdate,
+    LibraryViewModelReloadCauseViewChange,
+    LibraryViewModelReloadCauseSearch,
 };
 
 NSArray<NSString *> * const testTags = @[
@@ -58,6 +59,7 @@ NSArray<NSString *> * const testTags = @[
         self->_sidebarItems = [LibraryViewModel buildMenuWithGroups:@[]
                                                    trashDisplayName:trashDisplayName];
         self->_trashDisplayName = [NSString stringWithString:trashDisplayName];
+        self->_searchText = @"";
     }
     return self;
 }
@@ -145,10 +147,29 @@ NSArray<NSString *> * const testTags = @[
         self->_selectedSidebarItem = selectedSidebarItem;
 
         NSError *error = nil;
-        BOOL success = [self reloadAssetsWithCause:LibraryViewModelReloaadCauseViewChange
+        BOOL success = [self reloadAssetsWithCause:LibraryViewModelReloadCauseViewChange
                                              error:&error];
         if (nil != error) {
             NSAssert(NO == success, @"Got error but also success");
+            [self.delegate libraryViewModel:self
+                           hadErrorOnUpdate:error];
+        }
+        NSAssert(NO != success, @"Got no error and no success");
+    });
+}
+
+- (void)setSearchText:(NSString *)searchText {
+    NSParameterAssert(nil != searchText);
+    dispatch_assert_queue_not(self.syncQ);
+    dispatch_sync(self.syncQ, ^{
+        if ([self->_searchText compare:searchText] == NSOrderedSame) {
+            return;
+        }
+        self->_searchText = searchText;
+        NSError *error = nil;
+        BOOL success = [self reloadAssetsWithCause:LibraryViewModelReloadCauseSearch
+                                             error:&error];
+        if (nil != error) {
             [self.delegate libraryViewModel:self
                            hadErrorOnUpdate:error];
         }
@@ -203,7 +224,7 @@ NSArray<NSString *> * const testTags = @[
         // before we end up down a perfect diffing rabbit hole.
         dispatch_sync(self.syncQ, ^{
             NSError *error = nil;
-            BOOL success = [self reloadAssetsWithCause:LibraryViewModelReloaadCauseUpdate
+            BOOL success = [self reloadAssetsWithCause:LibraryViewModelReloadCauseUpdate
                                                  error:&error];
             if (nil != error) {
                 [self.delegate libraryViewModel:self
@@ -255,7 +276,7 @@ NSArray<NSString *> * const testTags = @[
     return YES;
 }
 
-- (BOOL)reloadAssetsWithCause:(__unused LibraryViewModelReloaadCause)reloadCause
+- (BOOL)reloadAssetsWithCause:(__unused LibraryViewModelReloadCause)reloadCause
                         error:(NSError **)error {
     // TODO: plumb in reloadCause to let us make a more sensible selection
     // when an item is deleted from the current view vs we changed views entirely
@@ -274,6 +295,13 @@ NSArray<NSString *> * const testTags = @[
     NSFetchRequest *request = [self->_selectedSidebarItem.fetchRequest copy];
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"created"
                                                            ascending:YES];
+    if ([self->_searchText length] > 0) {
+        NSPredicate *predicte = [request predicate];
+        NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"name CONTAINS[cd] %@", self->_searchText];
+        NSCompoundPredicate *combinedPredicate = [[NSCompoundPredicate alloc] initWithType:NSAndPredicateType
+                                                                             subpredicates:@[predicte, searchPredicate]];
+        [request setPredicate:combinedPredicate];
+    }
     [request setSortDescriptors:@[sort]];
 
     NSError *innerError = nil;

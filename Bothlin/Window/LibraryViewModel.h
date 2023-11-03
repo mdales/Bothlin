@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SidebarItem *sidebarItems;
 @property (nonatomic, strong, readwrite) SidebarItem *selectedSidebarItem;
 
+@property (nonatomic, strong, readwrite) NSString *searchText;
+
 - (instancetype)initWithViewContext:(NSManagedObjectContext *)viewContext
                    trashDisplayName:(NSString *)trashDisplayName;
 

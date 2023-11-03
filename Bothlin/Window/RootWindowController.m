@@ -883,7 +883,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 }
 
 - (void)searchFieldUpdated:(NSSearchField *)sender {
-    NSLog(@"updated %@", [sender stringValue]);
+    [self.viewModel setSearchText: [sender stringValue]];
 }
 
 @end
