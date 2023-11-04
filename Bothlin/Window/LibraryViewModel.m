@@ -54,6 +54,7 @@ NSArray<NSString *> * const testTags = @[
         self->_syncQ = dispatch_queue_create("com.digitalflapjack.LibraryViewModel.syncQ", DISPATCH_QUEUE_SERIAL);
         self->_viewContext = viewContext;
         self->_assets = @[];
+        self->_groups = @[];
         self->_selectedAssetIndexPaths = [NSSet set];
         self->_sidebarItems = [LibraryViewModel buildMenuWithGroups:@[]
                                                    trashDisplayName:trashDisplayName];
