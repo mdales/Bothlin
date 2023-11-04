@@ -28,7 +28,7 @@
 
         NSRect labelFrame = NSMakeRect(0.0, 0.0, frameRect.size.width, (frameRect.size.height * 2.0) / 3.0);
         NSTextField *label = [[NSTextField alloc] initWithFrame:labelFrame];
-        label.stringValue = @"Importing n of n";
+        label.stringValue = NSLocalizedString(@"Importing n of n", nil);
         label.editable = NO;
         label.alignment = NSTextAlignmentCenter;
         label.bordered = NO;

@@ -271,7 +271,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
                                            newState:!state
                                       userInitiated:NO];
                 }];
-                [undoManager setActionName:newState ? @"Set Favourite" : @"Remove Favourite"];
+                [undoManager setActionName:newState ? NSLocalizedString(@"Set Favourite", nil) : NSLocalizedString(@"Remove Favourite", nil)];
             });
         }
     }];
@@ -569,7 +569,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             return group.name;
         }];
         for (NSUInteger counter = 0; counter < NSUIntegerMax; counter++) {
-            NSString *nameSuggestion = counter > 0 ? [NSString stringWithFormat:@"Untitled %lu", counter] : @"Untitled";
+            NSString *nameSuggestion = counter > 0 ? [NSString stringWithFormat:NSLocalizedString(@"Untitled %lu", nil), counter] : NSLocalizedString(@"Untitled", nil);
             if (NSNotFound == [names indexOfObject:nameSuggestion]) {
                 [self.groupCreateNameField setStringValue:nameSuggestion];
                 break;
@@ -770,9 +770,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         return item;
     } else if ([itemIdentifier compare:kImportToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        item.title = @"Import";
-        item.paletteLabel = @"Import";
-        item.toolTip = @"Import files";
+        item.title = NSLocalizedString(@"Import", nil);
+        item.paletteLabel = NSLocalizedString(@"Import", nil);
+        item.toolTip = NSLocalizedString(@"Import files", nil);
         item.image = [NSImage imageWithSystemSymbolName:@"plus" accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(import:);
@@ -780,9 +780,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         return item;
     } else if ([itemIdentifier compare:kProgressToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        item.title = @"Progress";
-        item.paletteLabel = @"Progress";
-        item.toolTip = @"Import progress";
+        item.title = NSLocalizedString(@"Progress", nil);
+        item.paletteLabel = NSLocalizedString(@"Progress", nil);
+        item.toolTip = NSLocalizedString(@"Import progress", nil);
         item.target = self;
         item.action = @selector(import:);
         item.view = self.progressView;
@@ -790,9 +790,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         return item;
     } else if ([itemIdentifier compare:kToggleDetailViewToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        item.title = @"Toggle Detail Panel";
-        item.paletteLabel = @"Toggle Detail Panel";
-        item.toolTip = @"Toggle Detail Panel";
+        item.title = NSLocalizedString(@"Toggle Detail Panel", nil);
+        item.paletteLabel = NSLocalizedString(@"Toggle Detail Panel", nil);
+        item.toolTip = NSLocalizedString(@"Toggle Detail Panel", nil);
         item.image = [NSImage imageWithSystemSymbolName:@"sidebar.right" accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(toggleDetails:);
@@ -800,9 +800,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         return item;
     } else if ([itemIdentifier compare:kToggleSidebarToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        item.title = @"Toggle Group Panel";
-        item.paletteLabel = @"Toggle Group Panel";
-        item.toolTip = @"Toggle Group Panel";
+        item.title = NSLocalizedString(@"Toggle Group Panel", nil);
+        item.paletteLabel = NSLocalizedString(@"Toggle Group Panel", nil);
+        item.toolTip = NSLocalizedString(@"Toggle Group Panel", nil);
         item.image = [NSImage imageWithSystemSymbolName:@"sidebar.left" accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(toggleSidebar:);
@@ -810,9 +810,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         return item;
     } else if ([itemIdentifier compare:kShareToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        item.title = @"Share";
-        item.paletteLabel = @"Share";
-        item.toolTip = @"Share";
+        item.title = NSLocalizedString(@"Share", nil);
+        item.paletteLabel = NSLocalizedString(@"Share", nil);
+        item.toolTip = NSLocalizedString(@"Share", nil);
         item.image = [NSImage imageWithSystemSymbolName:@"square.and.arrow.up" accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(shareItem:);
@@ -821,10 +821,11 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         
         return item;
     } else if ([itemIdentifier compare:kDeleteToolbarItemIdentifier] == NSOrderedSame) {
+        NSString *localizedName = [NSString stringWithFormat:NSLocalizedString(@"Move to %@", nil), self.viewModel.trashDisplayName];
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        item.title = @"Move To Trash";
-        item.paletteLabel = @"Move To Trash";
-        item.toolTip = @"Move To Trash";
+        item.title = localizedName;
+        item.paletteLabel = localizedName;
+        item.toolTip = localizedName;
         item.image = [NSImage imageWithSystemSymbolName:@"trash" accessibilityDescription:nil];
         item.target = self;
         item.action = @selector(trashItem:);
@@ -834,9 +835,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         return item;
     } else if ([itemIdentifier compare:kFavouriteToolbarItemIdentifier] == NSOrderedSame) {
         NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        item.title = @"Favourite";
-        item.paletteLabel = @"Favourite";
-        item.toolTip = @"Favourite";
+        item.title = NSLocalizedString(@"Favourite", nil);
+        item.paletteLabel = NSLocalizedString(@"Favourite", nil);
+        item.toolTip = NSLocalizedString(@"Favourite", nil);
         NSString *symbol = ([[self.viewModel selectedAssetIndexPaths] count] == 1) && ([self.viewModel.selectedAssets anyObject].favourite) ? @"heart.fill" : @"heart";
         item.image = [NSImage imageWithSystemSymbolName:symbol accessibilityDescription:nil];
         item.target = self;
@@ -848,8 +849,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     } else if ([itemIdentifier compare:kItemDisplayStyleItemIdentifier] == NSOrderedSame) {
         
         NSArray<NSString *> *titles = @[
-            @"Grid",
-            @"Single"
+            NSLocalizedString(@"Grid", nil),
+            NSLocalizedString(@"Single", nil)
         ];
         
         NSArray<NSImage *> *images = @[

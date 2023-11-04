@@ -147,9 +147,9 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
     NSAlert *alert = [[NSAlert alloc] init];
     // TODO: Get an indication of how many items we'll remove
     alert.messageText = [NSString stringWithFormat:@"Emptying %@", self.trashDisplayName];
-    alert.informativeText = @"Permenently removing assets from $APP, this can not be undone.";
-    [alert addButtonWithTitle:@"Cancel"];
-    [alert addButtonWithTitle:@"OK"];
+    alert.informativeText = NSLocalizedString(@"Permenently removing assets from $APP, this can not be undone.", nil);
+    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
     [alert beginSheetModalForWindow:self.mainWindowController.window
                   completionHandler:^(NSModalResponse returnCode) {
         if (NSAlertFirstButtonReturn == returnCode) {

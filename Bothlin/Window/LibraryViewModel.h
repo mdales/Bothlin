@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak, readwrite) id<LibraryViewModelDelegate> delegate;
 
+@property (nonatomic, strong, readonly, nonnull) NSString *trashDisplayName;
+
 // TODO: Ideally these would a tuple to make KVO like updates easier
 @property (nonatomic, strong, readonly) NSArray<Asset *> *assets;
 @property (nonatomic, strong, readwrite) NSSet<NSIndexPath *> *selectedAssetIndexPaths;

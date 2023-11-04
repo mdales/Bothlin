@@ -30,7 +30,6 @@ NSArray<NSString *> * const testTags = @[
 
 @property (nonatomic, strong, readonly, nonnull) dispatch_queue_t syncQ;
 @property (nonatomic, strong, readonly, nonnull) NSManagedObjectContext *viewContext;
-@property (nonatomic, strong, readonly, nonnull) NSString *trashDisplayName;
 
 @property (nonatomic, strong, readwrite) NSArray<Asset *> *assets;
 @property (nonatomic, strong, readwrite) NSArray<Group *> *groups;
