@@ -58,6 +58,7 @@ NSArray<NSString *> * const testTags = @[
         self->_selectedAssetIndexPaths = [NSSet set];
         self->_sidebarItems = [LibraryViewModel buildMenuWithGroups:@[]
                                                    trashDisplayName:trashDisplayName];
+        self->_selectedSidebarItem = [[self->_sidebarItems children] firstObject];
         self->_trashDisplayName = [NSString stringWithString:trashDisplayName];
         self->_searchText = @"";
     }
@@ -135,6 +136,8 @@ NSArray<NSString *> * const testTags = @[
 }
 
 - (void)setSelectedSidebarItem:(SidebarItem *)selectedSidebarItem {
+    NSParameterAssert(nil != selectedSidebarItem);
+
     // We only allow selection of certain sidebar items, so
     // sanity check this first
     NSAssert(nil != selectedSidebarItem.fetchRequest, @"Allowed selection of a sidebar item with no fetch request.");
@@ -227,10 +230,12 @@ NSArray<NSString *> * const testTags = @[
             BOOL success = [self reloadAssetsWithCause:LibraryViewModelReloadCauseUpdate
                                                  error:&error];
             if (nil != error) {
+                NSAssert(NO == success, @"Got error and success on reloading assets");
                 [self.delegate libraryViewModel:self
                                hadErrorOnUpdate:error];
+            } else {
+                NSAssert(NO != success, @"Got no error and no success reloading assets");
             }
-            NSAssert(NO != success, @"Got no error and no success");
         });
     }
 }

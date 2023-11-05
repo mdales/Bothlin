@@ -9,7 +9,6 @@
 
 @implementation SidebarItem
 
-
 - (instancetype)initWithTitle:(NSString *)title
                    symbolName:(NSString * _Nullable)symbolName
              dragResponseType:(SidebarItemDragResponse)dragResponseType

@@ -8,7 +8,6 @@
 #import <QuickLookThumbnailing/QuickLookThumbnailing.h>
 
 #import "LibraryWriteCoordinator.h"
-#import "AppDelegate.h"
 #import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
 #import "AssetExtension.h"
