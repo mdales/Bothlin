@@ -11,6 +11,7 @@
 #import "LibraryWriteCoordinator.h"
 #import "NSArray+Functional.h"
 #import "Asset+CoreDataClass.h"
+#import "Group+CoreDataClass.h"
 #import "SidebarItem.h"
 
 @interface LibraryViewModelTests : XCTestCase
@@ -50,6 +51,17 @@
 
     XCTAssertNotNil(viewModel.groups, @"Should not be nil");
     XCTAssertEqual([viewModel.groups count], 0, @"Expected no groups");
+
+    NSArray<SidebarItem *> *rootChildren = [viewModel.sidebarItems children];
+    SidebarItem *groupSidebarItem = nil;
+    for (SidebarItem *item in rootChildren) {
+        if ([[item title] compare:@"Groups"] == NSOrderedSame) {
+            groupSidebarItem = item;
+            break;
+        }
+    }
+    NSAssert(nil != groupSidebarItem, @"Failed to find sidebar item");
+    XCTAssertEqual([[groupSidebarItem children] count], 0, @"Expected no groups in sidebar, got %lu", [[groupSidebarItem children] count]);
 }
 
 - (void)testNoDataAfterUpdate {
@@ -252,6 +264,47 @@
 
     XCTAssertNotNil(viewModel.selectedAssets, @"Should not be nil");
     XCTAssertEqual([viewModel.selectedAssets count], 0, @"Expected empty selected asset list");
+}
+
+- (void)testSimpleGroupTest {
+    NSManagedObjectContext *moc = [LibraryViewModelTests managedObjectContextForTests];
+    LibraryViewModel *viewModel = [[LibraryViewModel alloc] initWithViewContext:moc
+                                                               trashDisplayName:@"Trash"];
+    XCTAssertNotNil(viewModel.selectedSidebarItem, @"No default selected sidebar item");
+
+    NSUInteger count = 5;
+
+    __block NSArray<NSManagedObjectID *> *groupIDs = nil;
+    [moc performBlockAndWait:^{
+        NSMutableArray<Group *> *groups = [NSMutableArray arrayWithCapacity:count];
+        for (NSUInteger index = 0; index < count; index++) {
+            Group *group = [NSEntityDescription insertNewObjectForEntityForName:@"Group"
+                                                         inManagedObjectContext:moc];
+            group.name = [NSString stringWithFormat:@"group %lu.png", index];
+
+            groups[index] = group;
+        }
+        groupIDs = [groups mapUsingBlock:^id _Nonnull(Group * _Nonnull group) { return group.objectID; }];
+    }];
+    NSAssert(nil != groupIDs, @"Failed to generate grup ID list");
+
+    LibraryWriteCoordinator *writeCoordinator = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator];
+    [viewModel libraryWriteCoordinator:writeCoordinator
+                             didUpdate:@{NSInsertedObjectsKey:groupIDs}];
+
+    XCTAssertNotNil(viewModel.groups, @"Should not be nil");
+    XCTAssertEqual([viewModel.groups count], 5, @"Expected empty asset list");
+
+    NSArray<SidebarItem *> *rootChildren = [viewModel.sidebarItems children];
+    SidebarItem *groupSidebarItem = nil;
+    for (SidebarItem *item in rootChildren) {
+        if ([[item title] compare:@"Groups"] == NSOrderedSame) {
+            groupSidebarItem = item;
+            break;
+        }
+    }
+    NSAssert(nil != groupSidebarItem, @"Failed to find sidebar item");
+    XCTAssertEqual([[groupSidebarItem children] count], count, @"Expected %lu groups in sidebar, got %lu", count, [[groupSidebarItem children] count]);
 }
 
 
