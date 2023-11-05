@@ -37,19 +37,20 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
 
 #pragma mark - NSOutlineViewDataSource
 
-- (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
+- (NSInteger)outlineView:(__unused NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
     if (nil == item) {
         return (NSInteger)[kMainInfoTitles count];
     }
     return 0;
 }
 
-- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
+- (id)outlineView:(__unused NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
     return kMainInfoTitles[(NSUInteger)index];
 }
 
-
-#pragma mark - NSOutlineViewDelegate
+- (BOOL)outlineView:(__unused NSOutlineView *)outlineView isItemExpandable:(__unused id)item {
+    return NO;
+}
 
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
     if ([tableColumn.identifier compare:kPropertyColumnIdentifier] == NSOrderedSame) {
@@ -85,6 +86,8 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
     }
     return nil;
 }
+
+#pragma mark - NSOutlineViewDelegate
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item {
     return NO;
