@@ -234,8 +234,6 @@
 				4C0119A72AC5AC14004A94C4 /* SidebarController.xib */,
 				4C0119A52AC5AC13004A94C4 /* SidebarController.h */,
 				4C0119A62AC5AC14004A94C4 /* SidebarController.m */,
-				4C960F402AD7D47E0053C631 /* SidebarItem.h */,
-				4C960F412AD7D47E0053C631 /* SidebarItem.m */,
 				4CD0A0312ADA918700BFFF7D /* TableCellWithButtonView.h */,
 				4CD0A0322ADA918700BFFF7D /* TableCellWithButtonView.m */,
 			);
@@ -301,6 +299,8 @@
 				4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */,
 				4CBD40B42AEECB2000A8EB5A /* AssetPromiseProvider.h */,
 				4CBD40B52AEECB2000A8EB5A /* AssetPromiseProvider.m */,
+				4C960F402AD7D47E0053C631 /* SidebarItem.h */,
+				4C960F412AD7D47E0053C631 /* SidebarItem.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
