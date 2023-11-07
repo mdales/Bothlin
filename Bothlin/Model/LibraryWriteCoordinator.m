@@ -35,6 +35,9 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 @property (strong, nonatomic, readonly) dispatch_queue_t _Nonnull dataQ;
 @property (strong, nonatomic, readonly) NSManagedObjectContext * _Nonnull managedObjectContext;
 
+// Generally should be the mainQ, but for tests we need to redirect this
+@property (strong, nonatomic, readonly) dispatch_queue_t _Nonnull updateDelegateQ;
+
 // Queue used for thumbnail processing
 @property (strong, nonatomic, readonly) dispatch_queue_t _Nonnull thumbnailWorkerQ;
 
@@ -43,7 +46,15 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 @implementation LibraryWriteCoordinator
 
 - (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator * _Nonnull)store {
+    return [self initWithPersistentStore:store
+                   delegateCallbackQueue:dispatch_get_main_queue()];
+}
+
+- (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator * _Nonnull)store
+                  delegateCallbackQueue:(dispatch_queue_t _Nonnull)delegateUpdateQueue {
     NSParameterAssert(nil != store);
+    NSParameterAssert(nil != delegateUpdateQueue);
+
     self = [super init];
     if (nil != self) {
         self->_dataQ = dispatch_queue_create("com.digitalflapjack.LibraryController.dataQ", DISPATCH_QUEUE_SERIAL);
@@ -53,6 +64,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         self->_managedObjectContext = context;
 
         self->_thumbnailWorkerQ = dispatch_queue_create("com.digitalflapjack.thumbnailWorkerQ", DISPATCH_QUEUE_CONCURRENT);
+        self->_updateDelegateQ = delegateUpdateQueue;
     }
     return self;
 }
@@ -118,7 +130,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         NSAssert(nil != newItemIDs, @"Got no error and not new items to insert");
 
         @weakify(self);
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(self.updateDelegateQ, ^{
             @strongify(self);
             if (nil == self) {
                 return;
@@ -274,7 +286,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 NSAssert(NO != success, @"Got no error and no success from saving.");
 
                 @weakify(self);
-                dispatch_async(dispatch_get_main_queue(), ^{
+                dispatch_async(self.updateDelegateQ, ^{
                     @strongify(self);
                     if (nil == self) {
                         return;
@@ -366,7 +378,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 if (nil != error) {
                     NSLog(@"Error generating thumbnail: %@", error.localizedDescription);
                     @weakify(self)
-                    dispatch_async(dispatch_get_main_queue(), ^{
+                    dispatch_async(self.updateDelegateQ, ^{
                         @strongify(self)
                         if (nil == self) {
                             return;
@@ -413,7 +425,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         }];
         if ((nil == error) && success && (nil != groupID)) {
             @weakify(self);
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(self.updateDelegateQ, ^{
                 @strongify(self);
                 if (nil == self) {
                     return;
@@ -461,7 +473,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         }];
         if ((nil == error) && success) {
             @weakify(self);
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(self.updateDelegateQ, ^{
                 @strongify(self);
                 if (nil == self) {
                     return;
@@ -516,7 +528,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         }];
         if ((nil == error) && success) {
             @weakify(self);
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(self.updateDelegateQ, ^{
                 @strongify(self);
                 if (nil == self) {
                     return;
@@ -571,7 +583,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         }];
         if ((nil == error) && success) {
             @weakify(self);
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(self.updateDelegateQ, ^{
                 @strongify(self);
                 if (nil == self) {
                     return;
@@ -623,7 +635,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         }];
         if ((nil == error) && success) {
             @weakify(self);
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(self.updateDelegateQ, ^{
                 @strongify(self);
                 if (nil == self) {
                     return;
@@ -701,7 +713,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         }];
         if ((nil == error) && success) {
             @weakify(self);
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(self.updateDelegateQ, ^{
                 @strongify(self);
                 if (nil == self) {
                     return;

@@ -38,6 +38,7 @@
 		4C37FBD02AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C37FBCD2AC858D8006839A3 /* NSURL+SecureAccess.m */; };
 		4C3A50D12ACB27550080327C /* AssetsDisplayController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C3A50D02ACB27550080327C /* AssetsDisplayController.xib */; };
 		4C3A50D22ACB27550080327C /* AssetsDisplayController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C3A50D02ACB27550080327C /* AssetsDisplayController.xib */; };
+		4C4D2B572AF95D9C0059880F /* LibraryWriteCoordinatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C4D2B562AF95D9C0059880F /* LibraryWriteCoordinatorTests.m */; };
 		4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
 		4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
 		4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
@@ -131,6 +132,7 @@
 		4C37FBCC2AC858D8006839A3 /* NSURL+SecureAccess.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURL+SecureAccess.h"; sourceTree = "<group>"; };
 		4C37FBCD2AC858D8006839A3 /* NSURL+SecureAccess.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURL+SecureAccess.m"; sourceTree = "<group>"; };
 		4C3A50D02ACB27550080327C /* AssetsDisplayController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetsDisplayController.xib; sourceTree = "<group>"; };
+		4C4D2B562AF95D9C0059880F /* LibraryWriteCoordinatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryWriteCoordinatorTests.m; sourceTree = "<group>"; };
 		4C7F5F452AC6B1E5000E9BD9 /* ToolbarProgressView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ToolbarProgressView.h; sourceTree = "<group>"; };
 		4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ToolbarProgressView.m; sourceTree = "<group>"; };
 		4C8812FD2AF659A200F7439D /* LibraryViewModelTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryViewModelTests.m; sourceTree = "<group>"; };
@@ -352,6 +354,7 @@
 				4C1F01C92AD7EED400E4CCD7 /* NSArray+FunctionalTests.m */,
 				4C9544B82AECE706007205A9 /* NSSet+FunctionalTests.m */,
 				4C8812FD2AF659A200F7439D /* LibraryViewModelTests.m */,
+				4C4D2B562AF95D9C0059880F /* LibraryWriteCoordinatorTests.m */,
 			);
 			path = BothlinTests;
 			sourceTree = "<group>";
@@ -590,6 +593,7 @@
 			files = (
 				4C8812FF2AF6856B00F7439D /* LibraryModel.xcdatamodeld in Sources */,
 				4CBD40B72AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */,
+				4C4D2B572AF95D9C0059880F /* LibraryWriteCoordinatorTests.m in Sources */,
 				4CC9EA802ADFC28A00D33E5C /* KVOBox.m in Sources */,
 				4C1F01CA2AD7EED400E4CCD7 /* NSArray+FunctionalTests.m in Sources */,
 				4C960F472AD7D8430053C631 /* NSArray+Functional.m in Sources */,

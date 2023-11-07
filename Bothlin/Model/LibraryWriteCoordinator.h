@@ -29,6 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator * _Nonnull)store;
 
+- (instancetype)initWithPersistentStore:(NSPersistentStoreCoordinator * _Nonnull)store
+                  delegateCallbackQueue:(dispatch_queue_t _Nonnull)delegateUpdateQueue;
+
 - (void)importURLs:(NSArray<NSURL *> *)urls
            toGroup:(NSManagedObjectID * _Nullable)groupID
           callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
