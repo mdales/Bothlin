@@ -104,6 +104,25 @@
                    selectionDidChange:[NSSet setWithSet:collectedIndexPaths]];
 }
 
+- (BOOL)currentSelectedItemFrame:(NSRect *)frame {
+    NSParameterAssert(nil != frame);
+
+    NSIndexSet *selectedRanges = [self.collectionView selectionIndexes];
+    NSMutableSet<NSIndexPath *> *collectedIndexPaths = [NSMutableSet set];
+    [selectedRanges enumerateIndexesUsingBlock:^(NSUInteger idx, __unused BOOL * _Nonnull stop) {
+        [collectedIndexPaths addObject:[NSIndexPath indexPathForItem:(NSInteger)idx inSection:0]];
+    }];
+
+    if ([collectedIndexPaths count] != 1) {
+        return NO;
+    }
+
+    NSCollectionViewItem *selected = [self.collectionView itemAtIndexPath:[collectedIndexPaths anyObject]];
+    *frame = [selected.view convertRect:selected.imageView.frame toView:self.view];
+
+    return YES;
+}
+
 
 #pragma mark - NSCollectionViewDataSource
 

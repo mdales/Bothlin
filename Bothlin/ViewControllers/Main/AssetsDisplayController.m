@@ -8,6 +8,7 @@
 #import "AssetsDisplayController.h"
 #import "GridViewController.h"
 #import "SingleViewController.h"
+#import "Helpers.h"
 
 @interface AssetsDisplayController ()
 
@@ -29,34 +30,90 @@
 }
 
 - (void)setDisplayStyle:(ItemsDisplayStyle)displayStyle {
+    // I did use a presentViewController:animator: with an animator object for this originally
+    // and whilst it was tider in code, to hide all the animation code in the animator object, it
+    // was messier in state, in that you needed to teach the animator about the grid view and the
+    // selected item frame, and that felt messier than <waves hand/> this.
+
     dispatch_assert_queue(dispatch_get_main_queue());
     if (displayStyle == self->_displayStyle) {
         return;
     }
     self->_displayStyle = displayStyle;
 
-    NSArray<NSView *> *subviews = [self.view subviews];
-    NSAssert(1 >= [subviews count], @"Item display has more childviews than expected");
-    NSView *currentSubview = [subviews firstObject];
-    
-    NSView *intendedView = displayStyle == ItemsDisplayStyleGrid ? self.gridViewController.view : self.singleViewController.view;
-    if (currentSubview == intendedView) {
-        return;
-    }
+    // work out selected cell
+    NSRect activeItemFrame = NSMakeRect(0.0, 0.0, 0.0, 0.0);
+    BOOL itemIsOnScreen = [self.gridViewController currentSelectedItemFrame:&activeItemFrame];
 
-    [intendedView setFrame:[self.view frame]];
+    if (displayStyle == ItemsDisplayStyleSingle) {
+        if (itemIsOnScreen) {
+            self.singleViewController.view.frame = activeItemFrame;
+            self.singleViewController.view.alphaValue = 1.0;
+            self.singleViewController.view.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
+        } else {
+            self.singleViewController.view.frame = self.view.frame;
+            self.singleViewController.view.alphaValue = 0.0;
+            self.singleViewController.view.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+        }
 
-    // TODO: Add photos app like transition animation
-    if (displayStyle == ItemsDisplayStyleGrid) {
-        [self.view addSubview:intendedView];
-        [[currentSubview animator] removeFromSuperview];
+        [self.view addSubview:self.singleViewController.view];
+
+        @weakify(self);
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+            // This block is run inline with the calling function, so no need to weakify/strongify
+            context.duration = 0.5;
+            context.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+
+            if (itemIsOnScreen) {
+                self.singleViewController.view.animator.frame = self.view.frame;;
+                self.gridViewController.view.animator.alphaValue = 0.0;
+            } else {
+                self.singleViewController.view.animator.alphaValue = 1.0;
+            }
+
+        } completionHandler:^{
+            // This block is invoked async on main thread
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+            [self.gridViewController.view removeFromSuperview];
+            self.gridViewController.view.alphaValue = 1.0;
+            [self.delegate assetsDisplayController:self
+                                viewStyleDidChange:displayStyle];
+        }];
+
     } else {
-        [self.view addSubview:intendedView];
-        [currentSubview removeFromSuperview];
-    }
+        [self.view addSubview:self.gridViewController.view
+                   positioned:NSWindowBelow
+                   relativeTo:self.singleViewController.view];
 
-    [self.delegate assetsDisplayController:self
-                       viewStyleDidChange:displayStyle];
+        if (itemIsOnScreen) {
+            self.singleViewController.view.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
+        } else {
+            self.singleViewController.view.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+        }
+
+        @weakify(self);
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+            // This block is run inline with the calling function, so no need to weakify/strongify
+            context.duration = 0.5;
+            if (itemIsOnScreen) {
+                self.singleViewController.view.animator.frame = activeItemFrame;
+            } else {
+                self.singleViewController.view.animator.alphaValue = 0.0;
+            }
+        } completionHandler:^{
+            // This block is invoked async on main thread
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+            [self.singleViewController.view removeFromSuperview];
+            [self.delegate assetsDisplayController:self
+                                viewStyleDidChange:displayStyle];
+        }];
+    }
 }
 
 - (void)setAssets:(NSArray<Asset *> *)assets withSelected:(NSSet<NSIndexPath *> *)indexPaths {
@@ -89,9 +146,11 @@
 
     [self addChildViewController:self.gridViewController];
     [self.gridViewController.view setFrame:self.view.frame];
+    [self.gridViewController.view setWantsLayer:YES];
 
     [self addChildViewController:self.singleViewController];
     [self.singleViewController.view setFrame:self.view.frame];
+    [self.singleViewController.view setWantsLayer:YES];
 
     NSView *intendedView = self.displayStyle == ItemsDisplayStyleGrid ? self.gridViewController.view : self.singleViewController.view;
     [self.view addSubview:intendedView];

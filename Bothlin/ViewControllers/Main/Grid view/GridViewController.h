@@ -45,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setAssets:(NSArray<Asset *> *)assets
      withSelected:(NSSet<NSIndexPath *> *)selected;
 
+- (BOOL)currentSelectedItemFrame:(NSRect *)frame;
+
 @end
 
 NS_ASSUME_NONNULL_END
