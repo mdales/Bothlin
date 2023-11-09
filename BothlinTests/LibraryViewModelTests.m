@@ -13,6 +13,7 @@
 #import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
 #import "SidebarItem.h"
+#import "TestModelHelpers.h"
 
 @interface LibraryViewModelTests : XCTestCase
 
@@ -20,53 +21,8 @@
 
 @implementation LibraryViewModelTests
 
-+ (NSManagedObjectContext *)managedObjectContextForTests {
-    static NSManagedObjectModel *model = nil;
-    if (!model) {
-        model = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
-    }
-
-    NSPersistentStoreCoordinator *psc = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
-    NSPersistentStore *store = [psc addPersistentStoreWithType:NSInMemoryStoreType configuration:nil URL:nil options:nil error:nil];
-    NSAssert(store, @"Should have a store by now");
-
-    NSManagedObjectContext *moc = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-    moc.persistentStoreCoordinator = psc;
-
-    return moc;
-}
-
-+ (NSArray<Asset *> *)generateAssets:(NSUInteger)assetCount
-                           inContext:(NSManagedObjectContext *)moc {
-    NSMutableArray<Asset *> *assets = [NSMutableArray arrayWithCapacity:assetCount];
-    for (NSUInteger index = 0; index < assetCount; index++) {
-        Asset *asset = [NSEntityDescription insertNewObjectForEntityForName:@"Asset"
-                                                     inManagedObjectContext:moc];
-        asset.name = [NSString stringWithFormat:@"test %lu.png", index];
-        asset.path = [NSString stringWithFormat:@"/tmp/test %lu.png", index];
-        asset.bookmark = nil;
-        asset.added = [NSDate now];
-
-        assets[index] = asset;
-    }
-    return [NSArray arrayWithArray:assets];
-}
-
-+ (NSArray<Group *> *)generateGroups:(NSUInteger)groupCount
-                           inContext:(NSManagedObjectContext *)moc {
-    NSMutableArray<Group *> *groups = [NSMutableArray arrayWithCapacity:groupCount];
-    for (NSUInteger index = 0; index < groupCount; index++) {
-        Group *group = [NSEntityDescription insertNewObjectForEntityForName:@"Group"
-                                                     inManagedObjectContext:moc];
-        group.name = [NSString stringWithFormat:@"group %lu", index];
-
-        groups[index] = group;
-    }
-    return [NSArray arrayWithArray:groups];
-}
-
 - (void)testNoDataAfterInit {
-    NSManagedObjectContext *moc = [LibraryViewModelTests managedObjectContextForTests];
+    NSManagedObjectContext *moc = [TestModelHelpers  managedObjectContextForTests];
     LibraryViewModel *viewModel = [[LibraryViewModel alloc] initWithViewContext:moc
                                                                trashDisplayName:@"Trash"];
     XCTAssertNotNil(viewModel.assets, @"Should not be nil");
@@ -94,7 +50,7 @@
 }
 
 - (void)testNoDataAfterUpdate {
-    NSManagedObjectContext *moc = [LibraryViewModelTests managedObjectContextForTests];
+    NSManagedObjectContext *moc = [TestModelHelpers managedObjectContextForTests];
     LibraryViewModel *viewModel = [[LibraryViewModel alloc] initWithViewContext:moc
                                                                trashDisplayName:@"Trash"];
 
@@ -116,7 +72,7 @@
 }
 
 - (void)testSimpleAssetTest {
-    NSManagedObjectContext *moc = [LibraryViewModelTests managedObjectContextForTests];
+    NSManagedObjectContext *moc = [TestModelHelpers managedObjectContextForTests];
     LibraryViewModel *viewModel = [[LibraryViewModel alloc] initWithViewContext:moc
                                                                trashDisplayName:@"Trash"];
     XCTAssertNotNil(viewModel.selectedSidebarItem, @"No default selected sidebar item");
@@ -125,7 +81,7 @@
 
     __block NSArray<NSManagedObjectID *> *assetIDs = nil;
     [moc performBlockAndWait:^{
-        NSArray *assets = [LibraryViewModelTests generateAssets:count inContext:moc];
+        NSArray *assets = [TestModelHelpers generateAssets:count inContext:moc];
         assetIDs = [assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }];
     }];
     NSAssert(nil != assetIDs, @"Failed to generate asset ID list");
@@ -145,7 +101,7 @@
 }
 
 - (void)testSimpleSoftDeletedAssetTest {
-    NSManagedObjectContext *moc = [LibraryViewModelTests managedObjectContextForTests];
+    NSManagedObjectContext *moc = [TestModelHelpers managedObjectContextForTests];
     LibraryViewModel *viewModel = [[LibraryViewModel alloc] initWithViewContext:moc
                                                                trashDisplayName:@"Trash"];
     XCTAssertNotNil(viewModel.selectedSidebarItem, @"No default selected sidebar item");
@@ -154,7 +110,7 @@
 
     __block NSArray<NSManagedObjectID *> *assetIDs = nil;
     [moc performBlockAndWait:^{
-        NSArray *assets = [LibraryViewModelTests generateAssets:count inContext:moc];
+        NSArray *assets = [TestModelHelpers generateAssets:count inContext:moc];
 
         // Mark first item as deleted
         [[assets firstObject] setDeletedAt:[NSDate now]];
@@ -193,7 +149,7 @@
 }
 
 - (void)testSimpleSearchAssetTest {
-    NSManagedObjectContext *moc = [LibraryViewModelTests managedObjectContextForTests];
+    NSManagedObjectContext *moc = [TestModelHelpers managedObjectContextForTests];
     LibraryViewModel *viewModel = [[LibraryViewModel alloc] initWithViewContext:moc
                                                                trashDisplayName:@"Trash"];
     XCTAssertNotNil(viewModel.selectedSidebarItem, @"No default selected sidebar item");
@@ -202,7 +158,7 @@
 
     __block NSArray<NSManagedObjectID *> *assetIDs = nil;
     [moc performBlockAndWait:^{
-        NSArray *assets = [LibraryViewModelTests generateAssets:count inContext:moc];
+        NSArray *assets = [TestModelHelpers generateAssets:count inContext:moc];
         assetIDs = [assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }];
     }];
     NSAssert(nil != assetIDs, @"Failed to generate asset ID list");
@@ -211,7 +167,7 @@
     [viewModel libraryWriteCoordinator:writeCoordinator
                              didUpdate:@{NSInsertedObjectsKey:assetIDs}];
 
-    [viewModel setSearchText:@"test3"];
+    [viewModel setSearchText:@"test 3"];
 
     XCTAssertNotNil(viewModel.assets, @"Should not be nil");
     XCTAssertEqual([viewModel.assets count], 1, @"Expected empty asset list");
@@ -224,7 +180,7 @@
 }
 
 - (void)testSimpleSearchNoMatchAssetTest {
-    NSManagedObjectContext *moc = [LibraryViewModelTests managedObjectContextForTests];
+    NSManagedObjectContext *moc = [TestModelHelpers managedObjectContextForTests];
     LibraryViewModel *viewModel = [[LibraryViewModel alloc] initWithViewContext:moc
                                                                trashDisplayName:@"Trash"];
     XCTAssertNotNil(viewModel.selectedSidebarItem, @"No default selected sidebar item");
@@ -233,7 +189,7 @@
 
     __block NSArray<NSManagedObjectID *> *assetIDs = nil;
     [moc performBlockAndWait:^{
-        NSArray *assets = [LibraryViewModelTests generateAssets:count inContext:moc];
+        NSArray *assets = [TestModelHelpers generateAssets:count inContext:moc];
         assetIDs = [assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }];
     }];
     NSAssert(nil != assetIDs, @"Failed to generate asset ID list");
@@ -255,7 +211,7 @@
 }
 
 - (void)testSimpleGroupTest {
-    NSManagedObjectContext *moc = [LibraryViewModelTests managedObjectContextForTests];
+    NSManagedObjectContext *moc = [TestModelHelpers managedObjectContextForTests];
     LibraryViewModel *viewModel = [[LibraryViewModel alloc] initWithViewContext:moc
                                                                trashDisplayName:@"Trash"];
     XCTAssertNotNil(viewModel.selectedSidebarItem, @"No default selected sidebar item");
@@ -264,7 +220,7 @@
 
     __block NSArray<NSManagedObjectID *> *groupIDs = nil;
     [moc performBlockAndWait:^{
-        NSArray<Group *> *groups = [LibraryViewModelTests generateGroups:count inContext:moc];
+        NSArray<Group *> *groups = [TestModelHelpers generateGroups:count inContext:moc];
         groupIDs = [groups mapUsingBlock:^id _Nonnull(Group * _Nonnull group) { return group.objectID; }];
     }];
     NSAssert(nil != groupIDs, @"Failed to generate group ID list");
@@ -289,7 +245,7 @@
 }
 
 - (void)testAssetsInGroup {
-    NSManagedObjectContext *moc = [LibraryViewModelTests managedObjectContextForTests];
+    NSManagedObjectContext *moc = [TestModelHelpers managedObjectContextForTests];
     LibraryViewModel *viewModel = [[LibraryViewModel alloc] initWithViewContext:moc
                                                                trashDisplayName:@"Trash"];
     XCTAssertNotNil(viewModel.selectedSidebarItem, @"No default selected sidebar item");
@@ -300,8 +256,8 @@
     __block NSArray<NSManagedObjectID *> *assetIDs = nil;
     __block NSArray<NSManagedObjectID *> *groupIDs = nil;
     [moc performBlockAndWait:^{
-        NSArray<Asset *> *assets = [LibraryViewModelTests generateAssets:assetCount inContext:moc];
-        NSArray<Group *> *groups = [LibraryViewModelTests generateGroups:groupCount inContext:moc];
+        NSArray<Asset *> *assets = [TestModelHelpers generateAssets:assetCount inContext:moc];
+        NSArray<Group *> *groups = [TestModelHelpers generateGroups:groupCount inContext:moc];
 
         // Add first asset to first group
         [[groups firstObject] addContains:[NSSet setWithObject:[assets firstObject]]];
@@ -346,7 +302,7 @@
 }
 
 - (void)testAssetsChangeSelectionRemains {
-    NSManagedObjectContext *moc = [LibraryViewModelTests managedObjectContextForTests];
+    NSManagedObjectContext *moc = [TestModelHelpers managedObjectContextForTests];
     LibraryViewModel *viewModel = [[LibraryViewModel alloc] initWithViewContext:moc
                                                                trashDisplayName:@"Trash"];
     XCTAssertNotNil(viewModel.selectedSidebarItem, @"No default selected sidebar item");
@@ -357,8 +313,8 @@
     __block NSArray<NSManagedObjectID *> *assetIDs = nil;
     __block NSArray<NSManagedObjectID *> *groupIDs = nil;
     [moc performBlockAndWait:^{
-        NSArray<Asset *> *assets = [LibraryViewModelTests generateAssets:assetCount inContext:moc];
-        NSArray<Group *> *groups = [LibraryViewModelTests generateGroups:groupCount inContext:moc];
+        NSArray<Asset *> *assets = [TestModelHelpers generateAssets:assetCount inContext:moc];
+        NSArray<Group *> *groups = [TestModelHelpers generateGroups:groupCount inContext:moc];
 
         // Add every other asset to group
         for (NSUInteger index = 0; index < assetCount; index++) {
@@ -397,21 +353,29 @@
     NSAssert(nil != groupSidebarItem, @"Failed to find sidebar item");
     XCTAssertEqual([[groupSidebarItem children] count], groupCount, @"Expected a group in sidebar, got %lu", [[groupSidebarItem children] count]);
 
-    [viewModel setSelectedSidebarItem:[[groupSidebarItem children] firstObject]];
+    // TODO: this test should really use a non default initial selection and ensure that's maintained
+
+    SidebarItem *firstGroupSidebarItem = [[groupSidebarItem children] firstObject];
+    XCTAssertEqual([firstGroupSidebarItem.title compare:@"group 0"], NSOrderedSame, @"Expected group 0, got %@", firstGroupSidebarItem.title);
+    [viewModel setSelectedSidebarItem:firstGroupSidebarItem];
 
     XCTAssertNotNil(viewModel.assets, @"Should not be nil");
     XCTAssertEqual([viewModel.assets count], assetCount / 2, @"Expected asset list");
     XCTAssertEqual([viewModel.selectedAssets count], 1, @"Expected just one asset selected");
     NSManagedObjectID *firstGroupSelectedObjectID = [[viewModel selectedAssets] anyObject].objectID;
-    XCTAssertEqual(selectedObjectID, firstGroupSelectedObjectID, @"Expected selection to be maintained");
+    XCTAssertNotEqual(selectedObjectID, firstGroupSelectedObjectID, @"Expected selection to be maintained");
 
-    [viewModel setSelectedSidebarItem:[[groupSidebarItem children] lastObject]];
+    NSLog(@"Selected %@", viewModel.selectedAssets);
+
+    SidebarItem *secondGroupSidebarItem = [[groupSidebarItem children] lastObject];
+    XCTAssertEqual([secondGroupSidebarItem.title compare:@"group 1"], NSOrderedSame, @"Expected group 1, got %@", secondGroupSidebarItem.title);
+    [viewModel setSelectedSidebarItem:secondGroupSidebarItem];
 
     XCTAssertNotNil(viewModel.assets, @"Should not be nil");
     XCTAssertEqual([viewModel.assets count], assetCount / 2, @"Expected no asset list");
     XCTAssertEqual([viewModel.selectedAssets count], 1, @"Expected just one asset selected");
     NSManagedObjectID *secondGroupSelectedObjectID = [[viewModel selectedAssets] anyObject].objectID;
-    XCTAssertNotEqual(selectedObjectID, secondGroupSelectedObjectID, @"Expected selection to be changed");
+    XCTAssertEqual(selectedObjectID, secondGroupSelectedObjectID, @"Expected selection to be changed");
 }
 
 

@@ -36,6 +36,7 @@
 		4C37FBCE2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C37FBCD2AC858D8006839A3 /* NSURL+SecureAccess.m */; };
 		4C37FBCF2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C37FBCD2AC858D8006839A3 /* NSURL+SecureAccess.m */; };
 		4C37FBD02AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C37FBCD2AC858D8006839A3 /* NSURL+SecureAccess.m */; };
+		4C39E9612AFCC4EE004FF77A /* TestModelHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C39E9602AFCC4EE004FF77A /* TestModelHelpers.m */; };
 		4C3A50D12ACB27550080327C /* AssetsDisplayController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C3A50D02ACB27550080327C /* AssetsDisplayController.xib */; };
 		4C3A50D22ACB27550080327C /* AssetsDisplayController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C3A50D02ACB27550080327C /* AssetsDisplayController.xib */; };
 		4C4D2B572AF95D9C0059880F /* LibraryWriteCoordinatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C4D2B562AF95D9C0059880F /* LibraryWriteCoordinatorTests.m */; };
@@ -131,6 +132,8 @@
 		4C37FBCB2AC834FA006839A3 /* Helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Helpers.h; sourceTree = "<group>"; };
 		4C37FBCC2AC858D8006839A3 /* NSURL+SecureAccess.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURL+SecureAccess.h"; sourceTree = "<group>"; };
 		4C37FBCD2AC858D8006839A3 /* NSURL+SecureAccess.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURL+SecureAccess.m"; sourceTree = "<group>"; };
+		4C39E95F2AFCC4EE004FF77A /* TestModelHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestModelHelpers.h; sourceTree = "<group>"; };
+		4C39E9602AFCC4EE004FF77A /* TestModelHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestModelHelpers.m; sourceTree = "<group>"; };
 		4C3A50D02ACB27550080327C /* AssetsDisplayController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetsDisplayController.xib; sourceTree = "<group>"; };
 		4C4D2B562AF95D9C0059880F /* LibraryWriteCoordinatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryWriteCoordinatorTests.m; sourceTree = "<group>"; };
 		4C7F5F452AC6B1E5000E9BD9 /* ToolbarProgressView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ToolbarProgressView.h; sourceTree = "<group>"; };
@@ -355,6 +358,8 @@
 				4C9544B82AECE706007205A9 /* NSSet+FunctionalTests.m */,
 				4C8812FD2AF659A200F7439D /* LibraryViewModelTests.m */,
 				4C4D2B562AF95D9C0059880F /* LibraryWriteCoordinatorTests.m */,
+				4C39E95F2AFCC4EE004FF77A /* TestModelHelpers.h */,
+				4C39E9602AFCC4EE004FF77A /* TestModelHelpers.m */,
 			);
 			path = BothlinTests;
 			sourceTree = "<group>";
@@ -599,6 +604,7 @@
 				4C960F472AD7D8430053C631 /* NSArray+Functional.m in Sources */,
 				4C37FBCF2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
 				4C9544B92AECE706007205A9 /* NSSet+FunctionalTests.m in Sources */,
+				4C39E9612AFCC4EE004FF77A /* TestModelHelpers.m in Sources */,
 				4C8812FE2AF659A200F7439D /* LibraryViewModelTests.m in Sources */,
 				4C9544B62AECE613007205A9 /* NSSet+Functional.m in Sources */,
 			);
