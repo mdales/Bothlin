@@ -44,6 +44,7 @@
                                                forLocal:NO];
 }
 
+
 #pragma mark - Data management
 
 - (void)setAssets:(NSArray<Asset *> *)assets withSelected:(NSSet<NSIndexPath *> *)indexPaths {

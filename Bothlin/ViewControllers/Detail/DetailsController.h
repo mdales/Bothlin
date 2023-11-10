@@ -15,8 +15,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Only access from mainQ
 @property (nonatomic, weak, readwrite) IBOutlet NSOutlineView *detailsView;
+@property (nonatomic, weak, readwrite) IBOutlet NSTextField *notesView;
 
 - (void)setItemForDisplay:(Asset * _Nullable)item;
+
+- (IBAction)textFieldUpdated:(id)sender;
 
 @end
 

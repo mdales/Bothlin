@@ -32,7 +32,14 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
 - (void)setItemForDisplay:(Asset *)item {
     dispatch_assert_queue(dispatch_get_main_queue());
     self.item = item;
+    if (nil != item) {
+        [self.notesView setStringValue:item.notes];
+    }
     [self.detailsView reloadData];
+}
+
+- (IBAction)textFieldUpdated:(id)sender {
+    NSLog(@"%@", [sender stringValue]);
 }
 
 #pragma mark - NSOutlineViewDataSource

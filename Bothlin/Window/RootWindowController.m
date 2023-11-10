@@ -102,6 +102,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
     self.viewModel.delegate = self;
 
+    [self.sidebar resignFirstResponder];
+    [self.assetsDisplay becomeFirstResponder];
+
     // TODO: This whole section is horribly verbose and thus confusing to read. The root
     // cause is that starting a block based observer can fail if the block was already
     // started. I suspect I should just assert in the handler and not ignore the error

@@ -9,6 +9,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="DetailsController">
             <connections>
                 <outlet property="detailsView" destination="0rb-hr-BvS" id="gMu-Mc-XdG"/>
+                <outlet property="notesView" destination="sRt-x8-tdo" id="oTW-Qu-WQJ"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
@@ -19,14 +20,14 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="24" horizontalPageScroll="10" verticalLineScroll="24" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JzM-Lq-n6J">
-                    <rect key="frame" x="0.0" y="0.0" width="328" height="608"/>
+                    <rect key="frame" x="0.0" y="305" width="328" height="303"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                    <clipView key="contentView" id="zgj-D6-45y">
-                        <rect key="frame" x="1" y="1" width="326" height="606"/>
+                    <clipView key="contentView" drawsBackground="NO" id="zgj-D6-45y">
+                        <rect key="frame" x="1" y="1" width="326" height="301"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" multipleSelection="NO" autosaveColumns="NO" rowHeight="24" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="13" outlineTableColumn="ZPq-rv-gx8" id="0rb-hr-BvS">
-                                <rect key="frame" x="0.0" y="0.0" width="326" height="606"/>
+                                <rect key="frame" x="0.0" y="0.0" width="326" height="301"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <size key="intercellSpacing" width="17" height="0.0"/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -103,6 +104,7 @@
                                 </connections>
                             </outlineView>
                         </subviews>
+                        <nil key="backgroundColor"/>
                     </clipView>
                     <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="Not-X2-WZo">
                         <rect key="frame" x="1" y="592" width="326" height="15"/>
@@ -113,6 +115,27 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                 </scrollView>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="knY-uz-lcl">
+                    <rect key="frame" x="20" y="255" width="40" height="16"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="clipping" title="Notes" id="l4Q-HD-OBn">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sRt-x8-tdo">
+                    <rect key="frame" x="0.0" y="0.0" width="328" height="247"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <textFieldCell key="cell" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="oVq-lx-3iO">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <action selector="textFieldUpdated:" target="-2" id="0HH-Im-5rS"/>
+                    </connections>
+                </textField>
             </subviews>
             <point key="canvasLocation" x="38" y="323"/>
         </customView>
