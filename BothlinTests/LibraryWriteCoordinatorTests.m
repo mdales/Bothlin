@@ -9,6 +9,7 @@
 
 #import "LibraryWriteCoordinator.h"
 #import "NSArray+Functional.h"
+#import "NSSet+Functional.h"
 #import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
 #import "TestModelHelpers.h"
@@ -104,12 +105,12 @@
                                                           inContext:moc];
         [[assets firstObject] setFavourite:NO];
         [[assets lastObject] setFavourite:YES];
-        NSError *error = nil;
-        BOOL save = [moc obtainPermanentIDsForObjects:assets
-                                                error:&error];
+
+        [moc obtainPermanentIDsForObjects:assets
+                                    error:nil];
         assetIDs = [assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }];
 
-        save = [moc save:&error];
+        [moc save:nil];
     }];
 
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
@@ -133,10 +134,85 @@
     XCTAssertNotNil(delegate.changeNotificationData, @"Expected delegate to get change data");
     XCTAssertEqual([delegate.changeNotificationData count], 1, @"Expected only inserts");
     NSArray<NSManagedObjectID *> *updates = delegate.changeNotificationData[NSUpdatedObjectsKey];
-    XCTAssertNotNil(updates, @"Expected inserts");
+    XCTAssertNotNil(updates, @"Expected updates");
     XCTAssertEqual([updates count], 2, @"Expected both assets to update");
     XCTAssertTrue([[NSSet setWithArray:updates] isEqualToSet:[NSSet setWithArray:assetIDs]], @"Expected new updated assets's ID");
+
+    __block NSArray<NSNumber *> *favourites = nil;
+    [moc performBlockAndWait:^{
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Asset"];
+        NSArray<Asset *> *assets = [moc executeFetchRequest:fetch error:nil];
+        favourites = [assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
+            return [NSNumber numberWithBool:asset.favourite];
+        }];
+    }];
+    XCTAssertEqual([favourites count], [assetIDs count], @"Got %ld favourite states, expected %ld", [favourites count], [assetIDs count]);
+    for (NSNumber *favourite in favourites) {
+        XCTAssertTrue([favourite boolValue], @"All should be favourites");
+    }
 }
 
+- (void)testAddAssetToGroup {
+    NSManagedObjectContext *moc = [TestModelHelpers managedObjectContextForTests];
+    LibraryWriteCoordinator *library = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator
+                                                                          delegateCallbackQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+    DelegateRecorder *delegate = [[DelegateRecorder alloc] init];
+    delegate.updateSemaphore = dispatch_semaphore_create(0);
+    library.delegate = delegate;
+
+    __block NSArray<NSManagedObjectID *> *assetIDs = nil;
+    __block NSManagedObjectID *groupID = nil;
+    [moc performBlockAndWait:^{
+        NSArray<Asset *> *assets = [TestModelHelpers generateAssets:2
+                                                          inContext:moc];
+        Group *group = [[TestModelHelpers generateGroups:1
+                                               inContext:moc] firstObject];
+
+        [moc obtainPermanentIDsForObjects:assets
+                                    error:nil];
+        assetIDs = [assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }];
+
+        [moc obtainPermanentIDsForObjects:[NSArray arrayWithObject:group]
+                                    error:nil];
+        groupID = group.objectID;
+
+        [moc save:nil];
+    }];
+
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    __block BOOL innerSuccess = NO;
+    __block NSError *innerError = nil;
+    [library addAssets:[NSSet setWithObject:[assetIDs firstObject]]
+               toGroup:groupID
+              callback:^(BOOL success, NSError * _Nullable error) {
+        innerSuccess = success;
+        innerError = error;
+        dispatch_semaphore_signal(sem);
+    }];
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    XCTAssertTrue(innerSuccess, @"Expected update to succeed");
+    XCTAssertNil(innerError, @"Expected no error: %@", innerError);
+
+    dispatch_semaphore_wait(delegate.updateSemaphore, DISPATCH_TIME_FOREVER);
+    XCTAssertNotNil(delegate.changeNotificationData, @"Expected delegate to get change data");
+    XCTAssertEqual([delegate.changeNotificationData count], 1, @"Expected one update type");
+
+    NSArray<NSManagedObjectID *> *updates = delegate.changeNotificationData[NSUpdatedObjectsKey];
+    XCTAssertNotNil(updates, @"Expected updates");
+    XCTAssertEqual([updates count], 2, @"Expected both asset and group to update");
+    XCTAssertTrue([[NSSet setWithArray:updates] containsObject:groupID], @"Expected group in update");
+    XCTAssertTrue([[NSSet setWithArray:updates] containsObject:[assetIDs firstObject]], @"Expected first asset in update");
+
+    __block NSSet<NSManagedObjectID *> *groupMemberIDs = nil;
+    [moc performBlockAndWait:^{
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Group"];
+        NSArray<Group *> *groups = [moc executeFetchRequest:fetch error:nil];
+        groupMemberIDs = [[groups firstObject].contains mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
+            return asset.objectID;
+        }];
+    }];
+    XCTAssertEqual([groupMemberIDs count], 1, @"Should only be one item in group");
+    XCTAssertEqual([groupMemberIDs anyObject], [assetIDs firstObject], @"Wrong asset in group");
+}
 
 @end
