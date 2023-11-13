@@ -5,7 +5,9 @@
 //  Created by Michael Dales on 19/09/2023.
 //
 
+#import <NaturalLanguage/NaturalLanguage.h>
 #import <QuickLookThumbnailing/QuickLookThumbnailing.h>
+#import <Vision/Vision.h>
 
 #import "LibraryWriteCoordinator.h"
 #import "Asset+CoreDataClass.h"
@@ -25,6 +27,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 
     LibraryWriteCoordinatorErrorCouldNotReadThumbnail,
     LibraryWriteCoordinatorErrorCouldNotCreateImageRep,
+    LibraryWriteCoordinatorErrorCouldNotLoadAsImage,
     LibraryWriteCoordinatorErrorCouldNotGeneratePNGData,
     LibraryWriteCoordinatorErrorCouldNotWriteThumbnailFile,
 };
@@ -145,6 +148,157 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             });
         }
     });
+}
+
+- (BOOL)generateScannedText:(NSManagedObjectID *)itemID
+                      error:(NSError **)error {
+    NSParameterAssert(nil != itemID);
+    dispatch_assert_queue(self.thumbnailWorkerQ);
+    dispatch_assert_queue_not(self.dataQ);
+    id<LibraryWriteCoordinatorDelegate> delegate = self.delegate;
+
+    __block NSURL *secureURL = nil;
+    __block NSError *innerError = nil;
+    dispatch_sync(self.dataQ, ^{
+        Asset *asset = [self.managedObjectContext existingObjectWithID:itemID
+                                                                 error:&innerError];
+        if (nil != innerError) {
+            NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
+            return;
+        }
+        NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", itemID);
+
+        secureURL = [asset decodeSecureURL:&innerError];
+        if (nil != innerError) {
+            NSAssert(nil == secureURL, @"Got error and value");
+            return;
+        }
+        NSAssert(nil != secureURL, @"Got no error and no value");
+
+    });
+    if (nil != innerError) {
+        if (nil != error) {
+            *error = innerError;
+        }
+        return NO;
+    }
+
+    __block NSImage* image = nil;
+    [secureURL secureAccessWithBlock: ^(NSURL *url, BOOL canAccess) {
+        if (NO == canAccess) {
+            innerError = [NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                             code:LibraryWriteCoordinatorErrorSecurePathNotAccessible
+                                         userInfo:@{@"URL": url, @"ID": itemID}];
+            return;
+        }
+
+        image = [[NSImage alloc] initByReferencingURL:url];
+    }];
+    if (nil == image) {
+        if (nil != error) {
+            *error = [NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                         code:LibraryWriteCoordinatorErrorCouldNotLoadAsImage
+                                     userInfo:@{@"ID": itemID}];
+        }
+        return NO;
+    }
+
+    CGImageRef cgImage = [image CGImageForProposedRect:nil
+                                               context:nil
+                                                 hints:nil];
+    // Surprisingly we can get a NSImage object from non-image files, but this will be nil if it
+    // can't open them.
+    if (NULL == cgImage) {
+        if (nil != error) {
+            *error = [NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
+                                         code:LibraryWriteCoordinatorErrorCouldNotLoadAsImage
+                                     userInfo:@{@"ID": itemID}];
+        }
+        return NO;
+    }
+
+    VNRecognizeTextRequest *request = [[VNRecognizeTextRequest alloc] initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
+        if (nil != error) {
+            if (nil != delegate) {
+                // TODO: Needs own callback
+                [delegate libraryWriteCoordinator:self
+                                 thumbnailForItem:itemID
+                        generationFailedWithError:error];
+            }
+            return;
+        }
+        NSMutableSet<NSString *> *foundWords = [NSMutableSet set];
+        NSArray<VNObservation *> *observations = request.results;
+        for (VNObservation *observation in observations) {
+            NSAssert([observation isKindOfClass:[VNRecognizedTextObservation class]], @"Expected text observation");
+            NSArray<VNRecognizedText *> *potentialTexts = [(VNRecognizedTextObservation *)observation topCandidates:3];
+            NSArray<NSString *> *qualityTexts = [potentialTexts compactMapUsingBlock:^id _Nullable(VNRecognizedText * _Nonnull text) {
+                return text.confidence >= 1.0 ? text.string : nil;
+            }];
+
+            NLTagger *tagger = [[NLTagger alloc] initWithTagSchemes:@[NLTagSchemeNameTypeOrLexicalClass]];
+            for (NSString *string in qualityTexts) {
+                [tagger setString:string];
+                [tagger enumerateTagsInRange:NSMakeRange(0, [string length] - 1)
+                                        unit:NLTokenUnitWord
+                                      scheme:NLTagSchemeNameTypeOrLexicalClass
+                                     options:NLTaggerOmitWhitespace | NLTaggerOmitPunctuation
+                                  usingBlock:^(__unused NLTag  _Nullable tag, NSRange tokenRange, __unused BOOL * _Nonnull stop) {
+                    // TODO: Look at using the tag to help further cut out things
+                    NSString *substring = [string substringWithRange:tokenRange];
+                    [foundWords addObject:[substring lowercaseString]];
+                }];
+            }
+        }
+
+        NSString *searchableStringForDatabase = [[foundWords allObjects] componentsJoinedByString:@" "];
+        if ([searchableStringForDatabase length] == 0) {
+            return;
+        }
+
+        // now we've generated the text summary, we should update the record
+        dispatch_sync(self.dataQ, ^{
+            NSError *error = nil;
+            Asset *asset = [self.managedObjectContext existingObjectWithID:itemID
+                                                                     error:&error];
+            if (nil != error) {
+                NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
+                [delegate libraryWriteCoordinator:self
+                                 thumbnailForItem:itemID
+                        generationFailedWithError:error];
+                return;
+            }
+            NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", itemID);
+
+            asset.scannedText = searchableStringForDatabase;
+            BOOL success = [self.managedObjectContext save:&error];
+            if (nil != error) {
+                NSAssert(NO == success, @"Got error and success from saving.");
+                [delegate libraryWriteCoordinator:self
+                                 thumbnailForItem:itemID
+                        generationFailedWithError:error];
+                return;
+            }
+            NSAssert(NO != success, @"Got no error and no success from saving.");
+
+            @weakify(self);
+            dispatch_async(self.updateDelegateQ, ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+                [self.delegate libraryWriteCoordinator:self
+                                             didUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
+            });
+        });
+
+    }];
+    [request setRecognitionLevel:VNRequestTextRecognitionLevelAccurate];
+
+    VNImageRequestHandler *handler = [[VNImageRequestHandler alloc] initWithCGImage:cgImage
+                                                                            options:@{}];
+    return [handler performRequests:@[request]
+                              error:error];
 }
 
 - (BOOL)generateQuicklookPreviewForAssetWithID:(NSManagedObjectID *)itemID
@@ -377,6 +531,28 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                                                        error:&error];
                 if (nil != error) {
                     NSLog(@"Error generating thumbnail: %@", error.localizedDescription);
+                    @weakify(self)
+                    dispatch_async(self.updateDelegateQ, ^{
+                        @strongify(self)
+                        if (nil == self) {
+                            return;
+                        }
+                        [self.delegate libraryWriteCoordinator:self
+                                              thumbnailForItem:asset.objectID
+                                     generationFailedWithError:error];
+                    });
+                }
+            });
+            dispatch_async(self.thumbnailWorkerQ, ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+                NSError *error = nil;
+                [self generateScannedText:asset.objectID
+                                    error:&error];
+                if (nil != error) {
+                    NSLog(@"Error generating text: %@", error.localizedDescription);
                     @weakify(self)
                     dispatch_async(self.updateDelegateQ, ^{
                         @strongify(self)

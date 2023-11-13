@@ -302,7 +302,10 @@ NSArray<NSString *> * const testTags = @[
                                                            ascending:YES];
     if ([self->_searchText length] > 0) {
         NSPredicate *predicte = [request predicate];
-        NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"name CONTAINS[cd] %@", self->_searchText];
+        NSPredicate *searchNamePredicate = [NSPredicate predicateWithFormat:@"name CONTAINS[cd] %@", self->_searchText];
+        NSPredicate *searchScannedTextPredicate = [NSPredicate predicateWithFormat:@"scannedText CONTAINS[cd] %@", self->_searchText];
+        NSCompoundPredicate *searchPredicate = [[NSCompoundPredicate alloc] initWithType:NSOrPredicateType
+                                                                           subpredicates:@[searchNamePredicate, searchScannedTextPredicate]];
         NSCompoundPredicate *combinedPredicate = [[NSCompoundPredicate alloc] initWithType:NSAndPredicateType
                                                                              subpredicates:@[predicte, searchPredicate]];
         [request setPredicate:combinedPredicate];
