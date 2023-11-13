@@ -78,7 +78,7 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
-    if (NO ==[self.mainWindowController.window isVisible]) {
+    if (NO == [self.mainWindowController.window isVisible]) {
         [self.mainWindowController showWindow:nil];
     }
 }
@@ -167,6 +167,14 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
             NSAssert(NO != success, @"Got no error but not success");
         }];
     }];
+}
+
+- (IBAction)debugRegenerateThumbnail:(id)sender {
+    [self.mainWindowController debugRegenerateThumbnail:sender];
+}
+
+- (IBAction)debugRegenerateScannedText:(id)sender {
+    [self.mainWindowController debugRegenerateScannedText:sender];
 }
 
 

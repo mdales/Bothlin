@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 // Menu and toolbar actions
 - (IBAction)import:(id)sender;
 - (IBAction)showGroupCreatePanel:(id)sender;
+- (IBAction)debugRegenerateThumbnail:(id)sender;
+- (IBAction)debugRegenerateScannedText:(id)sender;
 
 // Group creation panel actions
 - (IBAction)groupCreateOK:(id)sender;

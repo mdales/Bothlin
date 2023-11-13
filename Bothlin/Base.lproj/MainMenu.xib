@@ -14,6 +14,8 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
+                <outlet property="debugRegenerateScannedTextMenuItem" destination="gDA-ZF-xej" id="BdJ-fa-M7d"/>
+                <outlet property="debugRegenerateThumbnailMenuItem" destination="eUE-rY-fI1" id="XXS-TP-nJp"/>
                 <outlet property="deleteAssetMenuItem" destination="1P2-CE-OYN" id="CsF-Ue-eu4"/>
                 <outlet property="emptyTrashMenuItem" destination="T2w-U5-gdQ" id="d3E-7l-ija"/>
             </connections>
@@ -353,6 +355,25 @@ CA
                                 <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                 <connections>
                                     <action selector="toggleFullScreen:" target="-1" id="dU3-MA-1Rq"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
+                <menuItem title="Debug" id="9Ye-9r-kLg">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Debug" id="2DM-y6-LY0">
+                        <items>
+                            <menuItem title="Regenerate Thumbnail" id="eUE-rY-fI1">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="debugRegenerateThumbnail:" target="Voe-Tx-rLC" id="Bu3-2O-oec"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Rescan for Text" id="gDA-ZF-xej">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="debugRegenerateScannedText:" target="Voe-Tx-rLC" id="In2-lz-Z7X"/>
                                 </connections>
                             </menuItem>
                         </items>

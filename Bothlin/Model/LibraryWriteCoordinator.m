@@ -150,6 +150,50 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     });
 }
 
+- (void)generateThumbnailForAssets:(NSSet<NSManagedObjectID *> *)assetIDs {
+    NSParameterAssert(nil != assetIDs);
+
+    @weakify(self);
+    for (NSManagedObjectID *assetID in assetIDs) {
+        dispatch_async(self.thumbnailWorkerQ, ^{
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+            NSError *error = nil;
+            [self generateQuicklookPreviewForAssetWithID:assetID
+                                                   error:&error];
+            if (nil != error) {
+                NSLog(@"Failed to generate thumbnail: %@", error);
+            }
+        });
+    }
+}
+
+- (void)generateScannedTextForAssets:(NSSet<NSManagedObjectID *> *)assetIDs {
+    NSParameterAssert(nil != assetIDs);
+
+    @weakify(self);
+    for (NSManagedObjectID *assetID in assetIDs) {
+        dispatch_async(self.thumbnailWorkerQ, ^{
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+            NSError *error = nil;
+            [self generateScannedText:assetID
+                                error:&error];
+            if (nil != error) {
+                NSLog(@"Failed to scan text: %@", error);
+            }
+
+        });
+    }
+}
+
+
+#pragma mark -
+
 - (BOOL)generateScannedText:(NSManagedObjectID *)itemID
                       error:(NSError **)error {
     NSParameterAssert(nil != itemID);

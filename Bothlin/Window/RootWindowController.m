@@ -327,6 +327,24 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     }];
 }
 
+- (IBAction)debugRegenerateThumbnail:(id)sender {
+    dispatch_assert_queue(dispatch_get_main_queue());
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
+
+    [library generateThumbnailForAssets:[self.viewModel.selectedAssets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }]];
+}
+
+- (IBAction)debugRegenerateScannedText:(id)sender {
+    dispatch_assert_queue(dispatch_get_main_queue());
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
+
+    [library generateScannedTextForAssets:[self.viewModel.selectedAssets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }]];
+}
+
 
 #pragma mark - LibraryViewModelDelegate
 
@@ -879,11 +897,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 #pragma mark - NSSearchFieldDelegate
 
 - (void)searchFieldDidStartSearching:(NSSearchField *)sender {
-    NSLog(@"started %@", [sender stringValue]);
 }
 
 - (void)searchFieldDidEndSearching:(NSSearchField *)sender {
-    NSLog(@"ending");
 }
 
 - (void)searchFieldUpdated:(NSSearchField *)sender {

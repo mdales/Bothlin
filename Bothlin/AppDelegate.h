@@ -17,6 +17,8 @@ extern NSString * __nonnull const kUserDefaultsCustomStoragePath;
 
 @property (nonatomic, weak, readwrite) IBOutlet NSMenuItem * _Nullable deleteAssetMenuItem;
 @property (nonatomic, weak, readwrite) IBOutlet NSMenuItem * _Nullable emptyTrashMenuItem;
+@property (nonatomic, weak, readwrite) IBOutlet NSMenuItem * _Nullable debugRegenerateThumbnailMenuItem;
+@property (nonatomic, weak, readwrite) IBOutlet NSMenuItem * _Nullable debugRegenerateScannedTextMenuItem;
 
 @property (readonly, nonatomic, strong) NSPersistentContainer * _Nonnull persistentContainer;
 @property (readonly, nonatomic, strong) LibraryWriteCoordinator * _Nonnull libraryController;
@@ -25,6 +27,8 @@ extern NSString * __nonnull const kUserDefaultsCustomStoragePath;
 - (IBAction)settings:(id _Nullable)sender;
 - (IBAction)createGroup:(id _Nullable)sender;
 - (IBAction)emptyTrash:(id _Nullable)sender;
+- (IBAction)debugRegenerateThumbnail:(id _Nullable)sender;
+- (IBAction)debugRegenerateScannedText:(id _Nullable)sender;
 
 @end
 

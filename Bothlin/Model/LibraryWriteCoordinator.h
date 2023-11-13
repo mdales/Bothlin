@@ -34,27 +34,31 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)importURLs:(NSArray<NSURL *> *)urls
            toGroup:(NSManagedObjectID * _Nullable)groupID
-          callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
+          callback:(nullable void (^)(BOOL success, NSError * _Nullable error))callback;
+
+- (void)generateThumbnailForAssets:(NSSet<NSManagedObjectID *> *)assetIDs;
+
+- (void)generateScannedTextForAssets:(NSSet<NSManagedObjectID *> *)assetIDs;
 
 - (void)createGroup:(NSString *)name
-           callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
+           callback:(nullable void (^)(BOOL success, NSError * _Nullable error))callback;
 
 - (void)setFavouriteStateOnAssets:(NSSet<NSManagedObjectID *> *)assetIDs
                          newState:(BOOL)state
-                         callback:(nullable void (^)(BOOL success, NSError * _Nullable error, BOOL newState)) callback;
+                         callback:(nullable void (^)(BOOL success, NSError * _Nullable error, BOOL newState))callback;
 
 - (void)addAssets:(NSSet<NSManagedObjectID *> *)assetIDs
           toGroup:(NSManagedObjectID *)groupID
-         callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
+         callback:(nullable void (^)(BOOL success, NSError * _Nullable error))callback;
 
 - (void)removeAssets:(NSSet<NSManagedObjectID *> *)assetIDs
            fromGroup:(NSManagedObjectID *)groupID
-            callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
+            callback:(nullable void (^)(BOOL success, NSError * _Nullable error))callback;
 
 - (void)toggleSoftDeleteAssets:(NSSet<NSManagedObjectID *> *)assetIDs
-                      callback:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
+                      callback:(nullable void (^)(BOOL success, NSError * _Nullable error))callback;
 
-- (void)moveDeletedAssetsToTrash:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback;
+- (void)moveDeletedAssetsToTrash:(nullable void (^)(BOOL success, NSError * _Nullable error))callback;
 
 @end
 
