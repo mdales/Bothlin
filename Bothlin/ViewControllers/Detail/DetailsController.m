@@ -25,10 +25,6 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
 
 @implementation DetailsController
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-}
-
 - (void)setItemForDisplay:(Asset *)item {
     dispatch_assert_queue(dispatch_get_main_queue());
     self.item = item;

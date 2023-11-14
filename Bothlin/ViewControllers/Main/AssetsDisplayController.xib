@@ -16,6 +16,7 @@
         <customView id="Hz6-mo-xeY">
             <rect key="frame" x="0.0" y="0.0" width="480" height="272"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <accessibility description="Assets display"/>
             <point key="canvasLocation" x="139" y="154"/>
         </customView>
     </objects>

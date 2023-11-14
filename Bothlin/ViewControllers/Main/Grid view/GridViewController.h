@@ -9,6 +9,7 @@
 
 #import "GridViewItem.h"
 #import "DragTargetView.h"
+#import "KeyCollectionView.h"
 
 @class Asset;
 
@@ -35,10 +36,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface GridViewController : NSViewController <NSCollectionViewDelegate, NSCollectionViewDataSource, GridViewItemDelegate, DragTargetViewDelegate>
+@interface GridViewController : NSViewController <NSCollectionViewDelegate, NSCollectionViewDataSource, GridViewItemDelegate, DragTargetViewDelegate, KeyCollectionViewDelegate>
 
 // Only access on mainQ
-@property (nonatomic, weak, readwrite) IBOutlet NSCollectionView *collectionView;
+@property (nonatomic, weak, readwrite) IBOutlet KeyCollectionView *collectionView;
 @property (nonatomic, weak, readwrite) IBOutlet DragTargetView *dragTargetView;
 @property (nonatomic, weak, readwrite) id<GridViewControllerDelegate> delegate;
 

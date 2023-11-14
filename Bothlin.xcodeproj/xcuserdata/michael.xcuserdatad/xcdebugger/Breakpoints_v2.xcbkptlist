@@ -33,5 +33,53 @@
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "673BAB5B-F500-4794-A990-A11F1FB71FD3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Bothlin/Window/RootWindowController.m"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "711"
+            endingLineNumber = "711"
+            landmarkName = "RootWindowController"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "673BAB5B-F500-4794-A990-A11F1FB71FD3 - d7e9406fe6d28b4e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[RootWindowController toggleFavourite:]"
+                  moduleName = "Bothlin"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/michael/Dev/Bothlin/Bothlin/Window/RootWindowController.m"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "712"
+                  endingLineNumber = "712"
+                  offsetFromSymbolStart = "224">
+               </Location>
+               <Location
+                  uuid = "673BAB5B-F500-4794-A990-A11F1FB71FD3 - 3dfdb8060d2b27be"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[RootWindowController shareItem:]"
+                  moduleName = "Bothlin"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/michael/Dev/Bothlin/Bothlin/Window/RootWindowController.m"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "711"
+                  endingLineNumber = "711"
+                  offsetFromSymbolStart = "64">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

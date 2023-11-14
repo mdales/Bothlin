@@ -73,6 +73,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 }
 
 - (void)windowDidLoad {
+
+    self.window.initialFirstResponder = self.assetsDisplay.gridViewController.collectionView;
+
     [super windowDidLoad];
 
     NSSplitViewItem *sidebarItem = [NSSplitViewItem sidebarWithViewController:self.sidebar];
@@ -102,15 +105,27 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
     self.viewModel.delegate = self;
 
-    [self.sidebar resignFirstResponder];
-    [self.assetsDisplay becomeFirstResponder];
+    // TODO: This is a back, but I've not found a nicer way to achieve this. If I call NSWindow makeFirstResponder
+    // directly here, it seems to get overriden by the last panel in the SplitView (in our case the detail view)
+    // some time after the window is launched - you can see a call to [NSWindow _realMakeFirstResponder] happen
+    // fron NSApp main after this - but I've no idea how to stop that happening. It seems thus just
+    // overriding that once the app is going is the least stateful way I can think of to achieve what I want
+    // without subclassing everything everywhere to override things.
+    @weakify(self);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @strongify(self);
+        if (nil == self) {
+            return;
+        }
+        [self.window makeFirstResponder:self.assetsDisplay.gridViewController.collectionView];
+    });
+
 
     // TODO: This whole section is horribly verbose and thus confusing to read. The root
     // cause is that starting a block based observer can fail if the block was already
     // started. I suspect I should just assert in the handler and not ignore the error
     // - it's not like I can recover from this.
     NSError *error = nil;
-    @weakify(self);
     BOOL success = [self.sidebarObserver startWithBlock:^(__unused NSDictionary * _Nonnull changes) {
         @strongify(self);
         if (nil == self) {
@@ -450,6 +465,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 - (void)assetsDisplayController:(__unused AssetsDisplayController *)assetDisplayController
              selectionDidChange:(NSSet<NSIndexPath *> *)selectedIndexPaths {
     [self.viewModel setSelectedAssetIndexPaths:selectedIndexPaths];
+
+    NSLog(@"%@", self.window.firstResponder);
 }
 
 - (void)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController

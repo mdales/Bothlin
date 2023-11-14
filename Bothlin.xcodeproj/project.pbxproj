@@ -60,6 +60,8 @@
 		4C960F462AD7D8430053C631 /* NSArray+Functional.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C960F452AD7D8430053C631 /* NSArray+Functional.m */; };
 		4C960F472AD7D8430053C631 /* NSArray+Functional.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C960F452AD7D8430053C631 /* NSArray+Functional.m */; };
 		4C960F482AD7D8430053C631 /* NSArray+Functional.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C960F452AD7D8430053C631 /* NSArray+Functional.m */; };
+		4CA03B8A2B02C0B90094C107 /* KeyCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA03B892B02C0B90094C107 /* KeyCollectionView.m */; };
+		4CA03B8B2B02C0B90094C107 /* KeyCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA03B892B02C0B90094C107 /* KeyCollectionView.m */; };
 		4CA644772AE5AF0B005A00D3 /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA644762AE5AF0B005A00D3 /* QuickLookThumbnailing.framework */; };
 		4CB8861E2ABA2CA900968B0F /* LibraryWriteCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */; };
 		4CB886202ABA2CA900968B0F /* LibraryWriteCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */; };
@@ -155,6 +157,8 @@
 		4C960F442AD7D8430053C631 /* NSArray+Functional.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSArray+Functional.h"; sourceTree = "<group>"; };
 		4C960F452AD7D8430053C631 /* NSArray+Functional.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Functional.m"; sourceTree = "<group>"; };
 		4C9D91F12AC2C9B400E42251 /* Bothlin.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Bothlin.entitlements; sourceTree = "<group>"; };
+		4CA03B882B02C0B90094C107 /* KeyCollectionView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeyCollectionView.h; sourceTree = "<group>"; };
+		4CA03B892B02C0B90094C107 /* KeyCollectionView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KeyCollectionView.m; sourceTree = "<group>"; };
 		4CA644762AE5AF0B005A00D3 /* QuickLookThumbnailing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookThumbnailing.framework; path = System/Library/PrivateFrameworks/QuickLookThumbnailing.framework; sourceTree = SDKROOT; };
 		4CAD24582AF3900700571CA4 /* en-GB */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en-GB"; path = "en-GB.lproj/MainMenu.strings"; sourceTree = "<group>"; };
 		4CB8861C2ABA2CA900968B0F /* LibraryWriteCoordinator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryWriteCoordinator.h; sourceTree = "<group>"; };
@@ -401,6 +405,8 @@
 				4C960F3A2AD70CF70053C631 /* GridViewItem.m */,
 				4CE194D62AF0F2AA00F1C1A4 /* GridViewItemRootView.h */,
 				4CE194D72AF0F2AA00F1C1A4 /* GridViewItemRootView.m */,
+				4CA03B882B02C0B90094C107 /* KeyCollectionView.h */,
+				4CA03B892B02C0B90094C107 /* KeyCollectionView.m */,
 			);
 			path = "Grid view";
 			sourceTree = "<group>";
@@ -576,6 +582,7 @@
 			files = (
 				4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
 				4C960F3C2AD70CF70053C631 /* GridViewItem.m in Sources */,
+				4CA03B8A2B02C0B90094C107 /* KeyCollectionView.m in Sources */,
 				4C37FBCE2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
 				4C960F462AD7D8430053C631 /* NSArray+Functional.m in Sources */,
 				4CFB4D412AD2FAE4006F6F7E /* SettingsWindowController.m in Sources */,
@@ -623,6 +630,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CA03B8B2B02C0B90094C107 /* KeyCollectionView.m in Sources */,
 				4CBD40B82AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */,
 				4C9544B72AECE613007205A9 /* NSSet+Functional.m in Sources */,
 				4C1F01CB2AD7F13600E4CCD7 /* AppDelegate.m in Sources */,

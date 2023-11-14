@@ -26,13 +26,14 @@
                         <rect key="frame" x="1" y="1" width="725" height="505"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <collectionView selectable="YES" allowsEmptySelection="NO" allowsMultipleSelection="YES" id="ZMD-KV-h7a">
+                            <collectionView selectable="YES" allowsEmptySelection="NO" allowsMultipleSelection="YES" id="ZMD-KV-h7a" customClass="KeyCollectionView">
                                 <rect key="frame" x="0.0" y="0.0" width="725" height="505"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="zrK-dz-NZd">
                                     <size key="itemSize" width="250" height="250"/>
                                 </collectionViewFlowLayout>
                                 <color key="primaryBackgroundColor" red="0.59607843137254901" green="0.59607843137254901" blue="0.61568627450980395" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                <accessibility description="Assets grid"/>
                                 <connections>
                                     <outlet property="dataSource" destination="-2" id="HIP-hr-8MD"/>
                                     <outlet property="delegate" destination="-2" id="fXr-2t-Dgq"/>

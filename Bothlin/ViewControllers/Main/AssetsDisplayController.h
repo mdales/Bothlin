@@ -46,6 +46,8 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 
 @interface AssetsDisplayController : NSViewController <GridViewControllerDelegate, SingleViewControllerDelegate>
 
+@property (nonatomic, strong, readonly) GridViewController *gridViewController;
+
 // Only safe on mainQ
 @property (nonatomic, weak, readwrite) id<AssetsDisplayControllerDelegate> delegate;
 @property (nonatomic, readwrite) ItemsDisplayStyle displayStyle;

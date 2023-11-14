@@ -38,7 +38,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    self.dragTargetView.delegate = self;
+    self.collectionView.keyDelegate = self;
+    self.dragTargetView.delegate = self; 
 
     [self.collectionView setDraggingSourceOperationMask:NSDragOperationCopy
                                                forLocal:NO];
@@ -282,6 +283,33 @@
                                                           options:nil];
     return [delegate gridViewController:self
                   didReceiveDroppedURLs:[NSSet setWithArray:objects]];
+}
+
+
+#pragma mark - KeyCollectionViewDelegate
+
+- (void)keyCollectionView:(__unused KeyCollectionView *)keyCollectionView
+    presentItemsAtIndexes:(NSIndexSet *)indexes {
+    dispatch_assert_queue(dispatch_get_main_queue());
+
+    // get the first selected item
+    if ([indexes count] < 1) {
+        return;
+    }
+
+    __block Asset *asset = nil;
+    dispatch_sync(self.syncQ, ^{
+        NSUInteger index = [indexes firstIndex];
+        if (index < [self.contents count]) {
+            asset = self.contents[index];
+        }
+    });
+    if (nil == asset) {
+        return;
+    }
+
+    [self.delegate gridViewController:self
+                    doubleClickedItem:asset];
 }
 
 @end

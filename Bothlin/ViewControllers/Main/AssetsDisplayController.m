@@ -13,7 +13,6 @@
 @interface AssetsDisplayController ()
 
 @property (nonatomic, strong, readonly) SingleViewController *singleViewController;
-@property (nonatomic, strong, readonly) GridViewController *gridViewController;
 
 @end
 
