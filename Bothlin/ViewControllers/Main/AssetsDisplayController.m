@@ -148,10 +148,14 @@
     [self addChildViewController:self.gridViewController];
     [self.gridViewController.view setFrame:self.view.frame];
     [self.gridViewController.view setWantsLayer:YES];
+    [self.gridViewController.view setAutoresizingMask:NSViewHeightSizable | NSViewWidthSizable];
+    [self.gridViewController.view setAutoresizesSubviews:YES];
 
     [self addChildViewController:self.singleViewController];
     [self.singleViewController.view setFrame:self.view.frame];
     [self.singleViewController.view setWantsLayer:YES];
+    [self.singleViewController.view setAutoresizingMask:NSViewHeightSizable | NSViewWidthSizable];
+    [self.singleViewController.view setAutoresizesSubviews:YES];
 
     NSView *intendedView = self.displayStyle == ItemsDisplayStyleGrid ? self.gridViewController.view : self.singleViewController.view;
     [self.view addSubview:intendedView];
