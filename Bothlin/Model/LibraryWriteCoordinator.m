@@ -239,12 +239,9 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         image = [[NSImage alloc] initByReferencingURL:url];
     }];
     if (nil == image) {
-        if (nil != error) {
-            *error = [NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
-                                         code:LibraryWriteCoordinatorErrorCouldNotLoadAsImage
-                                     userInfo:@{@"ID": itemID}];
-        }
-        return NO;
+        // TODO: we could error if we know this this was an image type, but otherwise just assume
+        // this is success for non-image types
+        return YES;
     }
 
     CGImageRef cgImage = [image CGImageForProposedRect:nil
@@ -253,12 +250,9 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     // Surprisingly we can get a NSImage object from non-image files, but this will be nil if it
     // can't open them.
     if (NULL == cgImage) {
-        if (nil != error) {
-            *error = [NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
-                                         code:LibraryWriteCoordinatorErrorCouldNotLoadAsImage
-                                     userInfo:@{@"ID": itemID}];
-        }
-        return NO;
+        // TODO: we could error if we know this this was an image type, but otherwise just assume
+        // this is success for non-image types
+        return YES;
     }
 
     VNRecognizeTextRequest *request = [[VNRecognizeTextRequest alloc] initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
