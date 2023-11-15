@@ -72,6 +72,9 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
             case 49: // space
                 [delegate singleViewItemWasDimissed:self];
                 return;
+            case 53: // escape
+                [delegate singleViewItemWasDimissed:self];
+                return;
             case 123: { // left arrow
                     BOOL success = [delegate singleViewController:self
                                                   moveSelectionBy:-1];
