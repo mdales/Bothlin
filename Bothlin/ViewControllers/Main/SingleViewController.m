@@ -57,7 +57,43 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
 
 - (void)onDoubleClick:(NSGestureRecognizer *)sender {
     dispatch_assert_queue(dispatch_get_main_queue());
-    [self.delegate singleViewItemWasDoubleClicked:self];
+    [self.delegate singleViewItemWasDimissed:self];
+}
+
+- (void)keyDown:(NSEvent *)event { 
+    id<SingleViewControllerDelegate> delegate = self.delegate;
+    if (nil == delegate) {
+        [super keyDown:event];
+        return;
+    }
+
+    if (NSKeyDown == event.type) {
+        switch (event.keyCode) {
+            case 49: // space
+                [delegate singleViewItemWasDimissed:self];
+                return;
+            case 123: { // left arrow
+                    BOOL success = [delegate singleViewController:self
+                                                  moveSelectionBy:-1];
+                    if (NO != success) {
+                        return;
+                    }
+                }
+                break;
+            case 124: { // right arrow
+                    BOOL success = [delegate singleViewController:self
+                                                  moveSelectionBy:1];
+                    if (NO != success) {
+                        return;
+                    }
+                }
+                break;
+            default:
+                NSLog(@"event: %@", event);
+                break;
+        }
+    }
+    [super keyDown:event];
 }
 
 #pragma mark - data

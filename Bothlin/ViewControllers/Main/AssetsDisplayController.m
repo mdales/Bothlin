@@ -80,6 +80,7 @@
             self.gridViewController.view.alphaValue = 1.0;
             [self.delegate assetsDisplayController:self
                                 viewStyleDidChange:displayStyle];
+            [self.view.window makeFirstResponder:self.singleViewController];
         }];
 
     } else {
@@ -111,6 +112,7 @@
             [self.singleViewController.view removeFromSuperview];
             [self.delegate assetsDisplayController:self
                                 viewStyleDidChange:displayStyle];
+            [self.view.window makeFirstResponder:self.gridViewController.collectionView];
         }];
     }
 }
@@ -165,10 +167,10 @@
 #pragma mark - GridViewControllerDelegate
 
 - (void)gridViewController:(GridViewController *)gridViewController
-        selectionDidChange:(NSIndexPath *)selectedIndexPath {
-    NSParameterAssert(nil != selectedIndexPath);
+        selectionDidChange:(NSSet<NSIndexPath *> *)selectedIndexPaths {
+    NSParameterAssert(nil != selectedIndexPaths);
     [self.delegate assetsDisplayController:self
-                       selectionDidChange:selectedIndexPath];
+                       selectionDidChange:selectedIndexPaths];
 }
 
 - (void)gridViewController:(nonnull GridViewController *)gridViewController
@@ -200,7 +202,7 @@
 
 #pragma mark - SingleViewControllerDelegate
 
-- (void)singleViewItemWasDoubleClicked:(SingleViewController *)singleViewItem {
+- (void)singleViewItemWasDimissed:(SingleViewController *)singleViewItem {
     [self setDisplayStyle:ItemsDisplayStyleGrid];
 }
 
@@ -208,6 +210,34 @@
     [self.delegate assetsDisplayController:self
                       failedToDisplayAsset:asset
                                      error:error];
+}
+
+- (BOOL)singleViewController:(SingleViewController *)singleViewController moveSelectionBy:(NSInteger)distance {
+    id<AssetsDisplayControllerDelegate> delegate = self.delegate;
+    if (nil == delegate) {
+        return NO;
+    }
+
+    // There's a life of thinking that says we should actually just send this to the root window controller
+    // and let it deal with selection changes on the view model directly, as the gridViewController's selection
+    // is derived from that. But NSCollectionView already deals with keypress selection changes, so for now
+    // this is sort of pretending we can do the same for the single view controller.
+    NSSet<NSIndexPath *> *selection = [self.gridViewController currentSelection];
+
+    // TODO: deal with multiple selection better
+    if ([selection count] != 1) {
+        return NO;
+    }
+    NSIndexPath *indexPath = [selection anyObject];
+    NSInteger newItem = [indexPath item] + distance;
+    if ((newItem < 0) || (newItem >= [self.gridViewController count])) {
+        return NO;
+    }
+
+    [delegate assetsDisplayController:self
+                   selectionDidChange:[NSSet setWithObject:[NSIndexPath indexPathForItem:newItem inSection:0]]];
+
+    return YES;
 }
 
 @end

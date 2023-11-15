@@ -96,25 +96,32 @@
     }
 }
 
-- (void)selectionChanged {
+- (NSUInteger)count {
+    dispatch_assert_queue_not(self.syncQ);
+
+    __block NSUInteger count = 0;
+    dispatch_sync(self.syncQ, ^{
+        count = [self.contents count];
+    });
+    return count;
+}
+
+- (NSSet<NSIndexPath *> *)currentSelection {
+    dispatch_assert_queue(dispatch_get_main_queue());
+
     NSIndexSet *selectedRanges = [self.collectionView selectionIndexes];
     NSMutableSet<NSIndexPath *> *collectedIndexPaths = [NSMutableSet set];
     [selectedRanges enumerateIndexesUsingBlock:^(NSUInteger idx, __unused BOOL * _Nonnull stop) {
         [collectedIndexPaths addObject:[NSIndexPath indexPathForItem:(NSInteger)idx inSection:0]];
     }];
-    [self.delegate gridViewController:self
-                   selectionDidChange:[NSSet setWithSet:collectedIndexPaths]];
+    return [NSSet setWithSet:collectedIndexPaths];
 }
 
 - (BOOL)currentSelectedItemFrame:(NSRect *)frame {
+    dispatch_assert_queue(dispatch_get_main_queue());
     NSParameterAssert(nil != frame);
 
-    NSIndexSet *selectedRanges = [self.collectionView selectionIndexes];
-    NSMutableSet<NSIndexPath *> *collectedIndexPaths = [NSMutableSet set];
-    [selectedRanges enumerateIndexesUsingBlock:^(NSUInteger idx, __unused BOOL * _Nonnull stop) {
-        [collectedIndexPaths addObject:[NSIndexPath indexPathForItem:(NSInteger)idx inSection:0]];
-    }];
-
+    NSSet<NSIndexPath *> *collectedIndexPaths = [self currentSelection];
     if ([collectedIndexPaths count] != 1) {
         return NO;
     }
@@ -123,6 +130,19 @@
     *frame = [selected.view convertRect:selected.imageView.frame toView:self.view];
 
     return YES;
+}
+
+
+#pragma mark - internal
+
+- (void)selectionChanged {
+    NSIndexSet *selectedRanges = [self.collectionView selectionIndexes];
+    NSMutableSet<NSIndexPath *> *collectedIndexPaths = [NSMutableSet set];
+    [selectedRanges enumerateIndexesUsingBlock:^(NSUInteger idx, __unused BOOL * _Nonnull stop) {
+        [collectedIndexPaths addObject:[NSIndexPath indexPathForItem:(NSInteger)idx inSection:0]];
+    }];
+    [self.delegate gridViewController:self
+                   selectionDidChange:[NSSet setWithSet:collectedIndexPaths]];
 }
 
 
@@ -288,13 +308,13 @@
 
 #pragma mark - KeyCollectionViewDelegate
 
-- (void)keyCollectionView:(__unused KeyCollectionView *)keyCollectionView
+- (BOOL)keyCollectionView:(__unused KeyCollectionView *)keyCollectionView
     presentItemsAtIndexes:(NSIndexSet *)indexes {
     dispatch_assert_queue(dispatch_get_main_queue());
 
     // get the first selected item
     if ([indexes count] < 1) {
-        return;
+        return NO;
     }
 
     __block Asset *asset = nil;
@@ -305,11 +325,12 @@
         }
     });
     if (nil == asset) {
-        return;
+        return NO;
     }
 
     [self.delegate gridViewController:self
                     doubleClickedItem:asset];
+    return YES;
 }
 
 @end

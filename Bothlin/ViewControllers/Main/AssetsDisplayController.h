@@ -24,7 +24,7 @@ typedef NS_ENUM(NSInteger, ItemsDisplayStyle) {
 @protocol AssetsDisplayControllerDelegate <NSObject>
 
 - (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController
-             selectionDidChange:(NSIndexPath *)selectedIndexPath;
+             selectionDidChange:(NSSet<NSIndexPath *> *)selectedIndexPath;
 
 - (void)assetsDisplayController:(AssetsDisplayController *)assetsDisplayController
              viewStyleDidChange:(ItemsDisplayStyle)displayStyle;

@@ -16,10 +16,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SingleViewControllerDelegate <NSObject>
 
-- (void)singleViewItemWasDoubleClicked:(SingleViewController *)singleViewItem;
+- (void)singleViewItemWasDimissed:(SingleViewController *)singleViewItem;
+
 - (void)singleViewController:(SingleViewController *)singleViewController
            failedToLoadAsset:(Asset *)asset
                        error:(NSError *)error;
+
+- (BOOL)singleViewController:(SingleViewController *)singleViewController
+            moveSelectionBy:(NSInteger)distance;
 
 @end
 

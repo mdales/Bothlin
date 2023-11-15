@@ -43,28 +43,28 @@
             filePath = "Bothlin/Window/RootWindowController.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "711"
-            endingLineNumber = "711"
-            landmarkName = "RootWindowController"
-            landmarkType = "3">
+            startingLineNumber = "709"
+            endingLineNumber = "709"
+            landmarkName = "-shareItem:"
+            landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "673BAB5B-F500-4794-A990-A11F1FB71FD3 - d7e9406fe6d28b4e"
+                  uuid = "673BAB5B-F500-4794-A990-A11F1FB71FD3 - 2b8fe83f2c38e01e"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "-[RootWindowController toggleFavourite:]"
+                  symbolName = "-[RootWindowController toggleDetails:]"
                   moduleName = "Bothlin"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/michael/Dev/Bothlin/Bothlin/Window/RootWindowController.m"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "712"
-                  endingLineNumber = "712"
-                  offsetFromSymbolStart = "224">
+                  startingLineNumber = "709"
+                  endingLineNumber = "709"
+                  offsetFromSymbolStart = "252">
                </Location>
                <Location
-                  uuid = "673BAB5B-F500-4794-A990-A11F1FB71FD3 - 3dfdb8060d2b27be"
+                  uuid = "673BAB5B-F500-4794-A990-A11F1FB71FD3 - 3dfdb8060d2b277c"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -74,8 +74,8 @@
                   urlString = "file:///Users/michael/Dev/Bothlin/Bothlin/Window/RootWindowController.m"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "711"
-                  endingLineNumber = "711"
+                  startingLineNumber = "709"
+                  endingLineNumber = "709"
                   offsetFromSymbolStart = "64">
                </Location>
             </Locations>

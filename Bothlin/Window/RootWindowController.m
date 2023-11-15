@@ -465,8 +465,6 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 - (void)assetsDisplayController:(__unused AssetsDisplayController *)assetDisplayController
              selectionDidChange:(NSSet<NSIndexPath *> *)selectedIndexPaths {
     [self.viewModel setSelectedAssetIndexPaths:selectedIndexPaths];
-
-    NSLog(@"%@", self.window.firstResponder);
 }
 
 - (void)assetsDisplayController:(__unused AssetsDisplayController *)assetsDisplayController

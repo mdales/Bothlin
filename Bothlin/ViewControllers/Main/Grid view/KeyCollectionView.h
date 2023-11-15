@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol KeyCollectionViewDelegate <NSObject>
 
-- (void)keyCollectionView:(KeyCollectionView *)keyCollectionView
+- (BOOL)keyCollectionView:(KeyCollectionView *)keyCollectionView
     presentItemsAtIndexes:(NSIndexSet *)indexes;
 
 @end

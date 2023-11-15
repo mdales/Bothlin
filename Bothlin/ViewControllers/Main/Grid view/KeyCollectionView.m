@@ -18,10 +18,14 @@
 
     if (NSKeyDown == event.type) {
         switch (event.keyCode) {
-            case 49:
-                [keyDelegate keyCollectionView:self
-                         presentItemsAtIndexes:self.selectionIndexes];
-                return;
+            case 49: { // space
+                    BOOL success = [keyDelegate keyCollectionView:self
+                                            presentItemsAtIndexes:self.selectionIndexes];
+                    if (NO != success) {
+                        return;
+                    }
+                }
+                break;
             default:
                 break;
         }
