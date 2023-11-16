@@ -196,6 +196,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     NSAssert(NO != success, @"Got no error and no success");
 }
 
+#pragma mark - internal
+
 - (void)updateToolbar {
     NSArray<NSToolbarItem *> *toolbarItems = [[self.window toolbar] items];
     NSAssert(nil != toolbarItems, @"Toolbar unexpctedly has no items");
@@ -241,6 +243,36 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             [group setEnabled:isOneItemSelected];
         }
     }
+}
+
+- (void)importWithChecks:(NSArray<NSURL *> *)urls
+           relatedObject:(NSManagedObjectID * _Nullable)relatedObject {
+    dispatch_assert_queue(dispatch_get_main_queue());
+    NSParameterAssert(nil != urls);
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
+
+    // This is async, so returns immediately
+    @weakify(self);
+    [library importURLs:urls
+                toGroup:relatedObject
+               callback:^(BOOL success, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+
+            if (nil != error) {
+                NSAssert(NO == success, @"Got error and success from saving.");
+                NSAlert *alert = [NSAlert alertWithError:error];
+                [alert runModal];
+                return;
+            }
+            NSAssert(NO != success, @"Got no success and error from saving.");
+        });
+    }];
 }
 
 #pragma mark - State logic
@@ -314,30 +346,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
         if (NSModalResponseOK == result) {
             NSArray<NSURL *> *urls = [panel URLs];
-
-            AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-            LibraryWriteCoordinator *library = appDelegate.libraryController;
-
-            // This is async, so returns immediately
-            @weakify(self);
-            [library importURLs:urls
-                        toGroup:relatedObject
-                       callback:^(BOOL success, NSError *error) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    @strongify(self);
-                    if (nil == self) {
-                        return;
-                    }
-
-                    if (nil != error) {
-                        NSAssert(NO == success, @"Got error and success from saving.");
-                        NSAlert *alert = [NSAlert alertWithError:error];
-                        [alert runModal];
-                        return;
-                    }
-                    NSAssert(NO != success, @"Got no success and error from saving.");
-                });
-            }];
+            [self importWithChecks:urls
+                     relatedObject:relatedObject];
         }
     }];
 }
@@ -483,31 +493,11 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         return NO;
     }
 
-    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-    LibraryWriteCoordinator *library = appDelegate.libraryController;
-
     NSManagedObjectID *relatedObject = [self.viewModel selectedSidebarItem].relatedOject;
 
-    // This is async, so returns immediately
-    @weakify(self);
-    [library importURLs:[URLs allObjects]
-                toGroup:relatedObject
-               callback:^(BOOL success, NSError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            @strongify(self);
-            if (nil == self) {
-                return;
-            }
-
-            if (nil != error) {
-                NSAssert(NO == success, @"Got error and success from saving.");
-                NSAlert *alert = [NSAlert alertWithError:error];
-                [alert runModal];
-                return;
-            }
-            NSAssert(NO != success, @"Got no success and error from saving.");
-        });
-    }];
+    // internally this is async, so will return immediately
+    [self importWithChecks:[URLs allObjects]
+             relatedObject:relatedObject];
 
     return YES;
 }
