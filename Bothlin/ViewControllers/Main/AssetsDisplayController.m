@@ -14,6 +14,13 @@
 
 @property (nonatomic, strong, readonly) SingleViewController *singleViewController;
 
+// only access on mainQ
+// TODO: transitioningView is a hack just to stop us getting bugs with the naive
+// view transition animation code. In an ideal would we'd abort the current transition
+// and reverse it if you user spams the view toggle option. So not ideal, but better
+// than a stack trace.
+@property (nonatomic, readwrite) BOOL transitioningView;
+
 @end
 
 @implementation AssetsDisplayController
@@ -24,6 +31,7 @@
         self->_gridViewController = [[GridViewController alloc] initWithNibName:@"GridViewController" bundle:nil];
         self->_singleViewController = [[SingleViewController alloc] initWithNibName:@"SingleViewController" bundle:nil];
         self->_displayStyle = ItemsDisplayStyleGrid;
+        self->_transitioningView = NO;
     }
     return self;
 }
@@ -35,10 +43,17 @@
     // selected item frame, and that felt messier than <waves hand/> this.
 
     dispatch_assert_queue(dispatch_get_main_queue());
+
+    if (NO != self.transitioningView) {
+        return;
+    }
+
     if (displayStyle == self->_displayStyle) {
         return;
     }
     self->_displayStyle = displayStyle;
+
+    self.transitioningView = YES;
 
     // work out selected cell
     NSRect activeItemFrame = NSMakeRect(0.0, 0.0, 0.0, 0.0);
@@ -81,6 +96,7 @@
             [self.delegate assetsDisplayController:self
                                 viewStyleDidChange:displayStyle];
             [self.view.window makeFirstResponder:self.singleViewController];
+            self.transitioningView = NO;
         }];
 
     } else {
@@ -113,6 +129,7 @@
             [self.delegate assetsDisplayController:self
                                 viewStyleDidChange:displayStyle];
             [self.view.window makeFirstResponder:self.gridViewController.collectionView];
+            self.transitioningView = NO;
         }];
     }
 }
