@@ -14,7 +14,8 @@
 + (NSManagedObjectContext *)managedObjectContextForTests {
     static NSManagedObjectModel *model = nil;
     if (!model) {
-        model = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
+        NSURL *modelURL = [[NSBundle mainBundle] URLForResource:[NSString stringWithFormat:@"LibraryModel.momd/LibraryModel %d", 2] withExtension:@"mom"];
+        model = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
     }
 
     NSPersistentStoreCoordinator *psc = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
