@@ -13,6 +13,7 @@
 NSString * __nonnull const kUserDefaultsUsingDefaultStorage = @"kUserDefaultsUsingDefaultStorage";
 NSString * __nonnull const kUserDefaultsDefaultStoragePath = @"kUserDefaultsDefaultStoragePath";
 NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCustomStoragePath";
+NSString * __nonnull const kUserDefaultsExpandedSidebarItems = @"kUserDefaultsExpandedSidebarItems";
 
 @interface AppDelegate ()
 
@@ -71,6 +72,7 @@ NSString * __nonnull const kUserDefaultsCustomStoragePath = @"kUserDefaultsCusto
     NSDictionary<NSString *, id> *initialDefaultValues = @{
         kUserDefaultsUsingDefaultStorage: @(YES),
         kUserDefaultsDefaultStoragePath: defaultStorageData,
+        kUserDefaultsExpandedSidebarItems: @[],
     };
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];

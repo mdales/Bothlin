@@ -24,13 +24,15 @@ typedef NS_ENUM(NSInteger, SidebarItemDragResponse) {
 @property (nonatomic, strong, readonly, nullable) NSFetchRequest *fetchRequest;
 @property (nonatomic, readonly) SidebarItemDragResponse dragResponseType;
 @property (nonatomic, strong, readonly, nullable) NSManagedObjectID *relatedOject;
+@property (nonatomic, strong, readonly) NSUUID *uuid;
 
 - (instancetype)initWithTitle:(NSString *)title
                    symbolName:(NSString * _Nullable)symbolName
              dragResponseType:(SidebarItemDragResponse)dragResponseType
                      children:(NSArray<SidebarItem *> * _Nullable)children
                  fetchRequest:(NSFetchRequest * _Nullable)fetchRequest
-                relatedObject:(NSManagedObjectID * _Nullable)relatedObject;
+                relatedObject:(NSManagedObjectID * _Nullable)relatedObject
+                         uuid:(NSUUID *)uuid;
 
 @end
 

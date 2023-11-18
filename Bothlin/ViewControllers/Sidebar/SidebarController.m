@@ -10,6 +10,8 @@
 #import "TableCellWithButtonView.h"
 #import "GridViewItem.h"
 #import "AssetPromiseProvider.h"
+#import "NSArray+Functional.h"
+#import "AppDelegate.h"
 
 @implementation SidebarController
 
@@ -21,6 +23,18 @@
     [self.outlineView reloadData];
     [self.outlineView selectRowIndexes:[[NSIndexSet alloc] initWithIndex:0]
                   byExtendingSelection:NO];
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray<NSString *> *expandedItems = [defaults arrayForKey:kUserDefaultsExpandedSidebarItems];
+    NSSet<NSString *> *expandedItemSet = [NSSet setWithArray:expandedItems];
+    if (nil != expandedItems) {
+        // Currently we only expand at the top level, so this code is a little lazy
+        for (SidebarItem *item in self.sidebarTree.children) {
+            if ([expandedItemSet containsObject:[item.uuid UUIDString]]) {
+                [self.outlineView expandItem:item];
+            }
+        }
+    }
 }
 
 - (void)setSidebarTree:(SidebarItem *)sidebarTree {
@@ -28,6 +42,18 @@
     dispatch_assert_queue(dispatch_get_main_queue());
     self->_sidebarTree = sidebarTree;
     [self.outlineView reloadData];
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray<NSString *> *expandedItems = [defaults arrayForKey:kUserDefaultsExpandedSidebarItems];
+    NSSet<NSString *> *expandedItemSet = [NSSet setWithArray:expandedItems];
+    if (nil != expandedItems) {
+        // Currently we only expand at the top level, so this code is a little lazy
+        for (SidebarItem *item in self.sidebarTree.children) {
+            if ([expandedItemSet containsObject:[item.uuid UUIDString]]) {
+                [self.outlineView expandItem:item];
+            }
+        }
+    }
 }
 
 - (void)expandGroupsBranch {
@@ -195,6 +221,49 @@
     return [delegate sidebarController:self
                     recievedIndexPaths:[NSSet setWithSet:indexPathSet]
                                 onItem:item];
+}
+
+- (void)outlineViewItemDidExpand:(NSNotification *)notification {
+    dispatch_assert_queue(dispatch_get_main_queue());
+
+    if ((nil == notification) || (nil == notification.userInfo)) {
+        return;
+    }
+    id item = notification.userInfo[@"NSObject"];
+    if ((nil == item) || (![item isKindOfClass:[SidebarItem class]])) {
+        return;
+    }
+    SidebarItem *sidebarItem = (SidebarItem *)item;
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray<NSString *> *expandedSidebarItems = [defaults arrayForKey:kUserDefaultsExpandedSidebarItems];
+    NSSet<NSString *> *expandedSidebarItemSet = [NSSet setWithArray:expandedSidebarItems];
+    expandedSidebarItemSet = [expandedSidebarItemSet setByAddingObject:[sidebarItem.uuid UUIDString]];
+    [defaults setObject:[expandedSidebarItemSet allObjects]
+                 forKey:kUserDefaultsExpandedSidebarItems];
+}
+
+- (void)outlineViewItemDidCollapse:(NSNotification *)notification {
+    dispatch_assert_queue(dispatch_get_main_queue());
+
+    if ((nil == notification) || (nil == notification.userInfo)) {
+        return;
+    }
+    id item = notification.userInfo[@"NSObject"];
+    if ((nil == item) || (![item isKindOfClass:[SidebarItem class]])) {
+        return;
+    }
+    SidebarItem *sidebarItem = (SidebarItem *)item;
+    NSString *uuid = [sidebarItem.uuid UUIDString];
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray<NSString *> *expandedSidebarItems = [defaults arrayForKey:kUserDefaultsExpandedSidebarItems];
+    expandedSidebarItems = [expandedSidebarItems compactMapUsingBlock:^id _Nullable(NSString * _Nonnull object) {
+        return [object compare:uuid] == NSOrderedSame ? nil : object;
+    }];
+    [defaults setObject:expandedSidebarItems
+                 forKey:kUserDefaultsExpandedSidebarItems];
+
 }
 
 @end

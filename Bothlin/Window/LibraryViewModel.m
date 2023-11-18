@@ -362,6 +362,7 @@ NSArray<NSString *> * const testTags = @[
 
 + (SidebarItem * _Nonnull)buildMenuWithGroups:(NSArray<Group *> * _Nonnull)groups
                              trashDisplayName:(NSString *)trashDisplayName {
+    // TODO: Can we load this from JSON/plist?
     NSFetchRequest *everythingRequest = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
     [everythingRequest setPredicate:[NSPredicate predicateWithFormat: @"deletedAt == nil"]];
     SidebarItem *everything = [[SidebarItem alloc] initWithTitle:@"Everything"
@@ -369,7 +370,8 @@ NSArray<NSString *> * const testTags = @[
                                                 dragResponseType:SidebarItemDragResponseNone
                                                         children:nil
                                                     fetchRequest:everythingRequest
-                                                   relatedObject:nil];
+                                                   relatedObject:nil
+                                                            uuid:[[NSUUID alloc] initWithUUIDString:@"f9d907a7-99f2-4112-8680-5160c656ee4d"]];
 
     NSFetchRequest *favouriteRequest = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
     [favouriteRequest setPredicate:[NSPredicate predicateWithFormat: @"favourite == YES"]];
@@ -378,7 +380,8 @@ NSArray<NSString *> * const testTags = @[
                                                 dragResponseType:SidebarItemDragResponseFavourite
                                                         children:nil
                                                     fetchRequest:favouriteRequest
-                                                   relatedObject:nil];
+                                                   relatedObject:nil
+                                                            uuid:[[NSUUID alloc] initWithUUIDString:@"7e555562-353c-4365-b6fe-863950d9693f"]];
 
     SidebarItem *groupsItem = [[SidebarItem alloc] initWithTitle:@"Groups"
                                                       symbolName:@"folder"
@@ -394,10 +397,12 @@ NSArray<NSString *> * const testTags = @[
                                  dragResponseType:SidebarItemDragResponseGroup
                                          children:nil
                                      fetchRequest:groupRequest
-                                    relatedObject:group.objectID];
+                                    relatedObject:group.objectID
+                                             uuid:[NSUUID UUID]];
     }]
                                                     fetchRequest:nil
-                                                   relatedObject:nil];
+                                                   relatedObject:nil
+                                                            uuid:[[NSUUID alloc] initWithUUIDString:@"48e8126a-40c6-4076-ae36-154829ca77a7"]];
 
     SidebarItem *tags = [[SidebarItem alloc] initWithTitle:@"Popular Tags"
                                                 symbolName:@"tag"
@@ -408,10 +413,12 @@ NSArray<NSString *> * const testTags = @[
                                  dragResponseType:SidebarItemDragResponseNone
                                          children:nil
                                      fetchRequest:nil
-                                    relatedObject:nil];
+                                    relatedObject:nil
+                                             uuid:[NSUUID UUID]];
     }]
                                               fetchRequest:nil
-                                             relatedObject:nil];
+                                             relatedObject:nil
+                                                      uuid:[[NSUUID alloc] initWithUUIDString:@"d0cbc8b6-cf82-45b7-9c14-8fa54a997c92"]];
 
 
 
@@ -422,14 +429,16 @@ NSArray<NSString *> * const testTags = @[
                                            dragResponseType:SidebarItemDragResponseTrash
                                                    children:nil
                                                fetchRequest:trashReequest
-                                              relatedObject:nil];
+                                              relatedObject:nil
+                                                       uuid:[[NSUUID alloc] initWithUUIDString:@"14b0db34-7698-41e5-ba25-dd4b0e5db1d1"]];
 
     SidebarItem *root = [[SidebarItem alloc] initWithTitle:@"toplevel"
                                                 symbolName:nil
                                           dragResponseType:SidebarItemDragResponseNone
                                                   children:@[everything, favourites, groupsItem, tags, trash]
                                               fetchRequest:nil
-                                             relatedObject:nil];
+                                             relatedObject:nil
+                                                      uuid:[[NSUUID alloc] initWithUUIDString:@"2ff8f5bd-e8db-4a3e-bf5b-bf4e6d1471e2"]];
 
     return root;
 }

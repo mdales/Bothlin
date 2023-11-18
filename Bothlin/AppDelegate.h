@@ -12,6 +12,7 @@
 extern NSString * __nonnull const kUserDefaultsUsingDefaultStorage;
 extern NSString * __nonnull const kUserDefaultsDefaultStoragePath;
 extern NSString * __nonnull const kUserDefaultsCustomStoragePath;
+extern NSString * __nonnull const kUserDefaultsExpandedSidebarItems;
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
