@@ -16,7 +16,7 @@
         return;
     }
 
-    if (NSKeyDown == event.type) {
+    if (NSEventTypeKeyDown == event.type) {
         switch (event.keyCode) {
             case 49: { // space
                     BOOL success = [keyDelegate keyCollectionView:self

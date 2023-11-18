@@ -67,7 +67,7 @@ typedef NS_ERROR_ENUM(SingleViewControllerErrorDomain, SingleViewControllerError
         return;
     }
 
-    if (NSKeyDown == event.type) {
+    if (NSEventTypeKeyDown == event.type) {
         switch (event.keyCode) {
             case 49: // space
                 [delegate singleViewItemWasDimissed:self];

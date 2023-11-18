@@ -175,16 +175,16 @@
                 return;
             }
             NSError *error = nil;
-            id maybeIndexPath = [NSKeyedUnarchiver unarchiveTopLevelObjectWithData:maybedata
-                                                                             error:&error];
+            NSIndexPath *indexPath = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSIndexPath class]
+                                                                       fromData:maybedata
+                                                                          error:&error];
             if (nil != error) {
-                NSAssert(nil == maybeIndexPath, @"got error and data");
+                NSAssert(nil == indexPath, @"got error and data");
                 NSLog(@"error: %@", error);
                 return;
             }
-            NSAssert(nil != maybeIndexPath, @"Got no error but no data");
-            NSAssert([maybeIndexPath isKindOfClass:[NSIndexPath class]], @"expected index path");
-            [indexPathSet addObject:maybeIndexPath];
+            NSAssert(nil != indexPath, @"Got no error but no data");
+            [indexPathSet addObject:indexPath];
         }
     }];
 
