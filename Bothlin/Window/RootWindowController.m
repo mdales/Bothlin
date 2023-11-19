@@ -14,12 +14,13 @@
 #import "ToolbarProgressView.h"
 #import "Helpers.h"
 #import "SidebarItem.h"
-#import "Group+CoreDataClass.h"
 #import "NSArray+Functional.h"
 #import "NSSet+Functional.h"
 #import "LibraryViewModel.h"
 #import "KVOBox.h"
 #import "Asset+CoreDataClass.h"
+#import "Group+CoreDataClass.h"
+#import "Tag+CoreDataClass.h"
 
 NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIdentifier";
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
@@ -98,6 +99,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
     self.assetsDisplay.delegate = self;
     self.sidebar.delegate = self;
+    self.details.delegate = self;
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryWriteCoordinator *library = appDelegate.libraryController;
@@ -185,7 +187,16 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     }
     NSAssert(NO != success, @"Got no error and no success");
 
-    // Trigger a loading of the groups for the sidebar
+    // Trigger a loading of the groups and tags for the sidebar
+    success = [self.viewModel reloadTags:&error];
+    if (nil != error) {
+        NSAssert(NO == success, @"Got error and success");
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+        return;
+    }
+    NSAssert(NO != success, @"Got no error and no success");
+
     success = [self.viewModel reloadGroups:&error];
     if (nil != error) {
         NSAssert(NO == success, @"Got error and success");
@@ -381,10 +392,16 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     });
 }
 
+#pragma mark - DetailsControllerDelegate
+
+- (void)addTagViaDetailsController:(DetailsController *)detailsController {
+    [self showTagAddPanel:detailsController];
+}
+
 
 #pragma mark - SidebarControllerDelegate
 
-- (void)addGroupViaSidebarController:(__unused SidebarController *)sidebarController {
+- (void)addGroupViaSidebarController:(SidebarController *)sidebarController {
     [self showGroupCreatePanel:sidebarController];
 }
 
@@ -574,7 +591,6 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 }
 
 
-
 #pragma mark - Group creation panel
 
 - (IBAction)showGroupCreatePanel:(id)sender {
@@ -641,7 +657,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [self.window endSheet:self.groupCreatePanel];
 }
 
-- (void)controlTextDidChange:(NSNotification *)obj {
+- (void)groupNameDidChange {
     NSString *current = [self.groupCreateNameField stringValue];
     BOOL canOkay = [current length] > 0;
     if (canOkay) {
@@ -650,7 +666,7 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Group"];
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name like[c] %@", current];
         [fetchRequest setPredicate: predicate];
-        
+
         NSError *error = nil;
         NSArray *groups = [context executeFetchRequest:fetchRequest
                                                  error:&error];
@@ -663,11 +679,124 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             [self.groupCreateDuplicateWarningLabel setHidden:canOkay];
         }
     }
-    [self.groupCreateOKButton setEnabled: canOkay];
+    [self.groupCreateOKButton setEnabled:canOkay];
+}
+
+- (void)controlTextDidChange:(NSNotification *)obj {
+    if (obj.object == self.groupCreateNameField) {
+        [self groupNameDidChange];
+    } else if (obj.object == self.tagAddNameField) {
+        [self tagNameDidChange];
+    }
 }
 
 - (IBAction)groupNameFieldEnter:(id)sender {
 }
+
+
+#pragma mark - Tag add panel
+
+- (IBAction)showTagAddPanel:(id)sender {
+    [self.tagAddNameField setStringValue:@""];
+    [self.tagAddOKButton setEnabled:NO];
+
+    [self.window beginSheet:self.tagAddPanel
+          completionHandler:^(__unused NSModalResponse returnCode) {
+    }];
+}
+
+- (IBAction)tagAddOK:(id)sender {
+    NSString *name = [self.tagAddNameField stringValue];
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
+    @weakify(self)
+    [library addAssets:[self.viewModel.selectedAssets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID;}]
+                toTags:[NSSet setWithObject:name]
+              callback:^(__unused BOOL success, NSError * _Nullable error) {
+        @strongify(self);
+        if (nil == self) {
+            return;
+        }
+
+        @weakify(self);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @strongify(self);
+            if (nil == self) {
+                return;
+            }
+            if (nil != error) {
+                NSAlert *alert = [NSAlert alertWithError:error];
+                [alert runModal];
+            } else {
+                [self.window endSheet:self.tagAddPanel];
+            }
+        });
+    }];
+}
+
+- (IBAction)tagAddCancel:(id)sender {
+    [self.window endSheet:self.tagAddPanel];
+
+}
+
+- (void)tagNameDidChange {
+    NSString *current = [self.tagAddNameField stringValue];
+    BOOL canOkay = [current length] > 0;
+    [self.tagAddOKButton setEnabled:canOkay];
+}
+
+- (IBAction)tagAddNameFieldEnter:(id)sender {
+
+}
+
+
+#pragma mark - NSComboBoxDataSource
+
+- (NSInteger)numberOfItemsInComboBox:(NSComboBox *)comboBox {
+    NSParameterAssert(comboBox == self.tagAddNameField);
+    return (NSInteger)[self.viewModel.tags count];
+}
+
+- (NSString *)comboBox:(NSComboBox *)comboBox completedString:(NSString *)string {
+    NSParameterAssert(comboBox == self.tagAddNameField);
+    // TODO: a bit naive, but just to get us going...
+    NSString *lowerString = [string lowercaseString];
+    for (Tag *tag in self.viewModel.tags) {
+        NSString *lowercaseTag = [tag.name lowercaseString];
+        if ([lowercaseTag hasPrefix: lowerString]) {
+            return tag.name;
+        }
+    }
+    return @""; // Not sure what the "not found" version is - docs don't say.
+}
+
+- (NSUInteger)comboBox:(NSComboBox *)comboBox indexOfItemWithStringValue:(NSString *)string {
+    NSParameterAssert(comboBox == self.tagAddNameField);
+    NSArray<Tag *> *tags = self.viewModel.tags;
+
+    NSString *lowerString = [string lowercaseString];
+    for (NSUInteger index = 0; index < [tags count]; index++) {
+        Tag *tag = [tags objectAtIndex:index];
+        NSString *lowercaseTag = [tag.name lowercaseString];
+        if ([lowercaseTag hasPrefix: lowerString]) {
+            return index;
+        }
+    }
+    return NSNotFound;
+}
+
+- (id)comboBox:(NSComboBox *)comboBox objectValueForItemAtIndex:(NSInteger)index {
+    NSParameterAssert(comboBox == self.tagAddNameField);
+    NSParameterAssert(0 <= index);
+
+    NSArray<Tag *> *tags = self.viewModel.tags;
+    if ([tags count] > index) {
+        Tag *tag = [tags objectAtIndex:(NSUInteger)index];
+        return tag.name;
+    }
+    return @"";
+}
+
 
 #pragma mark - Toolbar items
 
@@ -750,6 +879,21 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
             NSAssert(NO != success, @"Got no error and not success!");
         }];
     }
+}
+
+
+#pragma mark - NSComboBoxDelegate
+
+- (void)comboBoxSelectionDidChange:(NSNotification *)notification {
+    // TODO: This is a hack. When I get this notification the selection has changed in the combo box
+    // but the text field hasn't yet updated, and so if we check for a value there to control if the
+    // OK button is enabled, we'll fail. Punting it like this seems to let the operation complete before
+    // our code starts checking things.
+    @weakify(self);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @strongify(self);
+        [self tagNameDidChange];
+    });
 }
 
 

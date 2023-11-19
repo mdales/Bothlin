@@ -9,6 +9,7 @@
 
 @class Asset;
 @class Group;
+@class Tag;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSArray<Group *> *)generateGroups:(NSUInteger)groupCount
                            inContext:(NSManagedObjectContext *)moc;
+
++ (NSArray<Tag *> *)generateTags:(NSSet<NSString *> *)tagNames
+                       inContext:(NSManagedObjectContext *)moc;
 
 @end
 

@@ -8,6 +8,7 @@
 #import "TestModelHelpers.h"
 #import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
+#import "Tag+CoreDataClass.h"
 
 @implementation TestModelHelpers
 
@@ -58,6 +59,20 @@
         groups[index] = group;
     }
     return [NSArray arrayWithArray:groups];
+}
+
++ (NSArray<Tag *> *)generateTags:(NSSet<NSString *> *)tagNames
+                       inContext:(NSManagedObjectContext *)moc {
+    NSMutableArray<Tag *> *tags = [NSMutableArray arrayWithCapacity:[tagNames count]];
+    NSArray<NSString *> *tagNamesArray = [tagNames allObjects];
+    for (NSUInteger index = 0; index < [tagNames count]; index++) {
+        Tag *tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag"
+                                                 inManagedObjectContext:moc];
+        tag.name = [tagNamesArray objectAtIndex:index];
+        tags[index] = tag;
+    }
+    return [NSArray arrayWithArray:tags];
+
 }
 
 @end

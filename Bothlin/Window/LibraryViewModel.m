@@ -8,6 +8,7 @@
 #import "LibraryViewModel.h"
 #import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
+#import "Tag+CoreDataClass.h"
 #import "NSArray+Functional.h"
 #import "NSSet+Functional.h"
 #import "Helpers.h"
@@ -33,6 +34,7 @@ NSArray<NSString *> * const testTags = @[
 
 @property (nonatomic, strong, readwrite) NSArray<Asset *> *assets;
 @property (nonatomic, strong, readwrite) NSArray<Group *> *groups;
+@property (nonatomic, strong, readwrite) NSArray<Tag *> *tags;
 @property (nonatomic, strong, readwrite) SidebarItem *sidebarItems;
 
 @end
@@ -44,6 +46,7 @@ NSArray<NSString *> * const testTags = @[
 @synthesize selectedAssetIndexPaths = _selectedAssetIndexPaths;
 @synthesize groups = _groups;
 @synthesize selectedSidebarItem = _selectedSidebarItem;
+@synthesize tags = _tags;
 
 - (instancetype)initWithViewContext:(NSManagedObjectContext *)viewContext
                    trashDisplayName:(NSString *)trashDisplayName {
@@ -55,6 +58,7 @@ NSArray<NSString *> * const testTags = @[
         self->_viewContext = viewContext;
         self->_assets = @[];
         self->_groups = @[];
+        self->_tags = @[];
         self->_selectedAssetIndexPaths = [NSSet set];
         self->_sidebarItems = [LibraryViewModel buildMenuWithGroups:@[]
                                                    trashDisplayName:trashDisplayName];
@@ -161,6 +165,15 @@ NSArray<NSString *> * const testTags = @[
     });
 }
 
+- (NSArray<Tag *> *)tags {
+    dispatch_assert_queue_not(self.syncQ);
+    __block NSArray<Tag *> *val;
+    dispatch_sync(self.syncQ, ^{
+        val = self->_tags;
+    });
+    return val;
+}
+
 - (void)setSearchText:(NSString *)searchText {
     NSParameterAssert(nil != searchText);
     dispatch_assert_queue_not(self.syncQ);
@@ -185,6 +198,8 @@ NSArray<NSString *> * const testTags = @[
 - (void)libraryWriteCoordinator:(__unused LibraryWriteCoordinator *)libraryWriteCoordinator 
                       didUpdate:(NSDictionary<NSString *, NSArray<NSManagedObjectID *> *> *)changeNotificationData {
     dispatch_assert_queue(dispatch_get_main_queue());
+
+    id<LibraryViewModelDelegate> delegate = self.delegate;
 
     [NSManagedObjectContext mergeChangesFromRemoteContextSave:changeNotificationData
                                                  intoContexts:@[self.viewContext]];
@@ -216,8 +231,18 @@ NSArray<NSString *> * const testTags = @[
         NSError *error = nil;
         BOOL success = [self reloadGroups:&error];
         if (nil != error) {
-            [self.delegate libraryViewModel:self
-                           hadErrorOnUpdate:error];
+            [delegate libraryViewModel:self
+                      hadErrorOnUpdate:error];
+        }
+        NSAssert(NO != success, @"Got no error and no success");
+    }
+
+    if ([classes containsObject:NSStringFromClass([Tag class])]) {
+        NSError *error = nil;
+        BOOL success = [self reloadTags:&error];
+        if (nil != error) {
+            [delegate libraryViewModel:self
+                      hadErrorOnUpdate:error];
         }
         NSAssert(NO != success, @"Got no error and no success");
     }
@@ -276,6 +301,34 @@ NSArray<NSString *> * const testTags = @[
         self.groups = result;
         self.sidebarItems = [LibraryViewModel buildMenuWithGroups:result
                                                  trashDisplayName:self.trashDisplayName];
+    });
+
+    return YES;
+}
+
+- (BOOL)reloadTags:(NSError **)error {
+    dispatch_assert_queue_not(self.syncQ);
+    dispatch_assert_queue(dispatch_get_main_queue());
+
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"name"
+                                                           ascending:YES];
+    [fetchRequest setSortDescriptors:@[sort]];
+
+    NSError *innerError = nil;
+    NSArray<Tag *> *result = [self.viewContext executeFetchRequest:fetchRequest
+                                                             error:&innerError];
+    if (nil != innerError) {
+        NSAssert(nil == result, @"Got error and fetch results.");
+        if (nil != error) {
+            *error = innerError;
+        }
+        return NO;
+    }
+    NSAssert(nil != result, @"Got no error and no fetch results.");
+
+    dispatch_sync(self.syncQ, ^{
+        self.tags = result;
     });
 
     return YES;

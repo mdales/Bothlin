@@ -12,6 +12,7 @@
 #import "NSSet+Functional.h"
 #import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
+#import "Tag+CoreDataClass.h"
 #import "TestModelHelpers.h"
 
 @interface DelegateRecorder : NSObject <LibraryWriteCoordinatorDelegate>
@@ -283,6 +284,140 @@
     }];
     XCTAssertEqual([groupMemberIDs count], 1, @"Should only be one item in group");
     XCTAssertEqual([groupMemberIDs anyObject], [assetIDs lastObject], @"Wrong asset in group");
+}
+
+- (void)testTagAssetWithNewTag {
+    NSManagedObjectContext *moc = [TestModelHelpers managedObjectContextForTests];
+    LibraryWriteCoordinator *library = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator
+                                                                          delegateCallbackQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+    DelegateRecorder *delegate = [[DelegateRecorder alloc] init];
+    delegate.updateSemaphore = dispatch_semaphore_create(0);
+    library.delegate = delegate;
+
+    __block NSArray<NSManagedObjectID *> *assetIDs = nil;
+    [moc performBlockAndWait:^{
+        NSArray<Asset *> *assets = [TestModelHelpers generateAssets:2
+                                                          inContext:moc];
+        [moc obtainPermanentIDsForObjects:assets
+                                    error:nil];
+        assetIDs = [assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }];
+
+        [moc save:nil];
+    }];
+
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    __block BOOL innerSuccess = NO;
+    __block NSError *innerError = nil;
+    [library addAssets:[NSSet setWithObject:[assetIDs firstObject]]
+                toTags:[NSSet setWithObject:@"Hello"]
+              callback:^(BOOL success, NSError * _Nullable error) {
+        innerSuccess = success;
+        innerError = error;
+        dispatch_semaphore_signal(sem);
+    }];
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    XCTAssertTrue(innerSuccess, @"Expected update to succeed");
+    XCTAssertNil(innerError, @"Expected no error: %@", innerError);
+
+    dispatch_semaphore_wait(delegate.updateSemaphore, DISPATCH_TIME_FOREVER);
+    XCTAssertNotNil(delegate.changeNotificationData, @"Expected delegate to get change data");
+    XCTAssertEqual([delegate.changeNotificationData count], 2, @"Expected both update and insert types");
+
+    NSArray<NSManagedObjectID *> *inserts = delegate.changeNotificationData[NSInsertedObjectsKey];
+    XCTAssertNotNil(inserts, @"Expected updates");
+    XCTAssertEqual([inserts count], 1, @"Expected one tag inserted");
+
+    NSArray<NSManagedObjectID *> *updates = delegate.changeNotificationData[NSUpdatedObjectsKey];
+    XCTAssertNotNil(updates, @"Expected updates");
+    XCTAssertEqual([updates count], 2, @"Expected both asset and tag to update");
+    XCTAssertTrue([[NSSet setWithArray:updates] containsObject:[assetIDs firstObject]], @"Expected first asset in update");
+
+    [NSManagedObjectContext mergeChangesFromRemoteContextSave:delegate.changeNotificationData
+                                                 intoContexts:@[moc]];
+
+    __block NSUInteger tagCounts = 0;
+    __block NSString *tagName = nil;
+    __block NSSet<NSManagedObjectID *> *tagMembershipIDs = nil;
+    [moc performBlockAndWait:^{
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Tag"];
+        NSArray<Tag *> *tags = [moc executeFetchRequest:fetch error:nil];
+        tagCounts = [tags count];
+        if (1 == tagCounts) {
+            Tag *tag = [tags firstObject];
+            tagName = tag.name;
+            tagMembershipIDs = [tag.tags mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
+                return asset.objectID;
+            }];
+        }
+    }];
+    XCTAssertEqual(tagCounts, 1, @"Expected one tag, got %lu", tagCounts);
+    XCTAssertEqual([tagName compare:@"Hello"], NSOrderedSame, @"Tag name wasn't 'Hello': %@", tagName);
+    XCTAssert([tagMembershipIDs isEqualTo:[NSSet setWithObject:[assetIDs firstObject]]], @"Wrong assets in tag");
+}
+
+- (void)testTagAssetWithExistingTag {
+    NSManagedObjectContext *moc = [TestModelHelpers managedObjectContextForTests];
+    LibraryWriteCoordinator *library = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator
+                                                                          delegateCallbackQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+    DelegateRecorder *delegate = [[DelegateRecorder alloc] init];
+    delegate.updateSemaphore = dispatch_semaphore_create(0);
+    library.delegate = delegate;
+
+    __block NSArray<NSManagedObjectID *> *assetIDs = nil;
+    __block NSManagedObjectID *tagID = nil;
+    [moc performBlockAndWait:^{
+        NSArray<Asset *> *assets = [TestModelHelpers generateAssets:2
+                                                          inContext:moc];
+        [moc obtainPermanentIDsForObjects:assets
+                                    error:nil];
+        assetIDs = [assets mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }];
+
+        NSArray<Tag *> *tags = [TestModelHelpers generateTags:[NSSet setWithObject:@"Hello"]
+                                                    inContext:moc];
+        [moc obtainPermanentIDsForObjects:tags
+                                    error:nil];
+        tagID = [[tags firstObject] objectID];
+
+        [moc save:nil];
+    }];
+
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    __block BOOL innerSuccess = NO;
+    __block NSError *innerError = nil;
+    [library addAssets:[NSSet setWithObject:[assetIDs firstObject]]
+                toTags:[NSSet setWithObject:@"HELLO"]
+              callback:^(BOOL success, NSError * _Nullable error) {
+        innerSuccess = success;
+        innerError = error;
+        dispatch_semaphore_signal(sem);
+    }];
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    XCTAssertTrue(innerSuccess, @"Expected update to succeed");
+    XCTAssertNil(innerError, @"Expected no error: %@", innerError);
+
+    dispatch_semaphore_wait(delegate.updateSemaphore, DISPATCH_TIME_FOREVER);
+    XCTAssertNotNil(delegate.changeNotificationData, @"Expected delegate to get change data");
+    XCTAssertEqual([delegate.changeNotificationData count], 1, @"Expected just update type");
+
+    NSArray<NSManagedObjectID *> *updates = delegate.changeNotificationData[NSUpdatedObjectsKey];
+    XCTAssertNotNil(updates, @"Expected updates");
+    XCTAssertEqual([updates count], 2, @"Expected both asset and tag to update");
+    XCTAssertTrue([[NSSet setWithArray:updates] containsObject:[assetIDs firstObject]], @"Expected first asset in update");
+    XCTAssertTrue([[NSSet setWithArray:updates] containsObject:tagID], @"Expected tag in updates");
+
+    [NSManagedObjectContext mergeChangesFromRemoteContextSave:delegate.changeNotificationData
+                                                 intoContexts:@[moc]];
+    
+    __block NSSet<NSManagedObjectID *> *tagMemberIDs = nil;
+    [moc performBlockAndWait:^{
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Tag"];
+        NSArray<Tag *> *tags = [moc executeFetchRequest:fetch error:nil];
+        tagMemberIDs = [[tags firstObject].tags mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
+            return asset.objectID;
+        }];
+    }];
+    XCTAssertEqual([tagMemberIDs count], 1, @"Should only be one item in tag");
+    XCTAssertEqual([tagMemberIDs anyObject], [assetIDs firstObject], @"Wrong asset in tag");
 }
 
 @end

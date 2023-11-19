@@ -263,7 +263,6 @@
     }];
     [defaults setObject:expandedSidebarItems
                  forKey:kUserDefaultsExpandedSidebarItems];
-
 }
 
 @end

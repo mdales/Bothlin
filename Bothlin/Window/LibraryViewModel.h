@@ -10,6 +10,8 @@
 
 @class Asset;
 @class Group;
+@class Tag;
+
 @class SidebarItem;
 @class LibraryViewModel;
 
@@ -40,10 +42,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong, readwrite) NSString *searchText;
 
+@property (nonatomic, strong, readonly) NSArray<Tag *> *tags;
+
 - (instancetype)initWithViewContext:(NSManagedObjectContext *)viewContext
                    trashDisplayName:(NSString *)trashDisplayName;
 
 - (BOOL)reloadGroups:(NSError **)error;
+- (BOOL)reloadTags:(NSError **)error;
 
 @end
 

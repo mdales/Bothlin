@@ -31,11 +31,16 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
     if (nil != item) {
         [self.notesView setStringValue:item.notes];
     }
+    [self.addTagButton setEnabled:item != nil];
     [self.detailsView reloadData];
 }
 
 - (IBAction)textFieldUpdated:(id)sender {
     NSLog(@"%@", [sender stringValue]);
+}
+
+- (IBAction)addTag:(id)sender {
+    [self.delegate addTagViaDetailsController:self];
 }
 
 #pragma mark - NSOutlineViewDataSource

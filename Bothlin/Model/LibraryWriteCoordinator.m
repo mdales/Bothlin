@@ -12,6 +12,7 @@
 #import "LibraryWriteCoordinator.h"
 #import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
+#import "Tag+CoreDataClass.h"
 #import "AssetExtension.h"
 #import "Helpers.h"
 #import "NSURL+SecureAccess.h"
@@ -620,6 +621,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 
 - (void)createGroup:(NSString *)name
            callback:(void (^)(BOOL success, NSError *error)) callback {
+    dispatch_assert_queue_not(self.dataQ);
+
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
@@ -660,6 +663,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 - (void)setFavouriteStateOnAssets:(NSSet<NSManagedObjectID *> *)assetIDs
                          newState:(BOOL)state
                          callback:(nullable void (^)(BOOL success, NSError * _Nullable error, BOOL newState)) callback {
+    dispatch_assert_queue_not(self.dataQ);
+
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
@@ -708,6 +713,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 - (void)addAssets:(NSSet<NSManagedObjectID *> *)assetIDs
           toGroup:(NSManagedObjectID *)groupID
          callback:(void (^)(BOOL success, NSError *error)) callback {
+    dispatch_assert_queue_not(self.dataQ);
+
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
@@ -763,6 +770,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 - (void)removeAssets:(NSSet<NSManagedObjectID *> *)assetIDs
            fromGroup:(NSManagedObjectID *)groupID
             callback:(void (^)(BOOL success, NSError *error)) callback {
+    dispatch_assert_queue_not(self.dataQ);
+
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
@@ -817,6 +826,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 
 - (void)toggleSoftDeleteAssets:(NSSet<NSManagedObjectID *> *)assetIDs
                       callback:(void (^)(BOOL success, NSError *error)) callback {
+    dispatch_assert_queue_not(self.dataQ);
+
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
@@ -869,6 +880,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 
 
 - (void)moveDeletedAssetsToTrash:(nullable void (^)(BOOL success, NSError * _Nullable error)) callback {
+    dispatch_assert_queue_not(self.dataQ);
+
     dispatch_sync(self.dataQ, ^() {
         __block NSError *error = nil;
         __block BOOL success = NO;
@@ -934,6 +947,108 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 }
                 [self.delegate libraryWriteCoordinator:self
                                              didUpdate:@{NSDeletedObjectsKey:deletedItems}];
+            });
+        }
+
+        if (nil != callback) {
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                callback(success, error);
+            });
+        }
+    });
+}
+
+- (void)addAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+           toTags:(NSSet<NSString *> *)rawTags
+         callback:(nullable void (^)(BOOL success, NSError * _Nullable error))callback {
+    dispatch_assert_queue_not(self.dataQ);
+
+    // TODO: We should do some cleaning on the rawTags data: removing spaces at either end, splitting ones with commas in, etc.
+
+    dispatch_sync(self.dataQ, ^() {
+        __block NSError *error = nil;
+        __block BOOL success = NO;
+        __block NSArray<NSManagedObjectID *> *insertedTagIDs = nil;
+        __block NSArray<NSManagedObjectID *> *updatedTagIDs = @[];
+        [self.managedObjectContext performBlockAndWait:^{
+            NSSet<Asset *> *assets = [assetIDs compactMapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull assetID) {
+                NSError *innerError = nil;
+                Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
+                                                                         error:&innerError];
+                if (nil != innerError) {
+                    error = innerError;
+                }
+                return asset;
+            }];
+            if (nil != error) {
+                return;
+            }
+            NSAssert([assetIDs count] == [assets count], @"Got no error but lost assets");
+
+            // If we have a tag in any case we pick that up in preference to creating a new
+            // instance with a different case
+            __block NSSet<Tag *> *insertedTags = [NSSet set];
+            NSSet<Tag *> *tags = [rawTags compactMapUsingBlock:^id _Nullable(NSString * _Nonnull rawTag) {
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+                NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name ==[c] %@", rawTag];
+                [fetch setPredicate:predicate];
+
+                NSError *error = nil;
+                NSArray<Tag *> *result = [self.managedObjectContext executeFetchRequest:fetch
+                                                                                  error:&error];
+                if (nil != error) {
+                    NSAssert(nil == result, @"Got error and result");
+                    NSLog(@"Failed to look for %@ as tag: %@", rawTag, error.localizedDescription);
+                    return nil;
+                }
+                NSAssert(nil != result, @"Got no error but not result");
+
+                if (0 == [result count]) {
+                    Tag *tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag"
+                                                             inManagedObjectContext:self.managedObjectContext];
+                    tag.name = rawTag;
+                    insertedTags = [insertedTags setByAddingObject:tag];
+                    return tag;
+                }
+
+                // We hope for a single tag here
+                NSAssert([result count] == 1, @"Unexpceted number of tags for %@: %@", rawTag, result);
+                return [result firstObject];
+            }];
+
+            if ([insertedTags count] > 0) {
+                NSArray<Tag *> *insertedTagsArray = [insertedTags allObjects];
+                success = [self.managedObjectContext obtainPermanentIDsForObjects:insertedTagsArray
+                                                                            error:&error];
+                if (nil != error) {
+                    return;
+                }
+                insertedTagIDs = [insertedTagsArray mapUsingBlock:^id _Nonnull(Tag * _Nonnull tag) { return tag.objectID; }];
+            }
+
+            for (Tag *tag in tags) {
+                [tag addTags:assets];
+            }
+            updatedTagIDs = [[tags allObjects] mapUsingBlock:^id _Nonnull(Tag * _Nonnull tag) { return tag.objectID; }];
+
+            success = [self.managedObjectContext save:&error];
+        }];
+        if ((nil == error) && success) {
+            @weakify(self);
+            dispatch_async(self.updateDelegateQ, ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+                NSDictionary *changes = @{NSUpdatedObjectsKey:[[assetIDs allObjects] arrayByAddingObjectsFromArray:updatedTagIDs]};
+                if (nil != insertedTagIDs) {
+                    NSMutableDictionary *mutableChanges = [NSMutableDictionary dictionaryWithDictionary:changes];
+                    mutableChanges[NSInsertedObjectsKey] = insertedTagIDs;
+                    changes = [NSDictionary dictionaryWithDictionary:mutableChanges];
+                }
+
+                [self.delegate libraryWriteCoordinator:self
+                                             didUpdate:changes];
             });
         }
 

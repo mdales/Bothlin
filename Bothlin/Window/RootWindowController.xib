@@ -13,6 +13,10 @@
                 <outlet property="groupCreateNameField" destination="Nfe-JR-i8M" id="xEW-sY-CYp"/>
                 <outlet property="groupCreateOKButton" destination="2jU-JO-FxD" id="YWu-uK-aig"/>
                 <outlet property="groupCreatePanel" destination="Ogu-yI-Ycf" id="OIw-F0-prr"/>
+                <outlet property="tagAddDuplicateWarningLabel" destination="zbc-Bd-WR2" id="sJp-cs-2AR"/>
+                <outlet property="tagAddNameField" destination="Kld-es-kGN" id="bFz-4l-jag"/>
+                <outlet property="tagAddOKButton" destination="31t-Gc-jJQ" id="DlT-4E-Bml"/>
+                <outlet property="tagAddPanel" destination="ss0-cU-NlE" id="UBb-JQ-A01"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -22,7 +26,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" fullSizeContentView="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="196" y="240" width="1102" height="894"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1800" height="1131"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3360" height="1890"/>
             <view key="contentView" id="se5-gp-TjO">
                 <rect key="frame" x="0.0" y="0.0" width="1102" height="894"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -64,8 +68,8 @@
         <window title="Group create" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="Ogu-yI-Ycf" userLabel="Group create" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="182" y="124" width="540" height="123"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1800" height="1131"/>
+            <rect key="contentRect" x="1289" y="971" width="540" height="123"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3360" height="1890"/>
             <view key="contentView" id="BU1-gP-d6k">
                 <rect key="frame" x="0.0" y="0.0" width="540" height="123"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -134,7 +138,79 @@ Gw
             <connections>
                 <outlet property="initialFirstResponder" destination="Nfe-JR-i8M" id="aog-DW-iw5"/>
             </connections>
-            <point key="canvasLocation" x="-30" y="700.5"/>
+            <point key="canvasLocation" x="948" y="285"/>
+        </window>
+        <window title="Add tag" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="ss0-cU-NlE" customClass="NSPanel">
+            <windowStyleMask key="styleMask" titled="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="1442" y="884" width="540" height="123"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3360" height="1890"/>
+            <view key="contentView" id="2kT-AV-Xkl">
+                <rect key="frame" x="0.0" y="0.0" width="540" height="123"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="31t-Gc-jJQ">
+                        <rect key="frame" x="439" y="13" width="88" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="OK" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="NKP-FR-f8c">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="tagAddOK:" target="-2" id="9wn-JL-JvJ"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="K4J-xI-9ai">
+                        <rect key="frame" x="353" y="13" width="88" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="d2k-iw-5g2">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="tagAddCancel:" target="-2" id="rf0-Py-WFp"/>
+                        </connections>
+                    </button>
+                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="V8J-oz-Ljq">
+                        <rect key="frame" x="18" y="87" width="102" height="16"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" title="Tag item(s) with" id="f2n-Yv-G2N">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zbc-Bd-WR2">
+                        <rect key="frame" x="321" y="87" width="201" height="16"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" alignment="right" title="Tag already in use" id="1mr-bA-Yzq">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="systemRedColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <comboBox focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Kld-es-kGN">
+                        <rect key="frame" x="20" y="58" width="504" height="23"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" continuous="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesDataSource="YES" numberOfVisibleItems="5" id="Qxw-7S-Xep">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </comboBoxCell>
+                        <connections>
+                            <outlet property="dataSource" destination="-2" id="qoq-83-FvD"/>
+                            <outlet property="delegate" destination="-2" id="SfP-26-iPN"/>
+                        </connections>
+                    </comboBox>
+                </subviews>
+            </view>
+            <point key="canvasLocation" x="948" y="53.5"/>
         </window>
     </objects>
     <resources>

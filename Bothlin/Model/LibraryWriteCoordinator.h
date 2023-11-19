@@ -60,6 +60,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)moveDeletedAssetsToTrash:(nullable void (^)(BOOL success, NSError * _Nullable error))callback;
 
+- (void)addAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+           toTags:(NSSet<NSString *> *)tags
+         callback:(nullable void (^)(BOOL success, NSError * _Nullable error))callback;
+
 @end
 
 NS_ASSUME_NONNULL_END
