@@ -11,6 +11,7 @@
                 <outlet property="addTagButton" destination="Is4-1p-ToT" id="Pe2-Tp-BbJ"/>
                 <outlet property="detailsView" destination="0rb-hr-BvS" id="gMu-Mc-XdG"/>
                 <outlet property="notesView" destination="sRt-x8-tdo" id="oTW-Qu-WQJ"/>
+                <outlet property="tagCollectionView" destination="C4X-Ws-SIm" id="JKM-ep-bqG"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
@@ -156,10 +157,14 @@
                             <collectionView id="C4X-Ws-SIm">
                                 <rect key="frame" x="0.0" y="0.0" width="326" height="158"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="Ie9-1K-2ur">
-                                    <size key="itemSize" width="50" height="50"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="OiY-IC-aMU">
+                                    <size key="itemSize" width="100" height="25"/>
                                 </collectionViewFlowLayout>
                                 <color key="primaryBackgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="-2" id="6HH-7g-Pch"/>
+                                    <outlet property="delegate" destination="-2" id="dYV-6n-sza"/>
+                                </connections>
                             </collectionView>
                         </subviews>
                     </clipView>

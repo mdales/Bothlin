@@ -7,6 +7,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "TagViewItem.h"
+
 @class Asset;
 @class DetailsController;
 
@@ -18,12 +20,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface DetailsController : NSViewController <NSOutlineViewDataSource, NSOutlineViewDelegate>
+@interface DetailsController : NSViewController <NSOutlineViewDataSource, NSOutlineViewDelegate, NSCollectionViewDelegate, NSCollectionViewDataSource, NSCollectionViewDelegateFlowLayout, TagViewItemDelegate>
 
 // Only access from mainQ
 @property (nonatomic, weak, readwrite) IBOutlet NSOutlineView *detailsView;
 @property (nonatomic, weak, readwrite) IBOutlet NSTextField *notesView;
 @property (nonatomic, weak, readwrite) IBOutlet NSButton *addTagButton;
+@property (nonatomic, weak, readwrite) IBOutlet NSCollectionView *tagCollectionView;
 @property (nonatomic, weak, readwrite, nullable) id<DetailsControllerDelegate> delegate;
 
 - (void)setItemForDisplay:(Asset * _Nullable)item;

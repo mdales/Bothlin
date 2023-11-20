@@ -7,6 +7,8 @@
 
 #import "DetailsController.h"
 #import "Asset+CoreDataClass.h"
+#import "Tag+CoreDataClass.h"
+#import "TagViewItem.h"
 
 NSString * __nonnull const kPropertyColumnIdentifier = @"PropertyColumn";
 NSString * __nonnull const kValueColumnIdentifier = @"ValueColumn";
@@ -20,6 +22,7 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
 
 // Only access on mainQ
 @property (nonatomic, strong, readwrite) Asset *item;
+@property (nonatomic, strong, readwrite) NSArray<Tag *> *tags;
 
 @end
 
@@ -30,9 +33,16 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
     self.item = item;
     if (nil != item) {
         [self.notesView setStringValue:item.notes];
+        NSArray *tagsList = [item.tags allObjects];
+        NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+        self.tags = [tagsList sortedArrayUsingDescriptors:@[sortDescriptor]];
+    } else {
+        [self.notesView setStringValue:@""];
+        self.tags = @[];
     }
-    [self.addTagButton setEnabled:item != nil];
+    [self.addTagButton setEnabled:nil != item];
     [self.detailsView reloadData];
+    [self.tagCollectionView reloadData];
 }
 
 - (IBAction)textFieldUpdated:(id)sender {
@@ -99,6 +109,52 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item {
     return NO;
+}
+
+
+#pragma mark - NSCollectionViewDataSource
+
+- (NSInteger)numberOfSectionsInCollectionView:(NSCollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(NSCollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return (nil == self.item) ? 0 : (NSInteger)[self.tags count];
+}
+
+- (NSCollectionViewItem *)collectionView:(NSCollectionView *)collectionView itemForRepresentedObjectAtIndexPath:(NSIndexPath *)indexPath {
+    NSParameterAssert(nil != indexPath);
+    NSAssert(NSNotFound != [indexPath item], @"Got empty index path");
+
+    Tag *tag = [self.tags objectAtIndex:(NSUInteger)[indexPath item]];
+    TagViewItem *item = [collectionView makeItemWithIdentifier:@"TagViewItem"
+                                                  forIndexPath:indexPath];
+    item.delegate = self;
+    item.tag = tag;
+
+    return item;
+}
+
+
+#pragma mark - NSCollectionViewDelegate
+
+
+
+#pragma mark - NSCollectionViewDelegateFlowLayout
+
+- (NSSize)collectionView:(NSCollectionView *)collectionView layout:(NSCollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSParameterAssert(nil != indexPath);
+    NSAssert(NSNotFound != [indexPath item], @"Got empty index path");
+
+    Tag *tag = [self.tags objectAtIndex:(NSUInteger)[indexPath item]];
+    return [TagViewItem sizeForTagName:tag.name];
+}
+
+
+#pragma mark - TagViewItemDelegate
+
+- (void)tagViewItemWasRemoved:(TagViewItem *)tagViewItem {
+    
 }
 
 @end

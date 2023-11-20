@@ -86,6 +86,12 @@
 		4CE194D92AF0F2AA00F1C1A4 /* GridViewItemRootView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CE194D72AF0F2AA00F1C1A4 /* GridViewItemRootView.m */; };
 		4CE8776A2AD93E81004FF342 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4CE877692AD93E81004FF342 /* Credits.rtf */; };
 		4CE8776B2AD93E81004FF342 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4CE877692AD93E81004FF342 /* Credits.rtf */; };
+		4CEA09812B0ABA270034400F /* TagViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CEA097F2B0ABA270034400F /* TagViewItem.m */; };
+		4CEA09822B0ABA270034400F /* TagViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CEA097F2B0ABA270034400F /* TagViewItem.m */; };
+		4CEA09832B0ABA270034400F /* TagViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CEA09802B0ABA270034400F /* TagViewItem.xib */; };
+		4CEA09842B0ABA270034400F /* TagViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CEA09802B0ABA270034400F /* TagViewItem.xib */; };
+		4CEA09872B0ABA660034400F /* LozangeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CEA09862B0ABA660034400F /* LozangeView.m */; };
+		4CEA09882B0ABA660034400F /* LozangeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CEA09862B0ABA660034400F /* LozangeView.m */; };
 		4CFB4D382AD08D98006F6F7E /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CFB4D372AD08D98006F6F7E /* Quartz.framework */; };
 		4CFB4D3B2AD18119006F6F7E /* DragTargetView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CFB4D3A2AD18119006F6F7E /* DragTargetView.m */; };
 		4CFB4D3C2AD18119006F6F7E /* DragTargetView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CFB4D3A2AD18119006F6F7E /* DragTargetView.m */; };
@@ -185,6 +191,11 @@
 		4CE194D62AF0F2AA00F1C1A4 /* GridViewItemRootView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GridViewItemRootView.h; sourceTree = "<group>"; };
 		4CE194D72AF0F2AA00F1C1A4 /* GridViewItemRootView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GridViewItemRootView.m; sourceTree = "<group>"; };
 		4CE877692AD93E81004FF342 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
+		4CEA097E2B0ABA270034400F /* TagViewItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TagViewItem.h; sourceTree = "<group>"; };
+		4CEA097F2B0ABA270034400F /* TagViewItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TagViewItem.m; sourceTree = "<group>"; };
+		4CEA09802B0ABA270034400F /* TagViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TagViewItem.xib; sourceTree = "<group>"; };
+		4CEA09852B0ABA660034400F /* LozangeView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LozangeView.h; sourceTree = "<group>"; };
+		4CEA09862B0ABA660034400F /* LozangeView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LozangeView.m; sourceTree = "<group>"; };
 		4CFB4D372AD08D98006F6F7E /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		4CFB4D392AD18119006F6F7E /* DragTargetView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetView.h; sourceTree = "<group>"; };
 		4CFB4D3A2AD18119006F6F7E /* DragTargetView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DragTargetView.m; sourceTree = "<group>"; };
@@ -276,6 +287,11 @@
 				4C0119B82AC5AC5E004A94C4 /* DetailsController.xib */,
 				4C0119B62AC5AC5E004A94C4 /* DetailsController.h */,
 				4C0119B72AC5AC5E004A94C4 /* DetailsController.m */,
+				4CEA09802B0ABA270034400F /* TagViewItem.xib */,
+				4CEA097E2B0ABA270034400F /* TagViewItem.h */,
+				4CEA097F2B0ABA270034400F /* TagViewItem.m */,
+				4CEA09852B0ABA660034400F /* LozangeView.h */,
+				4CEA09862B0ABA660034400F /* LozangeView.m */,
 			);
 			path = Detail;
 			sourceTree = "<group>";
@@ -546,6 +562,7 @@
 				4CFB4D432AD2FAE4006F6F7E /* SettingsWindowController.xib in Resources */,
 				4C960F3E2AD70CF70053C631 /* GridViewItem.xib in Resources */,
 				4CBF17562AB5F177001F7984 /* MainMenu.xib in Resources */,
+				4CEA09832B0ABA270034400F /* TagViewItem.xib in Resources */,
 				4C011A052AC5B14B004A94C4 /* SingleViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -565,6 +582,7 @@
 				4C3A50D22ACB27550080327C /* AssetsDisplayController.xib in Resources */,
 				4C0119AB2AC5AC14004A94C4 /* SidebarController.xib in Resources */,
 				4CFB4D442AD2FAE4006F6F7E /* SettingsWindowController.xib in Resources */,
+				4CEA09842B0ABA270034400F /* TagViewItem.xib in Resources */,
 				4C0119FF2AC5B12E004A94C4 /* GridViewController.xib in Resources */,
 				4C0119BC2AC5AC5E004A94C4 /* DetailsController.xib in Resources */,
 				4C011A062AC5B14B004A94C4 /* SingleViewController.xib in Resources */,
@@ -592,6 +610,7 @@
 				4CE194D82AF0F2AA00F1C1A4 /* GridViewItemRootView.m in Sources */,
 				4CD0A0332ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */,
 				4CC9EA7F2ADFC28A00D33E5C /* KVOBox.m in Sources */,
+				4CEA09812B0ABA270034400F /* TagViewItem.m in Sources */,
 				4CBD40B62AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */,
 				4C960F422AD7D47E0053C631 /* SidebarItem.m in Sources */,
 				4C011A0D2AC5D178004A94C4 /* AssetExtension.m in Sources */,
@@ -604,6 +623,7 @@
 				4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */,
 				4C0119FC2AC5B12E004A94C4 /* GridViewController.m in Sources */,
 				4CFB4D3B2AD18119006F6F7E /* DragTargetView.m in Sources */,
+				4CEA09872B0ABA660034400F /* LozangeView.m in Sources */,
 				4C0119B22AC5AC51004A94C4 /* AssetsDisplayController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -637,7 +657,9 @@
 				4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
 				4CC9EA812ADFC28A00D33E5C /* KVOBox.m in Sources */,
 				4CE194D92AF0F2AA00F1C1A4 /* GridViewItemRootView.m in Sources */,
+				4CEA09882B0ABA660034400F /* LozangeView.m in Sources */,
 				4C960F3D2AD70CF70053C631 /* GridViewItem.m in Sources */,
+				4CEA09822B0ABA270034400F /* TagViewItem.m in Sources */,
 				4CD0A0342ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */,
 				4C37FBD02AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
 				4C960F482AD7D8430053C631 /* NSArray+Functional.m in Sources */,

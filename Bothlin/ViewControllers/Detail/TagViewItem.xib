@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="TagViewItem">
+            <connections>
+                <outlet property="textField" destination="Yus-gD-SKh" id="zPf-0T-oks"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Hz6-mo-xeY" customClass="LozangeView">
+            <rect key="frame" x="0.0" y="0.0" width="100" height="25"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yus-gD-SKh">
+                    <rect key="frame" x="13" y="5" width="64" height="16"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="clipping" title="Label" id="1Q9-Op-zhR">
+                        <font key="font" usesAppearanceFont="YES"/>
+                        <color key="textColor" name="TagFontColor"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fhb-mh-5FL">
+                    <rect key="frame" x="73" y="-1.5" width="24.5" height="28"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSStopProgressTemplate" imagePosition="overlaps" alignment="center" imageScaling="proportionallyDown" inset="2" id="Ezb-1B-KAZ">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <color key="contentTintColor" name="TagFontColor"/>
+                    <connections>
+                        <action selector="removeButtonClicked:" target="8Pe-yr-UlN" id="84v-Qb-zEH"/>
+                    </connections>
+                </button>
+            </subviews>
+            <point key="canvasLocation" x="-54" y="33.5"/>
+        </customView>
+        <customObject id="8Pe-yr-UlN" customClass="TagViewItem">
+            <connections>
+                <outlet property="textField" destination="Yus-gD-SKh" id="aJW-io-4Uq"/>
+            </connections>
+        </customObject>
+    </objects>
+    <resources>
+        <image name="NSStopProgressTemplate" width="17" height="16"/>
+        <namedColor name="TagFontColor">
+            <color red="0.99999994039535522" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>
