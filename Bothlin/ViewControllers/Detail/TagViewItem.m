@@ -18,7 +18,8 @@
     NSFont *font = [NSFont systemFontOfSize:12];
     NSSize textSize = [name sizeWithAttributes:@{NSFontAttributeName:font}];
 
-    return NSMakeSize(textSize.width + 25.0 + 25.0, 25.0);
+    // Sum here is initial radius + label + space + button + last radius
+    return NSMakeSize(12.5 + textSize.width + 1.0 + 25.0 + 12.5, 25.0);
 }
 
 - (void)setTag:(Tag *)tag {

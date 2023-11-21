@@ -18,6 +18,7 @@
 #import "NSURL+SecureAccess.h"
 #import "NSArray+Functional.h"
 #import "NSSet+Functional.h"
+#import "NSManagedObjectContext+helpers.h"
 
 NSErrorDomain __nonnull const LibraryWriteCoordinatorErrorDomain = @"com.digitalflapjack.LibraryController";
 typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinatorErrorCode) {
@@ -669,21 +670,11 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         __block NSError *error = nil;
         __block BOOL success = NO;
         [self.managedObjectContext performBlockAndWait:^{
-            // This would be a map, but we can't guarantee a successful lookup, so
-            // do a compactMap and check that we got what we wanted after.
-            NSSet<Asset *> *assets = [assetIDs compactMapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull assetID) {
-                NSError *innerError = nil;
-                Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
-                                                                         error:&innerError];
-                if (nil != innerError) {
-                    error = innerError;
-                }
-                return asset;
-            }];
+            NSSet<Asset *> *assets = [self.managedObjectContext existingObjectsWithIDs:assetIDs
+                                                                                 error:&error];
             if (nil != error) {
                 return;
             }
-            NSAssert([assetIDs count] == [assets count], @"Got no error but lost assets");
 
             for (Asset *asset in assets) {
                 asset.favourite = state;
@@ -719,21 +710,11 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         __block NSError *error = nil;
         __block BOOL success = NO;
         [self.managedObjectContext performBlockAndWait:^{
-            // This would be a map, but we can't guarantee a successful lookup, so
-            // do a compactMap and check that we got what we wanted after.
-            NSSet<Asset *> *assets = [assetIDs compactMapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull assetID) {
-                NSError *innerError = nil;
-                Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
-                                                                         error:&innerError];
-                if (nil != innerError) {
-                    error = innerError;
-                }
-                return asset;
-            }];
+            NSSet<Asset *> *assets = [self.managedObjectContext existingObjectsWithIDs:assetIDs
+                                                                                 error:&error];
             if (nil != error) {
-              return;
+                return;
             }
-            NSAssert([assetIDs count] == [assets count], @"Got no error but lost assets");
 
             Group *group = [self.managedObjectContext existingObjectWithID:groupID
                                                                      error:&error];
@@ -776,21 +757,11 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         __block NSError *error = nil;
         __block BOOL success = NO;
         [self.managedObjectContext performBlockAndWait:^{
-            // This would be a map, but we can't guarantee a successful lookup, so
-            // do a compactMap and check that we got what we wanted after.
-            NSSet<Asset *> *assets = [assetIDs compactMapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull assetID) {
-                NSError *innerError = nil;
-                Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
-                                                                         error:&innerError];
-                if (nil != innerError) {
-                    error = innerError;
-                }
-                return asset;
-            }];
+            NSSet<Asset *> *assets = [self.managedObjectContext existingObjectsWithIDs:assetIDs
+                                                                                 error:&error];
             if (nil != error) {
                 return;
             }
-            NSAssert([assetIDs count] == [assets count], @"Got no error but lost assets");
 
             Group *group = [self.managedObjectContext existingObjectWithID:groupID
                                                                      error:&error];
@@ -832,21 +803,11 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         __block NSError *error = nil;
         __block BOOL success = NO;
         [self.managedObjectContext performBlockAndWait:^{
-            // This would be a map, but we can't guarantee a successful lookup, so
-            // do a compactMap and check that we got what we wanted after.
-            NSSet<Asset *> *assets = [assetIDs compactMapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull assetID) {
-                NSError *innerError = nil;
-                Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
-                                                                         error:&innerError];
-                if (nil != innerError) {
-                    error = innerError;
-                }
-                return asset;
-            }];
+            NSSet<Asset *> *assets = [self.managedObjectContext existingObjectsWithIDs:assetIDs
+                                                                                 error:&error];
             if (nil != error) {
                 return;
             }
-            NSAssert([assetIDs count] == [assets count], @"Got no error but lost assets");
 
             for (Asset *asset in assets) {
                 if (nil == asset.deletedAt) {
@@ -971,19 +932,11 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         __block NSArray<NSManagedObjectID *> *insertedTagIDs = nil;
         __block NSArray<NSManagedObjectID *> *updatedTagIDs = @[];
         [self.managedObjectContext performBlockAndWait:^{
-            NSSet<Asset *> *assets = [assetIDs compactMapUsingBlock:^id _Nonnull(NSManagedObjectID * _Nonnull assetID) {
-                NSError *innerError = nil;
-                Asset *asset = [self.managedObjectContext existingObjectWithID:assetID
-                                                                         error:&innerError];
-                if (nil != innerError) {
-                    error = innerError;
-                }
-                return asset;
-            }];
+            NSSet<Asset *> *assets = [self.managedObjectContext existingObjectsWithIDs:assetIDs
+                                                                                 error:&error];
             if (nil != error) {
                 return;
             }
-            NSAssert([assetIDs count] == [assets count], @"Got no error but lost assets");
 
             // If we have a tag in any case we pick that up in preference to creating a new
             // instance with a different case
@@ -1049,6 +1002,52 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 
                 [self.delegate libraryWriteCoordinator:self
                                              didUpdate:changes];
+            });
+        }
+
+        if (nil != callback) {
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                callback(success, error);
+            });
+        }
+    });
+}
+
+- (void)removeTags:(NSSet<NSManagedObjectID *> *)tagIDs
+        fromAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+          callback:(nullable void (^)(BOOL success, NSError * _Nullable error))callback {
+    dispatch_assert_queue_not(self.dataQ);
+
+    dispatch_sync(self.dataQ, ^() {
+        __block NSError *error = nil;
+        __block BOOL success = NO;
+        [self.managedObjectContext performBlockAndWait:^{
+            NSSet<Asset *> *assets = [self.managedObjectContext existingObjectsWithIDs:assetIDs
+                                                                                 error:&error];
+            if (nil != error) {
+                return;
+            }
+
+            NSSet<Tag *> *tags = [self.managedObjectContext existingObjectsWithIDs:tagIDs
+                                                                             error:&error];
+            if (nil != error) {
+                return;
+            }
+
+            for (Tag *tag in tags) {
+                [tag removeTags:assets];
+            }
+            success = [self.managedObjectContext save:&error];
+        }];
+        if ((nil == error) && success) {
+            @weakify(self);
+            dispatch_async(self.updateDelegateQ, ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+                [self.delegate libraryWriteCoordinator:self
+                                             didUpdate:@{NSUpdatedObjectsKey:[[assetIDs allObjects] arrayByAddingObjectsFromArray:[tagIDs allObjects]]}];
             });
         }
 

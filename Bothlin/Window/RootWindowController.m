@@ -398,6 +398,28 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     [self showTagAddPanel:detailsController];
 }
 
+- (void)detailsViewController:(DetailsController *)detailsController 
+                    removeTag:(Tag *)tag
+                    fromAsset:(Asset *)asset {
+    dispatch_assert_queue(dispatch_get_main_queue());
+
+    AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+    LibraryWriteCoordinator *library = appDelegate.libraryController;
+
+    [library removeTags:[NSSet setWithObject:tag.objectID]
+             fromAssets:[NSSet setWithObject:asset.objectID]
+               callback:^(BOOL success, NSError * _Nullable error) {
+        if (nil != error) {
+            NSAssert(NO == success, @"Got error and success");
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSAlert *alert = [NSAlert alertWithError:error];
+                [alert runModal];
+            });
+        }
+        NSAssert(NO != success, @"got no error and no success");
+    }];
+}
+
 
 #pragma mark - SidebarControllerDelegate
 

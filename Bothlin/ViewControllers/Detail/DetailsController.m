@@ -154,7 +154,9 @@ NSArray * __nonnull const kMainInfoProperties = @[@"name", @"created", @"type"];
 #pragma mark - TagViewItemDelegate
 
 - (void)tagViewItemWasRemoved:(TagViewItem *)tagViewItem {
-    
+    [self.delegate detailsViewController:self
+                               removeTag:tagViewItem.tag
+                               fromAsset:self.item];
 }
 
 @end

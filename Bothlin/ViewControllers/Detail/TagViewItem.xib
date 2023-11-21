@@ -21,7 +21,7 @@
             <subviews>
                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yus-gD-SKh">
                     <rect key="frame" x="13" y="5" width="64" height="16"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="Label" id="1Q9-Op-zhR">
                         <font key="font" usesAppearanceFont="YES"/>
                         <color key="textColor" name="TagFontColor"/>
@@ -37,7 +37,7 @@
                     </buttonCell>
                     <color key="contentTintColor" name="TagFontColor"/>
                     <connections>
-                        <action selector="removeButtonClicked:" target="8Pe-yr-UlN" id="84v-Qb-zEH"/>
+                        <action selector="removeButtonClicked:" target="-2" id="gge-O1-D0x"/>
                     </connections>
                 </button>
             </subviews>
@@ -52,7 +52,7 @@
     <resources>
         <image name="NSStopProgressTemplate" width="17" height="16"/>
         <namedColor name="TagFontColor">
-            <color red="0.99999994039535522" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

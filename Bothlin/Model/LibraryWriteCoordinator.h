@@ -64,6 +64,10 @@ NS_ASSUME_NONNULL_BEGIN
            toTags:(NSSet<NSString *> *)tags
          callback:(nullable void (^)(BOOL success, NSError * _Nullable error))callback;
 
+- (void)removeTags:(NSSet<NSManagedObjectID *> *)tagIDs
+        fromAssets:(NSSet<NSManagedObjectID *> *)assetIDs
+          callback:(nullable void (^)(BOOL success, NSError * _Nullable error))callback;
+
 @end
 
 NS_ASSUME_NONNULL_END

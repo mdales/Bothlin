@@ -11,7 +11,7 @@
 
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];
-    NSRect insetBounds = NSInsetRect(self.bounds, 4, 4);
+    NSRect insetBounds = NSInsetRect(self.bounds, 3, 3);
     NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:insetBounds xRadius:insetBounds.size.height / 2 yRadius:insetBounds.size.height / 2];
     [[NSColor colorNamed:@"TagColor"
                   bundle:[NSBundle mainBundle]] setFill];

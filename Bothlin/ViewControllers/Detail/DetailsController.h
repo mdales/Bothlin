@@ -10,6 +10,8 @@
 #import "TagViewItem.h"
 
 @class Asset;
+@class Tag;
+
 @class DetailsController;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,6 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol DetailsControllerDelegate <NSObject>
 
 - (void)addTagViaDetailsController:(DetailsController *)detailsController;
+- (void)detailsViewController:(DetailsController *)detailsController
+                    removeTag:(Tag *)tag
+                    fromAsset:(Asset *)asset;
 
 @end
 

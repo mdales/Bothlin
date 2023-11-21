@@ -66,6 +66,10 @@
 		4CB8861E2ABA2CA900968B0F /* LibraryWriteCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */; };
 		4CB886202ABA2CA900968B0F /* LibraryWriteCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */; };
 		4CB886692ABB67E100968B0F /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
+		4CBB8D4A2B0C914900DA3D68 /* NSManagedObjectContext+helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBB8D492B0C914900DA3D68 /* NSManagedObjectContext+helpers.m */; };
+		4CBB8D4B2B0C914900DA3D68 /* NSManagedObjectContext+helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBB8D492B0C914900DA3D68 /* NSManagedObjectContext+helpers.m */; };
+		4CBB8D4C2B0C914900DA3D68 /* NSManagedObjectContext+helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBB8D492B0C914900DA3D68 /* NSManagedObjectContext+helpers.m */; };
+		4CBB8D4E2B0C950300DA3D68 /* NSManagedObjectContext+HelpersTexts.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBB8D4D2B0C950300DA3D68 /* NSManagedObjectContext+HelpersTexts.m */; };
 		4CBD40B62AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBD40B52AEECB2000A8EB5A /* AssetPromiseProvider.m */; };
 		4CBD40B72AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBD40B52AEECB2000A8EB5A /* AssetPromiseProvider.m */; };
 		4CBD40B82AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBD40B52AEECB2000A8EB5A /* AssetPromiseProvider.m */; };
@@ -170,6 +174,9 @@
 		4CB8861C2ABA2CA900968B0F /* LibraryWriteCoordinator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibraryWriteCoordinator.h; sourceTree = "<group>"; };
 		4CB8861D2ABA2CA900968B0F /* LibraryWriteCoordinator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryWriteCoordinator.m; sourceTree = "<group>"; };
 		4CB886672ABB67E100968B0F /* LibraryModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LibraryModel.xcdatamodel; sourceTree = "<group>"; };
+		4CBB8D482B0C914900DA3D68 /* NSManagedObjectContext+helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSManagedObjectContext+helpers.h"; sourceTree = "<group>"; };
+		4CBB8D492B0C914900DA3D68 /* NSManagedObjectContext+helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObjectContext+helpers.m"; sourceTree = "<group>"; };
+		4CBB8D4D2B0C950300DA3D68 /* NSManagedObjectContext+HelpersTexts.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObjectContext+HelpersTexts.m"; sourceTree = "<group>"; };
 		4CBD40B42AEECB2000A8EB5A /* AssetPromiseProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AssetPromiseProvider.h; sourceTree = "<group>"; };
 		4CBD40B52AEECB2000A8EB5A /* AssetPromiseProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AssetPromiseProvider.m; sourceTree = "<group>"; };
 		4CBF174C2AB5F176001F7984 /* Bothlin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bothlin.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -308,6 +315,8 @@
 				4CC9EA7E2ADFC28A00D33E5C /* KVOBox.m */,
 				4C9544B32AECE613007205A9 /* NSSet+Functional.h */,
 				4C9544B42AECE613007205A9 /* NSSet+Functional.m */,
+				4CBB8D482B0C914900DA3D68 /* NSManagedObjectContext+helpers.h */,
+				4CBB8D492B0C914900DA3D68 /* NSManagedObjectContext+helpers.m */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -387,6 +396,7 @@
 				4C4D2B562AF95D9C0059880F /* LibraryWriteCoordinatorTests.m */,
 				4C39E95F2AFCC4EE004FF77A /* TestModelHelpers.h */,
 				4C39E9602AFCC4EE004FF77A /* TestModelHelpers.m */,
+				4CBB8D4D2B0C950300DA3D68 /* NSManagedObjectContext+HelpersTexts.m */,
 			);
 			path = BothlinTests;
 			sourceTree = "<group>";
@@ -620,6 +630,7 @@
 				4CBF17512AB5F176001F7984 /* AppDelegate.m in Sources */,
 				4CD0A0372ADD3F8C00BFFF7D /* LibraryViewModel.m in Sources */,
 				4CB8861E2ABA2CA900968B0F /* LibraryWriteCoordinator.m in Sources */,
+				4CBB8D4A2B0C914900DA3D68 /* NSManagedObjectContext+helpers.m in Sources */,
 				4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */,
 				4C0119FC2AC5B12E004A94C4 /* GridViewController.m in Sources */,
 				4CFB4D3B2AD18119006F6F7E /* DragTargetView.m in Sources */,
@@ -639,9 +650,11 @@
 				4C1F01CA2AD7EED400E4CCD7 /* NSArray+FunctionalTests.m in Sources */,
 				4C960F472AD7D8430053C631 /* NSArray+Functional.m in Sources */,
 				4C37FBCF2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
+				4CBB8D4E2B0C950300DA3D68 /* NSManagedObjectContext+HelpersTexts.m in Sources */,
 				4C9544B92AECE706007205A9 /* NSSet+FunctionalTests.m in Sources */,
 				4C39E9612AFCC4EE004FF77A /* TestModelHelpers.m in Sources */,
 				4C8812FE2AF659A200F7439D /* LibraryViewModelTests.m in Sources */,
+				4CBB8D4B2B0C914900DA3D68 /* NSManagedObjectContext+helpers.m in Sources */,
 				4C9544B62AECE613007205A9 /* NSSet+Functional.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -658,6 +671,7 @@
 				4CC9EA812ADFC28A00D33E5C /* KVOBox.m in Sources */,
 				4CE194D92AF0F2AA00F1C1A4 /* GridViewItemRootView.m in Sources */,
 				4CEA09882B0ABA660034400F /* LozangeView.m in Sources */,
+				4CBB8D4C2B0C914900DA3D68 /* NSManagedObjectContext+helpers.m in Sources */,
 				4C960F3D2AD70CF70053C631 /* GridViewItem.m in Sources */,
 				4CEA09822B0ABA270034400F /* TagViewItem.m in Sources */,
 				4CD0A0342ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */,
