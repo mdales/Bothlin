@@ -20,6 +20,8 @@
 @property (strong, nonatomic, readwrite) NSArray<Asset *> *contents;
 @property (strong, nonatomic, readwrite) NSDictionary<NSManagedObjectID *, NSImage *> *thumbnailCache;
 
+@property (strong, nonatomic, readwrite) NSCollectionViewDiffableDataSource<NSNumber *, Asset *> *dataSource;
+
 @end
 
 @implementation GridViewController
@@ -43,6 +45,69 @@
 
     [self.collectionView setDraggingSourceOperationMask:NSDragOperationCopy
                                                forLocal:NO];
+
+    self.dataSource = [[NSCollectionViewDiffableDataSource alloc] initWithCollectionView:self.collectionView
+                                                                            itemProvider:^NSCollectionViewItem * _Nullable(NSCollectionView * _Nonnull collectionView,
+                                                                                                                           NSIndexPath * _Nonnull indexPath,
+                                                                                                                           Asset * _Nonnull asset) {
+        dispatch_assert_queue(dispatch_get_main_queue());
+        dispatch_assert_queue_not(self.syncQ);
+
+        GridViewItem *viewItem = [collectionView makeItemWithIdentifier:@"GridViewItem"
+                                                           forIndexPath:indexPath];
+        viewItem.delegate = self;
+        viewItem.asset = asset;
+        viewItem.textField.stringValue = asset.name;
+        [viewItem.favouriteIndicator setHidden:NO == asset.favourite];
+
+        __block NSImage *thumbnail = nil;
+        dispatch_sync(self.syncQ, ^{
+            thumbnail = self.thumbnailCache[asset.objectID];
+        });
+        if (nil == thumbnail) {
+            // TODO: move this code to a function
+            NSString *thumbnailPath = asset.thumbnailPath;
+            @weakify(self);
+            @weakify(viewItem);
+            dispatch_async(self.thumbnailLoadQ, ^{
+                @strongify(self);
+                if (nil == self) {
+                    return;
+                }
+                NSImage *thumbnail = nil;
+                if (nil != thumbnailPath) {
+                    thumbnail = [[NSImage alloc] initByReferencingFile:thumbnailPath];
+                    if (nil != thumbnail) {
+                        dispatch_sync(self.syncQ, ^{
+                            NSMutableDictionary<NSManagedObjectID *, NSImage *> *tmp = [NSMutableDictionary dictionaryWithDictionary:self.thumbnailCache];
+                            tmp[asset.objectID] = thumbnail;
+                            self.thumbnailCache = [NSDictionary dictionaryWithDictionary:tmp];
+                        });
+                    } else {
+                        NSLog(@"Failed to load %@", thumbnailPath);
+                    }
+                }
+                if (nil == thumbnail) {
+                    thumbnail = [NSImage imageWithSystemSymbolName:@"exclamationmark.square" accessibilityDescription:nil];
+                }
+
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    @strongify(viewItem);
+                    if (nil == viewItem) {
+                        return;
+                    }
+                    viewItem.imageView.image = thumbnail;
+                });
+            });
+
+            thumbnail = [NSImage imageWithSystemSymbolName:@"photo.artframe" accessibilityDescription:nil];
+        }
+        viewItem.imageView.image = thumbnail;
+
+        return viewItem;
+    }];
+
+    self.collectionView.dataSource = self.dataSource;
 }
 
 
@@ -84,7 +149,12 @@
     BOOL updatedSelection = ![indexPaths isEqualToSet:reformedCurrent];
 
     if (NO != updated) {
-        [self.collectionView reloadData];
+        NSDiffableDataSourceSnapshot<NSNumber *, Asset *> *snapshot = [[NSDiffableDataSourceSnapshot alloc] init];
+        [snapshot appendSectionsWithIdentifiers:@[@0]];
+        [snapshot appendItemsWithIdentifiers:self.contents
+                   intoSectionWithIdentifier:@0];
+        [self.dataSource applySnapshot:snapshot
+                  animatingDifferences:YES];
     } else {
         if (nil != updatedCells) {
             [self.collectionView reloadItemsAtIndexPaths:updatedCells];
@@ -143,86 +213,6 @@
     }];
     [self.delegate gridViewController:self
                    selectionDidChange:[NSSet setWithSet:collectedIndexPaths]];
-}
-
-
-#pragma mark - NSCollectionViewDataSource
-
-- (NSInteger)numberOfSectionsInCollectionView:(NSCollectionView *)collectionView {
-    return 1;
-}
-
-- (NSInteger)collectionView:(NSCollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    __block NSUInteger count = 0;
-    dispatch_sync(self.syncQ, ^{
-        count = [self.contents count];
-    });
-
-    return (NSInteger)count;
-}
-
-- (NSCollectionViewItem *)collectionView:(NSCollectionView *)collectionView itemForRepresentedObjectAtIndexPath:(NSIndexPath *)indexPath {
-    NSParameterAssert(nil != indexPath);
-    NSAssert(NSNotFound != [indexPath item], @"Got empty index path");
-    dispatch_assert_queue(dispatch_get_main_queue());
-    dispatch_assert_queue_not(self.syncQ);
-
-    __block Asset *asset = nil;
-    dispatch_sync(self.syncQ, ^{
-        asset = [self.contents objectAtIndex:(NSUInteger)[indexPath item]];
-    });
-
-    GridViewItem *viewItem = [collectionView makeItemWithIdentifier:@"GridViewItem"
-                                                       forIndexPath:indexPath];
-    viewItem.delegate = self;
-    viewItem.asset = asset;
-    viewItem.textField.stringValue = asset.name;
-    [viewItem.favouriteIndicator setHidden:NO == asset.favourite];
-
-    __block NSImage *thumbnail = nil;
-    dispatch_sync(self.syncQ, ^{
-        thumbnail = self.thumbnailCache[asset.objectID];
-    });
-    if (nil == thumbnail) {
-        NSString *thumbnailPath = asset.thumbnailPath;
-        @weakify(self);
-        @weakify(viewItem);
-        dispatch_async(self.thumbnailLoadQ, ^{
-            @strongify(self);
-            if (nil == self) {
-                return;
-            }
-            NSImage *thumbnail = nil;
-            if (nil != thumbnailPath) {
-                thumbnail = [[NSImage alloc] initByReferencingFile:thumbnailPath];
-                if (nil != thumbnail) {
-                    dispatch_sync(self.syncQ, ^{
-                        NSMutableDictionary<NSManagedObjectID *, NSImage *> *tmp = [NSMutableDictionary dictionaryWithDictionary:self.thumbnailCache];
-                        tmp[asset.objectID] = thumbnail;
-                        self.thumbnailCache = [NSDictionary dictionaryWithDictionary:tmp];
-                    });
-                } else {
-                    NSLog(@"Failed to load %@", thumbnailPath);
-                }
-            }
-            if (nil == thumbnail) {
-                thumbnail = [NSImage imageWithSystemSymbolName:@"exclamationmark.square" accessibilityDescription:nil];
-            }
-
-            dispatch_async(dispatch_get_main_queue(), ^{
-                @strongify(viewItem);
-                if (nil == viewItem) {
-                    return;
-                }
-                viewItem.imageView.image = thumbnail;
-            });
-        });
-
-        thumbnail = [NSImage imageWithSystemSymbolName:@"photo.artframe" accessibilityDescription:nil];
-    }
-    viewItem.imageView.image = thumbnail;
-
-    return viewItem;
 }
 
 

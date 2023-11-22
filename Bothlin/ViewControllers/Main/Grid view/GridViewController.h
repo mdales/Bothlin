@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface GridViewController : NSViewController <NSCollectionViewDelegate, NSCollectionViewDataSource, GridViewItemDelegate, DragTargetViewDelegate, KeyCollectionViewDelegate>
+@interface GridViewController : NSViewController <NSCollectionViewDelegate, GridViewItemDelegate, DragTargetViewDelegate, KeyCollectionViewDelegate>
 
 // Only access on mainQ
 @property (nonatomic, weak, readwrite) IBOutlet KeyCollectionView *collectionView;
