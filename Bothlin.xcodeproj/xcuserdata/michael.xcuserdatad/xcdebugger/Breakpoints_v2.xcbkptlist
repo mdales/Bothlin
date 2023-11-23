@@ -45,8 +45,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "850"
             endingLineNumber = "850"
-            landmarkName = "-shareItem:"
-            landmarkType = "7">
+            landmarkName = "RootWindowController"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

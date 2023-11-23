@@ -206,6 +206,14 @@
 #pragma mark - internal
 
 - (void)selectionChanged {
+    // If we're left with an empty selection, then do not send an update, as the collectionView
+    // is not allowed to have no selection, and thus we know a selection will be coming along
+    // soon - there is no atomic selection change notification that wraps up changing selection
+    // AFAICT
+    if ([self.collectionView.selectionIndexPaths count] == 0) {
+        return;
+    }
+
     NSIndexSet *selectedRanges = [self.collectionView selectionIndexes];
     NSMutableSet<NSIndexPath *> *collectedIndexPaths = [NSMutableSet set];
     [selectedRanges enumerateIndexesUsingBlock:^(NSUInteger idx, __unused BOOL * _Nonnull stop) {
