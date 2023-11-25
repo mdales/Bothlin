@@ -17,7 +17,7 @@
 @property (strong, nonatomic, readonly) dispatch_queue_t thumbnailLoadQ;
 
 // Access only on syncQ
-@property (strong, nonatomic, readwrite) NSArray<Asset *> *contents;
+@property (strong, nonatomic, readwrite) NSArray<Asset *> *assets;
 @property (strong, nonatomic, readwrite) NSDictionary<NSManagedObjectID *, NSImage *> *thumbnailCache;
 
 @property (strong, nonatomic, readwrite) NSCollectionViewDiffableDataSource<NSNumber *, Asset *> *dataSource;
@@ -31,7 +31,7 @@
     if (nil != self) {
         self->_syncQ = dispatch_queue_create("com.digitalflapjack.GridViewController.syncQ", DISPATCH_QUEUE_SERIAL);
         self->_thumbnailLoadQ = dispatch_queue_create("com.digitalflapjack.GridViewController.thumbnailLoadQ", DISPATCH_QUEUE_CONCURRENT);
-        self->_contents = @[];
+        self->_assets = @[];
         self->_thumbnailCache = @{};
     }
     return self;
@@ -117,53 +117,40 @@
     NSParameterAssert(nil != assets);
     NSParameterAssert(nil != indexPaths);
     dispatch_assert_queue(dispatch_get_main_queue());
+    NSLog(@"setting index path %@, with %lu assets", indexPaths, [assets count]);
 
-    __block BOOL updated = NO;
+    // Do a quick initial check: are the new and old asset lists different, and are there any faults on
+    // visible items?
     __block NSSet<NSIndexPath *> *updatedCells = [NSSet set];
-    if ([assets count] == [self.contents count]) {
-        [assets enumerateObjectsUsingBlock:^(Asset * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            Asset *existingAsset = [self.contents objectAtIndex:idx];
-            if (obj.objectID != existingAsset.objectID) {
-                *stop = YES;
-                updated = YES;
-            }
-            if (NO != [obj isFault]) {
-                // If this object has either never been rendered, or it's on screen
-                // and has been udpated, so we need to udpate the item view. Ideally
-                // we'd filter out those who have never been visualised
-                updatedCells = [updatedCells setByAddingObject:[NSIndexPath indexPathForItem:(NSInteger)idx inSection:0]];
-            }
-        }];
-    } else {
-        updated = YES;
-    }
-    if (NO != updated) {
-        self.contents = assets;
-    }
-
-    NSIndexSet *currentSelection = [self.collectionView selectionIndexes];
-    NSMutableSet<NSIndexPath *> *reformedCurrent = [NSMutableSet set];
-    [currentSelection enumerateIndexesUsingBlock:^(NSUInteger idx, __unused BOOL * _Nonnull stop) {
-        [reformedCurrent addObject:[NSIndexPath indexPathForItem:(NSInteger)idx inSection:0]];
-    }];
-    BOOL updatedSelection = ![indexPaths isEqualToSet:reformedCurrent];
-
-    if (NO != updated) {
-        NSDiffableDataSourceSnapshot<NSNumber *, Asset *> *snapshot = [[NSDiffableDataSourceSnapshot alloc] init];
-        [snapshot appendSectionsWithIdentifiers:@[@0]];
-        [snapshot appendItemsWithIdentifiers:self.contents
-                   intoSectionWithIdentifier:@0];
-        [self.dataSource applySnapshot:snapshot
-                  animatingDifferences:YES];
-    } else {
-        if (nil != updatedCells) {
-            [self.collectionView reloadItemsAtIndexPaths:updatedCells];
+    __block NSArray<Asset *> *updatedAssets = [NSArray array];
+    for (NSCollectionViewItem *collectionViewItem in [self.collectionView visibleItems]) {
+        NSAssert([collectionViewItem isKindOfClass:[GridViewItem class]], @"Collection view containts unexpected %@", [collectionViewItem class]);
+        GridViewItem *item = (GridViewItem*)collectionViewItem;
+        if (item.asset.fault) {
+            NSIndexPath *indexPath = [self.collectionView indexPathForItem:item];
+            updatedCells = [updatedCells setByAddingObject:indexPath];
+            updatedAssets = [updatedAssets arrayByAddingObject:item.asset];
         }
     }
-    if ((NO != updatedSelection) && ([indexPaths count] > 0)) {
-        [self.collectionView selectItemsAtIndexPaths:indexPaths
-                                      scrollPosition:NSCollectionViewScrollPositionTop];
+
+    // This is quite heavy - if we just sent updates from the viewModel rather than
+    // reloading then we could perhaps simplify this, but at the expense of making that relationship
+    // more complicated.
+    NSDiffableDataSourceSnapshot<NSNumber *, Asset *> *newSnapshot = [[NSDiffableDataSourceSnapshot alloc] init];
+    [newSnapshot appendSectionsWithIdentifiers:@[@0]];
+    [newSnapshot appendItemsWithIdentifiers:assets
+                  intoSectionWithIdentifier:@0];
+
+    self->_assets = assets;
+
+    if ([updatedAssets count] != 0) {
+        [newSnapshot reloadItemsWithIdentifiers:updatedAssets];
     }
+    [self.dataSource applySnapshot:newSnapshot
+              animatingDifferences:YES];
+
+    [self.collectionView selectItemsAtIndexPaths:indexPaths
+                                  scrollPosition:NSCollectionViewScrollPositionTop];
 }
 
 - (NSUInteger)count {
@@ -171,7 +158,7 @@
 
     __block NSUInteger count = 0;
     dispatch_sync(self.syncQ, ^{
-        count = [self.contents count];
+        count = [self.assets count];
     });
     return count;
 }
@@ -318,8 +305,8 @@
     __block Asset *asset = nil;
     dispatch_sync(self.syncQ, ^{
         NSUInteger index = [indexes firstIndex];
-        if (index < [self.contents count]) {
-            asset = self.contents[index];
+        if (index < [self.assets count]) {
+            asset = self.assets[index];
         }
     });
     if (nil == asset) {
