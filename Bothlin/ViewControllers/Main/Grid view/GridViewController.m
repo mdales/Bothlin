@@ -117,7 +117,6 @@
     NSParameterAssert(nil != assets);
     NSParameterAssert(nil != indexPaths);
     dispatch_assert_queue(dispatch_get_main_queue());
-    NSLog(@"setting index path %@, with %lu assets", indexPaths, [assets count]);
 
     // Do a quick initial check: are the new and old asset lists different, and are there any faults on
     // visible items?
