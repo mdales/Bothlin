@@ -847,9 +847,6 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     lastView.collapsed = !lastView.collapsed;
 }
 
-- (void)shareItem:(id)sender {
-}
-
 - (void)toggleFavourite:(id)sender {
     // TODO: UI should be set to only allow this when a single item is selected, we should do
     // better one day
@@ -1001,16 +998,11 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
         
         return item;
     } else if ([itemIdentifier compare:kShareToolbarItemIdentifier] == NSOrderedSame) {
-        NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        item.title = NSLocalizedString(@"Share", nil);
-        item.paletteLabel = NSLocalizedString(@"Share", nil);
-        item.toolTip = NSLocalizedString(@"Share", nil);
-        item.image = [NSImage imageWithSystemSymbolName:@"square.and.arrow.up" accessibilityDescription:nil];
-        item.target = self;
-        item.action = @selector(shareItem:);
+        NSSharingServicePickerToolbarItem *item = [[NSSharingServicePickerToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+        item.delegate = self;
         item.autovalidates = NO;
         item.enabled = [[self.viewModel selectedAssetIndexPaths] count] > 0;
-        
+
         return item;
     } else if ([itemIdentifier compare:kDeleteToolbarItemIdentifier] == NSOrderedSame) {
         NSString *localizedName = [NSString stringWithFormat:NSLocalizedString(@"Move to %@", nil), self.viewModel.trashDisplayName];
@@ -1075,6 +1067,15 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 
 - (void)searchFieldUpdated:(NSSearchField *)sender {
     [self.viewModel setSearchText: [sender stringValue]];
+}
+
+
+#pragma mark - NSSharingServicePickerToolbarItemDelegate
+
+- (NSArray *)itemsForSharingServicePickerToolbarItem:(NSSharingServicePickerToolbarItem *)pickerToolbarItem {
+    return [[self.viewModel.selectedAssets allObjects] compactMapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
+        return [NSURL fileURLWithPath:asset.path];
+    }];
 }
 
 @end

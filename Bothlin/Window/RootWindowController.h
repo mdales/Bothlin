@@ -14,7 +14,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RootWindowController : NSWindowController <NSToolbarDelegate, AssetsDisplayControllerDelegate, NSTextFieldDelegate, SidebarControllerDelegate, LibraryViewModelDelegate, NSSearchFieldDelegate, DetailsControllerDelegate, NSComboBoxDataSource>
+@interface RootWindowController : NSWindowController <NSToolbarDelegate, AssetsDisplayControllerDelegate, NSTextFieldDelegate, SidebarControllerDelegate, LibraryViewModelDelegate, NSSearchFieldDelegate, DetailsControllerDelegate, NSComboBoxDataSource, NSSharingServicePickerToolbarItemDelegate>
 
 // Group creation panel and controls.
 @property (nonatomic, weak, readwrite) IBOutlet NSPanel *groupCreatePanel;
