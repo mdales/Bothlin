@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readwrite) IBOutlet NSComboBox *tagAddNameField;
 @property (nonatomic, weak, readwrite) IBOutlet NSButton *tagAddOKButton;
 
-- (instancetype)initWithWindowNibName:(NSNibName)windowNibName __attribute__((unavailable("Use more specific constructor")));
+- (instancetype)initWithWindowNibName:(NSNibName)windowNibName NS_UNAVAILABLE;
 - (instancetype)initWithWindowNibName:(NSNibName)windowNibName
                           viewContext:(NSManagedObjectContext *)viewContext
                      trashDisplayName:(NSString *)trashDisplayName;

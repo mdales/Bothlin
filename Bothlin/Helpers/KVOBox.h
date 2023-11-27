@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface KVOBox : NSObject
 
-- (instancetype)init __attribute__((unavailable("Use factory method")));
+- (instancetype)init NS_UNAVAILABLE;
 + (instancetype)observeObject:(id)object
                       keyPath:(NSString *)keyPath;
 - (BOOL)startWithBlock:(void (^)(NSDictionary *))block
