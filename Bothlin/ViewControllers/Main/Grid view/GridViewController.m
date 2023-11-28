@@ -66,7 +66,7 @@
         });
         if (nil == thumbnail) {
             // TODO: move this code to a function
-            NSString *thumbnailPath = asset.thumbnailPath;
+            NSURL *thumbnailPath = asset.thumbnailPath;
             @weakify(self);
             @weakify(viewItem);
             dispatch_async(self.thumbnailLoadQ, ^{
@@ -76,7 +76,7 @@
                 }
                 NSImage *thumbnail = nil;
                 if (nil != thumbnailPath) {
-                    thumbnail = [[NSImage alloc] initByReferencingFile:thumbnailPath];
+                    thumbnail = [[NSImage alloc] initByReferencingURL:thumbnailPath];
                     if (nil != thumbnail) {
                         dispatch_sync(self.syncQ, ^{
                             NSMutableDictionary<NSManagedObjectID *, NSImage *> *tmp = [NSMutableDictionary dictionaryWithDictionary:self.thumbnailCache];
@@ -231,7 +231,7 @@
     NSAssert(nil == error, @"Failed to archive indexPath %@: %@", indexPath, error);
 
     provider.userInfo = @{
-        kAssetPromiseProviderURLKey:[NSURL fileURLWithPath:item.asset.path],
+        kAssetPromiseProviderURLKey:item.asset.path,
         kAssetPromiseProviderIndexPathKey:archivedIndexPath
     };
     return provider;

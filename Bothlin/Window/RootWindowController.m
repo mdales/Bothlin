@@ -1073,8 +1073,8 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
 #pragma mark - NSSharingServicePickerToolbarItemDelegate
 
 - (NSArray *)itemsForSharingServicePickerToolbarItem:(NSSharingServicePickerToolbarItem *)pickerToolbarItem {
-    return [[self.viewModel.selectedAssets allObjects] compactMapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
-        return [NSURL fileURLWithPath:asset.path];
+    return [[self.viewModel.selectedAssets allObjects] mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
+        return asset.path;
     }];
 }
 

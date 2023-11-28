@@ -36,7 +36,7 @@
         Asset *asset = [NSEntityDescription insertNewObjectForEntityForName:@"Asset"
                                                      inManagedObjectContext:moc];
         asset.name = [NSString stringWithFormat:@"test %lu.png", index];
-        asset.path = [NSString stringWithFormat:@"/tmp/test %lu.png", index];
+        asset.path = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/tmp/test %lu.png", index]];
         asset.bookmark = nil;
         asset.added = [NSDate now];
         asset.created = [NSDate dateWithTimeIntervalSinceNow:index];

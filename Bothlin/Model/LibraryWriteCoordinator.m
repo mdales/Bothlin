@@ -349,6 +349,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     id<LibraryWriteCoordinatorDelegate> delegate = self.delegate;
 
     __block NSURL *secureURL = nil;
+    __block NSURL *assetPath = nil;
     __block NSError *innerError = nil;
     dispatch_sync(self.dataQ, ^{
         Asset *asset = [self.managedObjectContext existingObjectWithID:itemID
@@ -366,6 +367,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         }
         NSAssert(nil != secureURL, @"Got no error and no value");
 
+        // Going from UUID/original/filename.blah to just UUID/
+        assetPath = [[asset.path URLByDeletingLastPathComponent] URLByDeletingLastPathComponent];
     });
     if (nil != innerError) {
         if (nil != error) {
@@ -373,14 +376,9 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         }
         return NO;
     }
-    
-    NSString *filename = [NSString stringWithFormat:@"%@-ql.png", [[NSUUID UUID] UUIDString]];
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSArray<NSURL *> *paths = [fm URLsForDirectory:NSDocumentDirectory
-                                         inDomains:NSUserDomainMask];
-    NSAssert(0 < [paths count], @"No document directory found!");
-    NSURL *docsDirectory = [paths lastObject];
-    NSURL *thumbnailFile = [docsDirectory URLByAppendingPathComponent:filename];
+
+    NSAssert(nil != assetPath, @"Expected assert path by now");
+    NSURL *thumbnailFile = [assetPath URLByAppendingPathComponent:@"thumbnail.png"];
 
     [secureURL secureAccessWithBlock: ^(NSURL *url, BOOL canAccess) {
         if (NO == canAccess) {
@@ -471,7 +469,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 }
                 NSAssert(nil != asset, @"Got no error but also no item fetching object with ID %@", itemID);
 
-                asset.thumbnailPath = thumbnailFile.path;
+                asset.thumbnailPath = thumbnailFile;
                 BOOL success = [self.managedObjectContext save:&innerError];
                 if (nil != innerError) {
                     NSAssert(NO == success, @"Got error and success from saving.");
@@ -859,14 +857,10 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             NSAssert(nil != result, @"Got no error and no result");
 
             NSArray<NSURL *> *thumbnailPaths = [result compactMapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
-                if (nil == asset.thumbnailPath) {
-                    return nil;
-                }
-                return [NSURL fileURLWithPath:asset.thumbnailPath];
+                return asset.thumbnailPath;
             }];
             NSArray<NSURL *> *assetPaths = [result mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) {
-                NSAssert(nil != asset.path, @"All assets should have a path!");
-                return [NSURL fileURLWithPath:asset.path];
+                return asset.path;
             }];
 
             NSFileManager *fm = [NSFileManager defaultManager];

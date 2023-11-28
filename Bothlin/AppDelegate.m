@@ -47,19 +47,6 @@ NSString * __nonnull const kUserDefaultsExpandedSidebarItems = @"kUserDefaultsEx
     }
     NSAssert(NO != success, @"got no error creating directory but still not a success");
 
-    NSString *thumbnailsStorageFolderPath = [documentsDirectory stringByAppendingPathComponent:@"Thumbnails"];
-    NSURL *thumbnailsStorageURL = [NSURL fileURLWithPath:thumbnailsStorageFolderPath];
-    success = [fm createDirectoryAtURL:thumbnailsStorageURL
-           withIntermediateDirectories:YES
-                            attributes:nil
-                                 error:&error];
-    if (nil != error) {
-        NSAssert(NO == success, @"got error creating directory but still success");
-        NSLog(@"Failed to create directory: %@", error);
-        return;
-    }
-    NSAssert(NO != success, @"got no error creating directory but still not a success");
-
     NSData *defaultStorageData = [defaultStorageURL bookmarkDataWithOptions:NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess
                                              includingResourceValuesForKeys:nil
                                                               relativeToURL:nil

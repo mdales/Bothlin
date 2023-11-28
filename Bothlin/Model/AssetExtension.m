@@ -88,9 +88,20 @@
         // TODO: This code now feels like its in the wrong place as we've grown this factory method
         // at some point we should move the file duplication code and the item creation code into seperate methods.
         NSString *uuidName = [[NSUUID UUID] UUIDString];
-        NSString *extension = [fullPathURL pathExtension];
-        NSString *storageFilename = [uuidName stringByAppendingPathExtension:extension];
-        NSURL *targetURL = [storageDirectory URLByAppendingPathComponent:storageFilename];
+        NSURL *itemDirectory = [storageDirectory URLByAppendingPathComponent:uuidName];
+        NSURL *rawItemDirectory = [itemDirectory URLByAppendingPathComponent:@"original"];
+        BOOL success = [fm createDirectoryAtURL:rawItemDirectory
+                    withIntermediateDirectories:YES
+                                     attributes:nil
+                                          error:&innerError];
+        if (nil != innerError) {
+            NSAssert(NO == success, @"success despite error creating directory %@", itemDirectory);
+            break;
+        }
+        NSAssert(NO != success, @"failure but with no error creating directory %@", itemDirectory);
+
+        NSString *filename = [fullPathURL lastPathComponent];
+        NSURL *targetURL = [rawItemDirectory URLByAppendingPathComponent:filename];
         __block BOOL copySuccess = NO;
         // canAccess can still return NO with access if you already had some implicit
         // permission to special locations. Weirdly this does not include the folder
@@ -130,8 +141,8 @@
 
         Asset *asset = [NSEntityDescription insertNewObjectForEntityForName:@"Asset"
                                                      inManagedObjectContext:context];
-        asset.name = [fullPathURL lastPathComponent];
-        asset.path = targetURL.path;
+        asset.name = filename;
+        asset.path = targetURL;
         asset.bookmark = bookmark;
         asset.added = [NSDate now];
 
