@@ -74,84 +74,6 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     return self;
 }
 
-
-- (void)importURLs:(NSArray<NSURL *> *)urls
-           toGroup:(NSManagedObjectID * _Nullable)groupID
-          callback:(nullable void (^)(BOOL, NSError * _Nullable))callback {
-    NSParameterAssert(nil != urls);
-
-    if (nil == urls) {
-        if (nil != callback) {
-            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-                callback(NO, [NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
-                                                 code:LibraryWriteCoordinatorErrorURLsAreNil
-                                             userInfo:nil]);
-            });
-        }
-        return;
-    }
-
-    // filter out things like .DS_store
-    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject, __unused NSDictionary<NSString *,id> * _Nullable bindings) {
-        NSURL *url = (NSURL*)evaluatedObject;
-        NSString *lastPathComponent = [url lastPathComponent];
-        NSArray<NSString *> *knownSkip = @[@".DS_Store", @"desktop.ini"];
-        NSUInteger index = [knownSkip indexOfObject:lastPathComponent];
-        return index == NSNotFound;
-    }];
-    NSArray *filteredURLs = [urls filteredArrayUsingPredicate:predicate];
-
-    if (0 == [filteredURLs count]) {
-        if (nil != callback) {
-            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-                callback(YES, nil);
-            });
-        }
-        return;
-    }
-
-    @weakify(self);
-    dispatch_async(self.dataQ, ^{
-        @strongify(self);
-        if (nil == self) {
-            if (nil != callback) {
-                callback(NO, [NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
-                                                 code:LibraryWriteCoordinatorErrorSelfIsNoLongerValid
-                                             userInfo:nil]);
-            }
-            return;
-        }
-        NSError *error = nil;
-        NSSet<NSManagedObjectID *> *newItemIDs = [self innerImportURLs:filteredURLs
-                                                               toGroup:groupID
-                                                                 error:&error];
-        if (nil != error) {
-            NSAssert(nil == newItemIDs, @"Got error and new items to insert");
-            if (nil != callback) {
-                callback(NO, error);
-            }
-            return;
-        }
-        NSAssert(nil != newItemIDs, @"Got no error and not new items to insert");
-
-        @weakify(self);
-        dispatch_async(self.updateDelegateQ, ^{
-            @strongify(self);
-            if (nil == self) {
-                return;
-            }
-            [self.delegate libraryWriteCoordinator:self
-                                         didUpdate:@{NSInsertedObjectsKey: newItemIDs.allObjects}];
-        });
-
-        if (nil != callback) {
-            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-                callback(YES, error);
-            });
-        }
-    });
-}
-
 - (void)generateThumbnailForAssets:(NSSet<NSManagedObjectID *> *)assetIDs {
     NSParameterAssert(nil != assetIDs);
 
@@ -201,7 +123,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     NSParameterAssert(nil != itemID);
     dispatch_assert_queue(self.thumbnailWorkerQ);
     dispatch_assert_queue_not(self.dataQ);
-    id<LibraryWriteCoordinatorDelegate> delegate = self.delegate;
+    id<LibraryWriteCoordinatorDelegate> thumbnailDelegate = self.thumbnailDelegate;
 
     __block NSURL *secureURL = nil;
     __block NSError *innerError = nil;
@@ -259,12 +181,10 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 
     VNRecognizeTextRequest *request = [[VNRecognizeTextRequest alloc] initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
         if (nil != error) {
-            if (nil != delegate) {
-                // TODO: Needs own callback
-                [delegate libraryWriteCoordinator:self
-                                 thumbnailForItem:itemID
-                        generationFailedWithError:error];
-            }
+            // TODO: Needs own callback
+            [thumbnailDelegate libraryWriteCoordinator:self
+                                      thumbnailForItem:itemID
+                             generationFailedWithError:error];
             return;
         }
         NSMutableSet<NSString *> *foundWords = [NSMutableSet set];
@@ -303,7 +223,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                                                                      error:&error];
             if (nil != error) {
                 NSAssert(nil == asset, @"Got error and item fetching object with ID %@: %@", itemID, innerError.localizedDescription);
-                [delegate libraryWriteCoordinator:self
+                [thumbnailDelegate libraryWriteCoordinator:self
                                  thumbnailForItem:itemID
                         generationFailedWithError:error];
                 return;
@@ -314,7 +234,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             BOOL success = [self.managedObjectContext save:&error];
             if (nil != error) {
                 NSAssert(NO == success, @"Got error and success from saving.");
-                [delegate libraryWriteCoordinator:self
+                [thumbnailDelegate libraryWriteCoordinator:self
                                  thumbnailForItem:itemID
                         generationFailedWithError:error];
                 return;
@@ -327,8 +247,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 if (nil == self) {
                     return;
                 }
-                [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
+                [self.delegate modelCoordinator:self
+                                      didUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
             });
         });
 
@@ -346,7 +266,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     NSParameterAssert(nil != itemID);
     dispatch_assert_queue(self.thumbnailWorkerQ);
     dispatch_assert_queue_not(self.dataQ);
-    id<LibraryWriteCoordinatorDelegate> delegate = self.delegate;
+    id<LibraryWriteCoordinatorDelegate> thumbnailDelegate = self.thumbnailDelegate;
 
     __block NSURL *secureURL = nil;
     __block NSURL *assetPath = nil;
@@ -408,7 +328,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 image = [[NSWorkspace sharedWorkspace] iconForFile:[secureURL path]];
                 if (nil == error) {
                     // TODO: This should be more about the icon
-                    [delegate libraryWriteCoordinator:self
+                    [thumbnailDelegate libraryWriteCoordinator:self
                                      thumbnailForItem:itemID
                             generationFailedWithError:error];
                     return;
@@ -422,7 +342,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             // TODO: replace asserts once we have something working
             NSData *tiffData = [image TIFFRepresentation];
             if (nil == tiffData) {
-                [delegate libraryWriteCoordinator:self
+                [thumbnailDelegate libraryWriteCoordinator:self
                                  thumbnailForItem:itemID
                         generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
                                                                       code:LibraryWriteCoordinatorErrorCouldNotReadThumbnail
@@ -431,7 +351,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             }
             NSBitmapImageRep *imageRep = [[NSBitmapImageRep alloc] initWithData:tiffData];
             if (nil == imageRep) {
-                [delegate libraryWriteCoordinator:self
+                [thumbnailDelegate libraryWriteCoordinator:self
                                  thumbnailForItem:itemID
                         generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
                                                                       code:LibraryWriteCoordinatorErrorCouldNotCreateImageRep
@@ -441,7 +361,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             NSData *pngData = [imageRep representationUsingType:NSBitmapImageFileTypePNG
                                                      properties:@{}];
             if (nil == pngData) {
-                [delegate libraryWriteCoordinator:self
+                [thumbnailDelegate libraryWriteCoordinator:self
                                  thumbnailForItem:itemID
                         generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
                                                                       code:LibraryWriteCoordinatorErrorCouldNotGeneratePNGData
@@ -451,7 +371,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
             BOOL success = [pngData writeToURL:thumbnailFile
                                     atomically:YES];
             if (NO == success) {
-                [delegate libraryWriteCoordinator:self
+                [thumbnailDelegate libraryWriteCoordinator:self
                                  thumbnailForItem:itemID
                         generationFailedWithError:[NSError errorWithDomain:LibraryWriteCoordinatorErrorDomain
                                                                       code:LibraryWriteCoordinatorErrorCouldNotWriteThumbnailFile
@@ -483,8 +403,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                     if (nil == self) {
                         return;
                     }
-                    [self.delegate libraryWriteCoordinator:self
-                                                 didUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
+                    [self.delegate modelCoordinator:self
+                                didUpdate:@{NSUpdatedObjectsKey:@[itemID]}];
                 });
             });
         }];
@@ -498,125 +418,6 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 
     return YES;
 }
-
-- (NSSet<NSManagedObjectID *> *)innerImportURLs:(NSArray<NSURL *> *)urls
-                                        toGroup:(NSManagedObjectID *)groupID
-                                          error:(NSError **)error {
-    if ((nil == urls) || (0 == [urls count])) {
-        return [NSSet set];
-    }
-    dispatch_assert_queue(self.dataQ);
-
-    __block NSError *innerError = nil;
-    __block NSSet<NSManagedObjectID *> *newAssetIDs = nil;
-    [self.managedObjectContext performBlockAndWait:^{
-        NSArray<Asset *> *newAssets = @[];
-        for (NSURL *url in urls) {
-            NSSet<Asset *> *importedAssets = [Asset importAssetsAtURL:url
-                                                            inContext:self.managedObjectContext
-                                                                error:&innerError];
-            if (nil != innerError) {
-                NSAssert(nil == importedAssets, @"Got error making new assets but still got results");
-                return;
-            }
-            NSAssert(nil != importedAssets, @"Got no error adding assets, but no result");
-
-            newAssets = [newAssets arrayByAddingObjectsFromArray:[importedAssets allObjects]];
-        }
-
-        BOOL success = [self.managedObjectContext obtainPermanentIDsForObjects:newAssets
-                                                                         error:&innerError];
-        if (nil != innerError) {
-            NSAssert(NO == success, @"Got error and success from obtainPermanentIDsForObjects.");
-            return;
-        }
-        NSAssert(NO != success, @"Got no success and error from obtainPermanentIDsForObjects.");
-
-        // I used to think that getting permanentIDs was equivelent to "Save", as you clearly got
-        // a final ID, but it seems it's not committed properly, as problems downstream of here
-        // can cause it not to be written. So I'm going to save also
-        success = [self.managedObjectContext save:&innerError];
-        if (nil != innerError) {
-            NSAssert(NO == success, @"Got error and success from save.");
-            return;
-        }
-        NSAssert(NO != success, @"Got no success and error from save.");
-
-        if ((nil != groupID) && ([newAssets count] > 0)) {
-            Group *group = [self.managedObjectContext existingObjectWithID:groupID
-                                                                     error:&innerError];
-            if (nil != innerError) {
-                NSAssert(nil == group, @"Got error and item fetching object with ID %@: %@", groupID, innerError.localizedDescription);
-                return;
-            }
-            NSAssert(nil != group, @"Got no error but also no item fetching object with ID %@", groupID);
-
-            [group addContains:[NSSet setWithArray:newAssets]];
-        }
-
-        NSMutableSet<NSManagedObjectID *> *newIDs = [NSMutableSet setWithCapacity:[newAssets count]];
-        for (Asset *asset in newAssets) {
-            [newIDs addObject:asset.objectID];
-
-            @weakify(self);
-            dispatch_async(self.thumbnailWorkerQ, ^{
-                @strongify(self);
-                if (nil == self) {
-                    return;
-                }
-                NSError *error = nil;
-                [self generateQuicklookPreviewForAssetWithID:asset.objectID
-                                                       error:&error];
-                if (nil != error) {
-                    NSLog(@"Error generating thumbnail: %@", error.localizedDescription);
-                    @weakify(self)
-                    dispatch_async(self.updateDelegateQ, ^{
-                        @strongify(self)
-                        if (nil == self) {
-                            return;
-                        }
-                        [self.delegate libraryWriteCoordinator:self
-                                              thumbnailForItem:asset.objectID
-                                     generationFailedWithError:error];
-                    });
-                }
-            });
-            dispatch_async(self.thumbnailWorkerQ, ^{
-                @strongify(self);
-                if (nil == self) {
-                    return;
-                }
-                NSError *error = nil;
-                [self generateScannedText:asset.objectID
-                                    error:&error];
-                if (nil != error) {
-                    NSLog(@"Error generating text: %@", error.localizedDescription);
-                    @weakify(self)
-                    dispatch_async(self.updateDelegateQ, ^{
-                        @strongify(self)
-                        if (nil == self) {
-                            return;
-                        }
-                        [self.delegate libraryWriteCoordinator:self
-                                              thumbnailForItem:asset.objectID
-                                     generationFailedWithError:error];
-                    });
-                }
-            });
-        }
-
-        newAssetIDs = [NSSet setWithSet:newIDs];
-    }];
-    if (nil != innerError) {
-        if (nil != error) {
-            *error = innerError;
-        }
-        return nil;
-    }
-    NSAssert(nil != newAssetIDs, @"Expected asset ID list");
-    return newAssetIDs;
-}
-
 
 - (void)createGroup:(NSString *)name
            callback:(void (^)(BOOL success, NSError *error)) callback {
@@ -646,8 +447,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 if (nil == self) {
                     return;
                 }
-                [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSInsertedObjectsKey:@[groupID]}];
+                [self.delegate modelCoordinator:self
+                                      didUpdate:@{NSInsertedObjectsKey:@[groupID]}];
             });
         }
 
@@ -686,8 +487,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 if (nil == self) {
                     return;
                 }
-                [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:[assetIDs allObjects]}];
+                [self.delegate modelCoordinator:self
+                                      didUpdate:@{NSUpdatedObjectsKey:[assetIDs allObjects]}];
             });
         }
 
@@ -733,8 +534,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 if (nil == self) {
                     return;
                 }
-                [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:[[assetIDs allObjects] arrayByAddingObject:groupID]}];
+                [self.delegate modelCoordinator:self
+                                      didUpdate:@{NSUpdatedObjectsKey:[[assetIDs allObjects] arrayByAddingObject:groupID]}];
             });
         }
 
@@ -780,8 +581,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 if (nil == self) {
                     return;
                 }
-                [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:[[assetIDs allObjects] arrayByAddingObject:groupID]}];
+                [self.delegate modelCoordinator:self
+                                      didUpdate:@{NSUpdatedObjectsKey:[[assetIDs allObjects] arrayByAddingObject:groupID]}];
             });
         }
 
@@ -824,8 +625,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 if (nil == self) {
                     return;
                 }
-                [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:[assetIDs allObjects]}];
+                [self.delegate modelCoordinator:self
+                                      didUpdate:@{NSUpdatedObjectsKey:[assetIDs allObjects]}];
             });
         }
 
@@ -900,8 +701,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 if (nil == self) {
                     return;
                 }
-                [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSDeletedObjectsKey:deletedItems}];
+                [self.delegate modelCoordinator:self
+                                      didUpdate:@{NSDeletedObjectsKey:deletedItems}];
             });
         }
 
@@ -994,8 +795,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                     changes = [NSDictionary dictionaryWithDictionary:mutableChanges];
                 }
 
-                [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:changes];
+                [self.delegate modelCoordinator:self
+                                      didUpdate:changes];
             });
         }
 
@@ -1040,8 +841,8 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
                 if (nil == self) {
                     return;
                 }
-                [self.delegate libraryWriteCoordinator:self
-                                             didUpdate:@{NSUpdatedObjectsKey:[[assetIDs allObjects] arrayByAddingObjectsFromArray:[tagIDs allObjects]]}];
+                [self.delegate modelCoordinator:self
+                                      didUpdate:@{NSUpdatedObjectsKey:[[assetIDs allObjects] arrayByAddingObjectsFromArray:[tagIDs allObjects]]}];
             });
         }
 

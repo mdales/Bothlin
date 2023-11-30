@@ -9,9 +9,6 @@
 
 @interface Asset (Helpers)
 
-+ (NSSet<Asset *> * _Nullable)importAssetsAtURL:(NSURL * _Nonnull)url
-                                     inContext:(NSManagedObjectContext * _Nonnull)context
-                                         error:(NSError * _Nullable * _Nullable)error ;
-
 - (NSURL* _Nullable)decodeSecureURL:(NSError * _Nullable * _Nullable)error;
+
 @end

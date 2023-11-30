@@ -39,6 +39,10 @@
 		4C39E9612AFCC4EE004FF77A /* TestModelHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C39E9602AFCC4EE004FF77A /* TestModelHelpers.m */; };
 		4C3A50D12ACB27550080327C /* AssetsDisplayController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C3A50D02ACB27550080327C /* AssetsDisplayController.xib */; };
 		4C3A50D22ACB27550080327C /* AssetsDisplayController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C3A50D02ACB27550080327C /* AssetsDisplayController.xib */; };
+		4C402DE72B172FBA005A92A7 /* ImportCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C402DE62B172FBA005A92A7 /* ImportCoordinator.m */; };
+		4C402DE82B172FBA005A92A7 /* ImportCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C402DE62B172FBA005A92A7 /* ImportCoordinator.m */; };
+		4C402DE92B172FBA005A92A7 /* ImportCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C402DE62B172FBA005A92A7 /* ImportCoordinator.m */; };
+		4C402DEB2B187F6F005A92A7 /* ImportCoordinatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C402DEA2B187F6F005A92A7 /* ImportCoordinatorTests.m */; };
 		4C4D2B572AF95D9C0059880F /* LibraryWriteCoordinatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C4D2B562AF95D9C0059880F /* LibraryWriteCoordinatorTests.m */; };
 		4C622E5C2B013EED00FD34D7 /* VisionKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C622E5B2B013EED00FD34D7 /* VisionKit.framework */; };
 		4C622E5F2B0214E400FD34D7 /* NaturalLanguage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C622E5E2B0214E400FD34D7 /* NaturalLanguage.framework */; };
@@ -149,6 +153,10 @@
 		4C39E95F2AFCC4EE004FF77A /* TestModelHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestModelHelpers.h; sourceTree = "<group>"; };
 		4C39E9602AFCC4EE004FF77A /* TestModelHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestModelHelpers.m; sourceTree = "<group>"; };
 		4C3A50D02ACB27550080327C /* AssetsDisplayController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetsDisplayController.xib; sourceTree = "<group>"; };
+		4C402DE52B172FBA005A92A7 /* ImportCoordinator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImportCoordinator.h; sourceTree = "<group>"; };
+		4C402DE62B172FBA005A92A7 /* ImportCoordinator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImportCoordinator.m; sourceTree = "<group>"; };
+		4C402DEA2B187F6F005A92A7 /* ImportCoordinatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImportCoordinatorTests.m; sourceTree = "<group>"; };
+		4C402DEC2B18A052005A92A7 /* ModelCoordinatorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelCoordinatorDelegate.h; sourceTree = "<group>"; };
 		4C4D2B562AF95D9C0059880F /* LibraryWriteCoordinatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryWriteCoordinatorTests.m; sourceTree = "<group>"; };
 		4C622E5B2B013EED00FD34D7 /* VisionKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VisionKit.framework; path = System/Library/Frameworks/VisionKit.framework; sourceTree = SDKROOT; };
 		4C622E5D2B013F6D00FD34D7 /* LibraryModel 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "LibraryModel 2.xcdatamodel"; sourceTree = "<group>"; };
@@ -342,6 +350,9 @@
 				4CBD40B52AEECB2000A8EB5A /* AssetPromiseProvider.m */,
 				4C960F402AD7D47E0053C631 /* SidebarItem.h */,
 				4C960F412AD7D47E0053C631 /* SidebarItem.m */,
+				4C402DE52B172FBA005A92A7 /* ImportCoordinator.h */,
+				4C402DE62B172FBA005A92A7 /* ImportCoordinator.m */,
+				4C402DEC2B18A052005A92A7 /* ModelCoordinatorDelegate.h */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -397,6 +408,7 @@
 				4C39E95F2AFCC4EE004FF77A /* TestModelHelpers.h */,
 				4C39E9602AFCC4EE004FF77A /* TestModelHelpers.m */,
 				4CBB8D4D2B0C950300DA3D68 /* NSManagedObjectContext+HelpersTexts.m */,
+				4C402DEA2B187F6F005A92A7 /* ImportCoordinatorTests.m */,
 			);
 			path = BothlinTests;
 			sourceTree = "<group>";
@@ -616,6 +628,7 @@
 				4CFB4D412AD2FAE4006F6F7E /* SettingsWindowController.m in Sources */,
 				4C9544B52AECE613007205A9 /* NSSet+Functional.m in Sources */,
 				4C0119A02AC5AA45004A94C4 /* RootWindowController.m in Sources */,
+				4C402DE72B172FBA005A92A7 /* ImportCoordinator.m in Sources */,
 				4C011A032AC5B14B004A94C4 /* SingleViewController.m in Sources */,
 				4CE194D82AF0F2AA00F1C1A4 /* GridViewItemRootView.m in Sources */,
 				4CD0A0332ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */,
@@ -655,7 +668,9 @@
 				4C39E9612AFCC4EE004FF77A /* TestModelHelpers.m in Sources */,
 				4C8812FE2AF659A200F7439D /* LibraryViewModelTests.m in Sources */,
 				4CBB8D4B2B0C914900DA3D68 /* NSManagedObjectContext+helpers.m in Sources */,
+				4C402DE82B172FBA005A92A7 /* ImportCoordinator.m in Sources */,
 				4C9544B62AECE613007205A9 /* NSSet+Functional.m in Sources */,
+				4C402DEB2B187F6F005A92A7 /* ImportCoordinatorTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -676,6 +691,7 @@
 				4CEA09822B0ABA270034400F /* TagViewItem.m in Sources */,
 				4CD0A0342ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */,
 				4C37FBD02AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
+				4C402DE92B172FBA005A92A7 /* ImportCoordinator.m in Sources */,
 				4C960F482AD7D8430053C631 /* NSArray+Functional.m in Sources */,
 				4CFB4D422AD2FAE4006F6F7E /* SettingsWindowController.m in Sources */,
 				4C0119A12AC5AA45004A94C4 /* RootWindowController.m in Sources */,

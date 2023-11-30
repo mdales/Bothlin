@@ -55,8 +55,8 @@
                                                                trashDisplayName:@"Trash"];
 
     LibraryWriteCoordinator *writeCoordinator = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator];
-    [viewModel libraryWriteCoordinator:writeCoordinator
-                             didUpdate:@{}];
+    [viewModel modelCoordinator:writeCoordinator
+                      didUpdate:@{}];
 
     XCTAssertNotNil(viewModel.assets, @"Should not be nil");
     XCTAssertEqual(viewModel.assets, @[], @"Expected empty asset list");
@@ -87,8 +87,8 @@
     NSAssert(nil != assetIDs, @"Failed to generate asset ID list");
 
     LibraryWriteCoordinator *writeCoordinator = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator];
-    [viewModel libraryWriteCoordinator:writeCoordinator
-                             didUpdate:@{NSInsertedObjectsKey:assetIDs}];
+    [viewModel modelCoordinator:writeCoordinator
+                      didUpdate:@{NSInsertedObjectsKey:assetIDs}];
 
     XCTAssertNotNil(viewModel.assets, @"Should not be nil");
     XCTAssertEqual([viewModel.assets count], 5, @"Expected empty asset list");
@@ -120,8 +120,8 @@
     NSAssert(nil != assetIDs, @"Failed to generate asset ID list");
 
     LibraryWriteCoordinator *writeCoordinator = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator];
-    [viewModel libraryWriteCoordinator:writeCoordinator
-                             didUpdate:@{NSInsertedObjectsKey:assetIDs}];
+    [viewModel modelCoordinator:writeCoordinator
+                      didUpdate:@{NSInsertedObjectsKey:assetIDs}];
 
     XCTAssertNotNil(viewModel.assets, @"Should not be nil");
     XCTAssertEqual([viewModel.assets count], 4, @"Expected empty asset list");
@@ -164,8 +164,8 @@
     NSAssert(nil != assetIDs, @"Failed to generate asset ID list");
 
     LibraryWriteCoordinator *writeCoordinator = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator];
-    [viewModel libraryWriteCoordinator:writeCoordinator
-                             didUpdate:@{NSInsertedObjectsKey:assetIDs}];
+    [viewModel modelCoordinator:writeCoordinator
+                      didUpdate:@{NSInsertedObjectsKey:assetIDs}];
 
     [viewModel setSearchText:@"test 3"];
 
@@ -195,8 +195,8 @@
     NSAssert(nil != assetIDs, @"Failed to generate asset ID list");
 
     LibraryWriteCoordinator *writeCoordinator = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator];
-    [viewModel libraryWriteCoordinator:writeCoordinator
-                             didUpdate:@{NSInsertedObjectsKey:assetIDs}];
+    [viewModel modelCoordinator:writeCoordinator
+                      didUpdate:@{NSInsertedObjectsKey:assetIDs}];
 
     [viewModel setSearchText:@"foo"];
 
@@ -226,8 +226,8 @@
     NSAssert(nil != groupIDs, @"Failed to generate group ID list");
 
     LibraryWriteCoordinator *writeCoordinator = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator];
-    [viewModel libraryWriteCoordinator:writeCoordinator
-                             didUpdate:@{NSInsertedObjectsKey:groupIDs}];
+    [viewModel modelCoordinator:writeCoordinator
+                      didUpdate:@{NSInsertedObjectsKey:groupIDs}];
 
     XCTAssertNotNil(viewModel.groups, @"Should not be nil");
     XCTAssertEqual([viewModel.groups count], 5, @"Expected empty asset list");
@@ -270,8 +270,8 @@
 
     LibraryWriteCoordinator *writeCoordinator = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator];
     NSArray<NSManagedObjectID *> *allInsertedIDs = [groupIDs arrayByAddingObjectsFromArray:assetIDs];
-    [viewModel libraryWriteCoordinator:writeCoordinator
-                             didUpdate:@{NSInsertedObjectsKey:allInsertedIDs}];
+    [viewModel modelCoordinator:writeCoordinator
+                      didUpdate:@{NSInsertedObjectsKey:allInsertedIDs}];
 
     XCTAssertNotNil(viewModel.groups, @"Should not be nil");
     XCTAssertEqual([viewModel.groups count], groupCount, @"Expected group list");
@@ -330,8 +330,8 @@
 
     LibraryWriteCoordinator *writeCoordinator = [[LibraryWriteCoordinator alloc] initWithPersistentStore:moc.persistentStoreCoordinator];
     NSArray<NSManagedObjectID *> *allInsertedIDs = [groupIDs arrayByAddingObjectsFromArray:assetIDs];
-    [viewModel libraryWriteCoordinator:writeCoordinator
-                             didUpdate:@{NSInsertedObjectsKey:allInsertedIDs}];
+    [viewModel modelCoordinator:writeCoordinator
+                      didUpdate:@{NSInsertedObjectsKey:allInsertedIDs}];
 
     XCTAssertNotNil(viewModel.groups, @"Should not be nil");
     XCTAssertEqual([viewModel.groups count], groupCount, @"Expected group list");

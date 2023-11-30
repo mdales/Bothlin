@@ -9,6 +9,7 @@
 #import "LibraryWriteCoordinator.h"
 #import "RootWindowController.h"
 #import "SettingsWindowController.h"
+#import "ImportCoordinator.h"
 
 NSString * __nonnull const kUserDefaultsUsingDefaultStorage = @"kUserDefaultsUsingDefaultStorage";
 NSString * __nonnull const kUserDefaultsDefaultStoragePath = @"kUserDefaultsDefaultStoragePath";
@@ -75,12 +76,29 @@ NSString * __nonnull const kUserDefaultsExpandedSidebarItems = @"kUserDefaultsEx
 - (void)applicationDidFinishLaunching:(NSNotification * _Nonnull)aNotification {
     [AppDelegate makeInitialDefaults];
 
+    NSError *error = nil;
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    BOOL usingDefaultStorageLocation = [[userDefaults valueForKey:kUserDefaultsUsingDefaultStorage] boolValue];
+    NSData *bookmark = [userDefaults valueForKey:usingDefaultStorageLocation ? kUserDefaultsDefaultStoragePath : kUserDefaultsCustomStoragePath];
+    NSAssert(nil != bookmark, @"User defaults are broken: no storage path");
+    BOOL isStale = NO;
+    NSURL *storageDirectory = [NSURL URLByResolvingBookmarkData:bookmark
+                                                        options:NSURLBookmarkResolutionWithSecurityScope
+                                                  relativeToURL:nil
+                                            bookmarkDataIsStale:&isStale
+                                                          error:&error];
+    // TODO: ponder what to do if this fails
+    NSAssert(nil == error, @"Error getting storage directory: %@", error.localizedDescription);
+    NSAssert(nil != storageDirectory, @"Got no error but no storage directory");
+    NSAssert(NO == isStale, @"Storage directory is stale");
+
     // TODO: icky self use
     NSPersistentStoreCoordinator *store = self.persistentContainer.persistentStoreCoordinator;
     self->_libraryController = [[LibraryWriteCoordinator alloc] initWithPersistentStore:store];
+    self->_importCoordinator = [[ImportCoordinator alloc] initWithPersistentStore:store
+                                                                 storageDirectory:storageDirectory];
 
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSError *error = nil;
     NSURL *trashURL = [fm URLForDirectory:NSTrashDirectory
                                  inDomain:NSAllDomainsMask
                         appropriateForURL:nil

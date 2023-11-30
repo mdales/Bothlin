@@ -21,6 +21,7 @@
 #import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
 #import "Tag+CoreDataClass.h"
+#import "ImportCoordinator.h"
 
 NSString * __nonnull const kImportToolbarItemIdentifier = @"ImportToolbarItemIdentifier";
 NSString * __nonnull const kSearchToolbarItemIdentifier = @"SearchToolbarItemIdentifier";
@@ -104,6 +105,9 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
     LibraryWriteCoordinator *library = appDelegate.libraryController;
     library.delegate = self.viewModel;
+    library.thumbnailDelegate = self.viewModel;
+    ImportCoordinator *importer = appDelegate.importCoordinator;
+    importer.delegate = self.viewModel;
 
     self.viewModel.delegate = self;
 
@@ -262,27 +266,25 @@ NSString * __nonnull const kFavouriteToolbarItemIdentifier = @"FavouriteToolbarI
     NSParameterAssert(nil != urls);
 
     AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
-    LibraryWriteCoordinator *library = appDelegate.libraryController;
+    ImportCoordinator *importer = appDelegate.importCoordinator;
 
     // This is async, so returns immediately
-    @weakify(self);
-    [library importURLs:urls
-                toGroup:relatedObject
-               callback:^(BOOL success, NSError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            @strongify(self);
-            if (nil == self) {
-                return;
-            }
-
-            if (nil != error) {
-                NSAssert(NO == success, @"Got error and success from saving.");
-                NSAlert *alert = [NSAlert alertWithError:error];
-                [alert runModal];
-                return;
-            }
-            NSAssert(NO != success, @"Got no success and error from saving.");
-        });
+     [importer importURLs:[NSSet setWithArray:urls]
+                 toGroup:relatedObject
+                 callback:^(BOOL success, NSSet<NSManagedObjectID *> *assets, NSError *error) {
+         dispatch_async(dispatch_get_main_queue(), ^{
+             if (nil != error) {
+                 NSAssert(NO == success, @"Got error and success from saving.");
+                 NSAssert(nil == assets, @"Got error and success from saving.");
+                 NSAlert *alert = [NSAlert alertWithError:error];
+                 [alert runModal];
+             } else {
+                 AppDelegate *appDelegate = (AppDelegate*)[NSApplication sharedApplication].delegate;
+                 LibraryWriteCoordinator *library = appDelegate.libraryController;
+                 [library generateThumbnailForAssets:assets];
+                 [library generateScannedTextForAssets:assets];
+             }
+         });
     }];
 }
 

@@ -7,6 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class ImportCoordinator;
 @class LibraryWriteCoordinator;
 
 extern NSString * __nonnull const kUserDefaultsUsingDefaultStorage;
@@ -21,8 +22,9 @@ extern NSString * __nonnull const kUserDefaultsExpandedSidebarItems;
 @property (nonatomic, weak, readwrite) IBOutlet NSMenuItem * _Nullable debugRegenerateThumbnailMenuItem;
 @property (nonatomic, weak, readwrite) IBOutlet NSMenuItem * _Nullable debugRegenerateScannedTextMenuItem;
 
-@property (readonly, nonatomic, strong) NSPersistentContainer * _Nonnull persistentContainer;
-@property (readonly, nonatomic, strong) LibraryWriteCoordinator * _Nonnull libraryController;
+@property (nonatomic, strong, readonly) NSPersistentContainer * _Nonnull persistentContainer;
+@property (nonatomic, strong, readonly) LibraryWriteCoordinator * _Nonnull libraryController;
+@property (nonatomic, strong, readonly) ImportCoordinator * _Nonnull importCoordinator;
 
 - (IBAction)import:(id _Nullable)sender;
 - (IBAction)settings:(id _Nullable)sender;

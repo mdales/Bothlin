@@ -193,9 +193,9 @@ NSArray<NSString *> * const testTags = @[
     });
 }
 
-#pragma mark - LibraryWriteCoordinatorDelegate
+#pragma mark - ModelCoordinatorDelegate
 
-- (void)libraryWriteCoordinator:(__unused LibraryWriteCoordinator *)libraryWriteCoordinator 
+- (void)modelCoordinator:(__unused id)modelCoordinator 
                       didUpdate:(NSDictionary<NSString *, NSArray<NSManagedObjectID *> *> *)changeNotificationData {
     dispatch_assert_queue(dispatch_get_main_queue());
 
@@ -264,6 +264,8 @@ NSArray<NSString *> * const testTags = @[
         });
     }
 }
+
+#pragma mark - LibraryWriteCoordinatorDelegate
 
 - (void)libraryWriteCoordinator:(__unused LibraryWriteCoordinator *)libraryWriteCoordinator
                thumbnailForItem:(__unused NSManagedObjectID *)objectID

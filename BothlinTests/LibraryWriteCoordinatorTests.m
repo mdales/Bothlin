@@ -8,6 +8,7 @@
 #import <XCTest/XCTest.h>
 
 #import "LibraryWriteCoordinator.h"
+#import "ModelCoordinatorDelegate.h"
 #import "NSArray+Functional.h"
 #import "NSSet+Functional.h"
 #import "Asset+CoreDataClass.h"
@@ -15,7 +16,7 @@
 #import "Tag+CoreDataClass.h"
 #import "TestModelHelpers.h"
 
-@interface DelegateRecorder : NSObject <LibraryWriteCoordinatorDelegate>
+@interface DelegateRecorder : NSObject <ModelCoordinatorDelegate>
 
 @property (nonatomic, strong, readwrite, nullable) NSDictionary *changeNotificationData;
 @property (nonatomic, strong, readwrite, nullable) dispatch_semaphore_t updateSemaphore;
@@ -24,18 +25,12 @@
 
 @implementation DelegateRecorder
 
-- (void)libraryWriteCoordinator:(LibraryWriteCoordinator *)libraryWriteCoordinator
-                      didUpdate:(NSDictionary *)changeNotificationData {
+- (void)modelCoordinator:(__unused id)modelCoordinator
+               didUpdate:(NSDictionary *)changeNotificationData {
     self.changeNotificationData = changeNotificationData;
     if (nil != self.updateSemaphore) {
         dispatch_semaphore_signal(self.updateSemaphore);
     }
-}
-
-- (void)libraryWriteCoordinator:(LibraryWriteCoordinator *)libraryWriteCoordinator
-               thumbnailForItem:(NSManagedObjectID *)objectID
-      generationFailedWithError:(NSError *)error {
-
 }
 
 @end
