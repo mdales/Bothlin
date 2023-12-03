@@ -14,6 +14,12 @@
 
 #import "Helpers.h"
 
+NSErrorDomain __nonnull const ImportCoordinatorErrorDomain = @"com.digitalflapjack.ImportCoordinator";
+typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) {
+    ImportCoordinatorErrorUnknown, // AKA 0, AKA I made a mistake
+    ImportCoordinatorErrorNoInfoForSnap,
+};
+
 @interface ImportCoordinator ()
 
 @property (strong, nonatomic, readonly) NSURL *storageDirectory;
@@ -328,6 +334,28 @@
                                     error:(NSError **)error {
     NSParameterAssert(nil != url);
     dispatch_assert_queue(self.dataQ);
+
+    // The info is an archived object of type EMBCommonSnapInfo, rather than a straight plist. Rather than
+    // reverse engineer it, I just want the date from this object, so I extract that specifically
+    NSDictionary *info = [NSDictionary dictionaryWithContentsOfURL:[url URLByAppendingPathComponent:@"info.plist"]];
+    if (nil == info) {
+        if (nil != error) {
+            error = [NSError errorWithDomain:ImportCoordinatorErrorDomain
+                                        code:ImportCoordinatorErrorNoInfoForSnap
+                                    userInfo:@{@"URL":url}];
+        }
+        return nil;
+    }
+    NSArray *objects = info[@"$objects"];
+    if (nil == objects) {
+        if (nil != error) {
+            error = [NSError errorWithDomain:ImportCoordinatorErrorDomain
+                                        code:ImportCoordinatorErrorNoInfoForSnap
+                                    userInfo:@{@"URL":url}];
+        }
+        return nil;
+    }
+    NSLog(@"info: %@", info);
 
     return nil;
 }
