@@ -9,7 +9,9 @@
 
 #import "Asset+CoreDataClass.h"
 #import "Group+CoreDataClass.h"
+#import "Tag+CoreDataClass.h"
 #import "NSURL+SecureAccess.h"
+#import "NSArray+Functional.h"
 #import "NSSet+Functional.h"
 
 #import "Helpers.h"
@@ -18,6 +20,7 @@ NSErrorDomain __nonnull const ImportCoordinatorErrorDomain = @"com.digitalflapja
 typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) {
     ImportCoordinatorErrorUnknown, // AKA 0, AKA I made a mistake
     ImportCoordinatorErrorNoInfoForSnap,
+    ImportCoordinatorErrorNoMetadataForSnap,
 };
 
 @interface ImportCoordinator ()
@@ -166,6 +169,7 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
                                        error:(NSError **)error {
     NSParameterAssert(nil != urls);
     dispatch_assert_queue(self.dataQ); // TODO: is this needed here?
+    NSLog(@"inner %@", urls);
 
     NSError *innerError = nil;
     NSMutableSet<Asset *> *assets = [NSMutableSet set];
@@ -337,27 +341,187 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
 
     // The info is an archived object of type EMBCommonSnapInfo, rather than a straight plist. Rather than
     // reverse engineer it, I just want the date from this object, so I extract that specifically
-    NSDictionary *info = [NSDictionary dictionaryWithContentsOfURL:[url URLByAppendingPathComponent:@"info.plist"]];
-    if (nil == info) {
+    NSDate *creationTime = nil;
+    NSDictionary *info = [NSDictionary dictionaryWithContentsOfURL:[url URLByAppendingPathComponent:@"Info.plist"]];
+    if (nil != info) {
+        id maybeObjects = info[@"$objects"];
+        if ((nil != maybeObjects) && [maybeObjects isKindOfClass:[NSArray class]]) {
+            NSArray *objects = (NSArray *)maybeObjects;
+            if ([objects count] > 2) {
+                id maybeTimeInfo = objects[2];
+                if ([maybeTimeInfo isKindOfClass:[NSDictionary class]]) {
+                    NSDictionary *timeInfo = (NSDictionary *)maybeTimeInfo;
+                    id maybeTime = timeInfo[@"NS.time"];
+                    if ((nil != maybeTime) && ([maybeTime isKindOfClass:[NSNumber class]])) {
+                        NSNumber *time = (NSNumber *)maybeTime;
+                        creationTime = [NSDate dateWithTimeIntervalSinceReferenceDate:[time doubleValue]];
+                    }
+                }
+            }
+        }
+    }
+    if (nil == creationTime) {
         if (nil != error) {
-            error = [NSError errorWithDomain:ImportCoordinatorErrorDomain
-                                        code:ImportCoordinatorErrorNoInfoForSnap
-                                    userInfo:@{@"URL":url}];
+            *error = [NSError errorWithDomain:ImportCoordinatorErrorDomain
+                                         code:ImportCoordinatorErrorNoInfoForSnap
+                                     userInfo:@{@"URL":url}];
         }
         return nil;
     }
-    NSArray *objects = info[@"$objects"];
-    if (nil == objects) {
-        if (nil != error) {
-            error = [NSError errorWithDomain:ImportCoordinatorErrorDomain
-                                        code:ImportCoordinatorErrorNoInfoForSnap
-                                    userInfo:@{@"URL":url}];
-        }
-        return nil;
-    }
-    NSLog(@"info: %@", info);
 
-    return nil;
+    // The metadata is a keyed archive of type EMBCommonSnapMetadata. Again, for now we just pull out the bits we need. The
+    // size of this one is variable, and so we have to do a bit of guess work.
+    NSString *filename = nil;
+    NSString *title = nil;
+    NSSet<NSString *> *tags = [NSSet set];
+    NSDictionary *metadata2 = [NSDictionary dictionaryWithContentsOfURL:[url URLByAppendingPathComponent:@"Metadata2.plist"]];
+    if (nil != metadata2) {
+        id maybeObjects = metadata2[@"$objects"];
+        if ((nil != maybeObjects) && [maybeObjects isKindOfClass:[NSArray class]]) {
+            NSArray *objects = (NSArray *)maybeObjects;
+            if ([objects count] > 2) {
+                id maybeFilename = objects[[objects count] - 2];
+                if ((nil != maybeFilename) && [maybeFilename isKindOfClass:[NSString class]]) {
+                    filename = (NSString *)maybeFilename;
+                }
+                id maybeTitle = objects[2];
+                if ((nil != maybeTitle) && [maybeTitle isKindOfClass:[NSString class]]) {
+                    title = (NSString *)maybeTitle;
+                }
+            }
+            // this is a crude hueristic for getting tags. Count back to find the first number.
+            if ([objects count] > 0) {
+                NSUInteger end = [objects count] - 1;
+                for (NSUInteger index = end; index > 0; index--) {
+                    id object = objects[index];
+                    if ([object isKindOfClass:[NSString class]] && ([object compare:@"{0, 0}"] == NSOrderedSame)) {
+                        end = index - 1;
+                        break;
+                    }
+                }
+                NSUInteger start = 0;
+                for (NSUInteger index = 0; index < end; index++) {
+                    id object = objects[index];
+                        if ([object isKindOfClass:[NSNumber class]]) {
+                        start = index + 1;
+                        break;
+                    }
+                }
+
+                if (end > start) {
+                    NSArray *potentialSub = [objects subarrayWithRange:NSMakeRange(start, end - start)];
+                    tags = [NSSet setWithArray:[potentialSub compactMapUsingBlock:^id _Nullable(id  _Nonnull object) {
+                        if (![object isKindOfClass:[NSString class]]) {
+                            return nil;
+                        }
+                        NSString *potentialTag = (NSString *)object;
+                        return potentialTag;
+                    }]];
+                }
+            }
+        }
+    }
+    if (nil == filename) {
+        if (nil != error) {
+            *error = [NSError errorWithDomain:ImportCoordinatorErrorDomain
+                                         code:ImportCoordinatorErrorNoMetadataForSnap
+                                     userInfo:@{@"URL":url}];
+        }
+        return nil;
+    }
+    if (nil == title) {
+        title = filename;
+    }
+
+    NSFileManager *fm = [NSFileManager defaultManager];
+    __block NSError *innerError = nil;
+    NSURL *targetURL = [self.storageDirectory URLByAppendingPathComponent:[url lastPathComponent]];
+    __block BOOL copySuccess = NO;
+    // canAccess can still return NO with access if you already had some implicit
+    // permission to special locations. Weirdly this does not include the folder
+    // in our app's container, which I see YES for in the first call (even though this code
+    // will store in our container if I don't ask), but I see NO for Desktop folders for
+    // instance but can still access them.
+    //
+    // As such all I can really do is ignore canAccess and try the copy and deal with any
+    // errors that occur instead of using canAccess to pre-empt that.
+    [self.storageDirectory secureAccessWithBlock:^(__unused NSURL * _Nonnull secureStorageURL, __unused BOOL canAccess) {
+        [url secureAccessWithBlock:^(__unused NSURL * _Nonnull secureFileURL, __unused BOOL canAccess) {
+            copySuccess = [fm copyItemAtURL:url
+                                      toURL:targetURL
+                                      error:&innerError];
+
+        }];
+    }];
+    if (nil != innerError) {
+        NSAssert(NO == copySuccess, @"Copy success despite error %@", innerError.localizedDescription);
+        if (nil != error) {
+            *error = innerError;
+        }
+        return nil;
+    }
+    NSAssert(NO != copySuccess, @"No error but copy failed");
+
+    __block NSData *bookmark = nil;
+    NSURL *itemURL = [targetURL URLByAppendingPathComponent:filename];
+    [self.storageDirectory secureAccessWithBlock:^(__unused NSURL * _Nonnull secureStorageURL, __unused BOOL canAccess) {
+        bookmark = [itemURL bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
+                     includingResourceValuesForKeys:nil
+                                      relativeToURL:nil
+                                              error:&innerError];
+    }];
+    if (nil != innerError) {
+        NSLog(@"failed to make bookmark: %@", innerError.localizedDescription);
+        if (nil != error) {
+            *error = innerError;
+        }
+        return nil;
+    }
+    NSAssert(nil != bookmark, @"Bookmark for %@ nil despite no error", url);
+
+    Asset *asset = [NSEntityDescription insertNewObjectForEntityForName:@"Asset"
+                                                 inManagedObjectContext:self.managedObjectContext];
+    asset.name = title;
+    asset.path = itemURL;
+    asset.bookmark = bookmark;
+    asset.added = [NSDate now];
+    asset.created = creationTime;
+
+    // Store the UTType, which is useful for exporting later
+    NSString *uttype = (NSString *)CFBridgingRelease(UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[itemURL pathExtension], NULL));
+    asset.type = uttype;
+
+    // TODO: We should be somehow adding the inserted tags to a ledger to send upstream
+    NSSet<Tag *> *tagObjects = [tags compactMapUsingBlock:^id _Nullable(NSString * _Nonnull rawTag) {
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name ==[c] %@", rawTag];
+        [fetch setPredicate:predicate];
+
+        NSError *error = nil;
+        NSArray<Tag *> *result = [self.managedObjectContext executeFetchRequest:fetch
+                                                                          error:&error];
+        if (nil != error) {
+            NSAssert(nil == result, @"Got error and result");
+            NSLog(@"Failed to look for %@ as tag: %@", rawTag, error.localizedDescription);
+            return nil;
+        }
+        NSAssert(nil != result, @"Got no error but not result");
+
+        if (0 == [result count]) {
+            Tag *tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag"
+                                                     inManagedObjectContext:self.managedObjectContext];
+            tag.name = rawTag;
+//            insertedTags = [insertedTags setByAddingObject:tag];
+            return tag;
+        }
+
+        // We hope for a single tag here
+        NSAssert([result count] == 1, @"Unexpceted number of tags for %@: %@", rawTag, result);
+        return [result firstObject];
+    }];
+    [asset addTags:tagObjects];
+
+    return asset;
 }
 
 @end

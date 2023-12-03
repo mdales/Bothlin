@@ -287,8 +287,12 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         }
         NSAssert(nil != secureURL, @"Got no error and no value");
 
-        // Going from UUID/original/filename.blah to just UUID/
-        assetPath = [[asset.path URLByDeletingLastPathComponent] URLByDeletingLastPathComponent];
+        if (![[asset.path path] containsString:@"embersnap"]) {
+            // Going from UUID/original/filename.blah to just UUID/
+            assetPath = [[asset.path URLByDeletingLastPathComponent] URLByDeletingLastPathComponent];
+        } else {
+            assetPath = [asset.path URLByDeletingLastPathComponent];
+        }
     });
     if (nil != innerError) {
         if (nil != error) {
