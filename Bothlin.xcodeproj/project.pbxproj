@@ -49,6 +49,9 @@
 		4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
 		4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
 		4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
+		4C87FDE02B1DCC150078AC7E /* _EMBCommonSnapMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C87FDDF2B1DCC150078AC7E /* _EMBCommonSnapMetadata.m */; };
+		4C87FDE12B1DCC150078AC7E /* _EMBCommonSnapMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C87FDDF2B1DCC150078AC7E /* _EMBCommonSnapMetadata.m */; };
+		4C87FDE22B1DCC150078AC7E /* _EMBCommonSnapMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C87FDDF2B1DCC150078AC7E /* _EMBCommonSnapMetadata.m */; };
 		4C8812FE2AF659A200F7439D /* LibraryViewModelTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C8812FD2AF659A200F7439D /* LibraryViewModelTests.m */; };
 		4C8812FF2AF6856B00F7439D /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
 		4C9544B52AECE613007205A9 /* NSSet+Functional.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9544B42AECE613007205A9 /* NSSet+Functional.m */; };
@@ -163,6 +166,8 @@
 		4C622E5E2B0214E400FD34D7 /* NaturalLanguage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NaturalLanguage.framework; path = System/Library/Frameworks/NaturalLanguage.framework; sourceTree = SDKROOT; };
 		4C7F5F452AC6B1E5000E9BD9 /* ToolbarProgressView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ToolbarProgressView.h; sourceTree = "<group>"; };
 		4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ToolbarProgressView.m; sourceTree = "<group>"; };
+		4C87FDDE2B1DCC150078AC7E /* _EMBCommonSnapMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _EMBCommonSnapMetadata.h; sourceTree = "<group>"; };
+		4C87FDDF2B1DCC150078AC7E /* _EMBCommonSnapMetadata.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _EMBCommonSnapMetadata.m; sourceTree = "<group>"; };
 		4C8812FD2AF659A200F7439D /* LibraryViewModelTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibraryViewModelTests.m; sourceTree = "<group>"; };
 		4C9544B32AECE613007205A9 /* NSSet+Functional.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSSet+Functional.h"; sourceTree = "<group>"; };
 		4C9544B42AECE613007205A9 /* NSSet+Functional.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSSet+Functional.m"; sourceTree = "<group>"; };
@@ -329,6 +334,15 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
+		4C87FDDD2B1DCBCF0078AC7E /* Ember coder classes */ = {
+			isa = PBXGroup;
+			children = (
+				4C87FDDE2B1DCC150078AC7E /* _EMBCommonSnapMetadata.h */,
+				4C87FDDF2B1DCC150078AC7E /* _EMBCommonSnapMetadata.m */,
+			);
+			path = "Ember coder classes";
+			sourceTree = "<group>";
+		};
 		4CB886222ABACB7A00968B0F /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -341,6 +355,7 @@
 		4CB8862A2ABACBBA00968B0F /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				4C87FDDD2B1DCBCF0078AC7E /* Ember coder classes */,
 				4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */,
 				4C011A0B2AC5D178004A94C4 /* AssetExtension.h */,
 				4C011A0C2AC5D178004A94C4 /* AssetExtension.m */,
@@ -620,6 +635,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C87FDE02B1DCC150078AC7E /* _EMBCommonSnapMetadata.m in Sources */,
 				4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */,
 				4C960F3C2AD70CF70053C631 /* GridViewItem.m in Sources */,
 				4CA03B8A2B02C0B90094C107 /* KeyCollectionView.m in Sources */,
@@ -658,6 +674,7 @@
 			files = (
 				4C8812FF2AF6856B00F7439D /* LibraryModel.xcdatamodeld in Sources */,
 				4CBD40B72AEECB2000A8EB5A /* AssetPromiseProvider.m in Sources */,
+				4C87FDE12B1DCC150078AC7E /* _EMBCommonSnapMetadata.m in Sources */,
 				4C4D2B572AF95D9C0059880F /* LibraryWriteCoordinatorTests.m in Sources */,
 				4CC9EA802ADFC28A00D33E5C /* KVOBox.m in Sources */,
 				4C1F01CA2AD7EED400E4CCD7 /* NSArray+FunctionalTests.m in Sources */,
@@ -701,6 +718,7 @@
 				4CB886692ABB67E100968B0F /* LibraryModel.xcdatamodeld in Sources */,
 				4C0119BA2AC5AC5E004A94C4 /* DetailsController.m in Sources */,
 				4C0119A92AC5AC14004A94C4 /* SidebarController.m in Sources */,
+				4C87FDE22B1DCC150078AC7E /* _EMBCommonSnapMetadata.m in Sources */,
 				4CBF176D2AB5F177001F7984 /* OldSkoolUITests.m in Sources */,
 				4CBF176F2AB5F177001F7984 /* OldSkoolUITestsLaunchTests.m in Sources */,
 				4CB886202ABA2CA900968B0F /* LibraryWriteCoordinator.m in Sources */,

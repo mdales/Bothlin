@@ -13,6 +13,7 @@
 #import "NSURL+SecureAccess.h"
 #import "NSArray+Functional.h"
 #import "NSSet+Functional.h"
+#import "_EMBCommonSnapMetadata.h"
 
 #import "Helpers.h"
 
@@ -369,59 +370,8 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
         return nil;
     }
 
-    // The metadata is a keyed archive of type EMBCommonSnapMetadata. Again, for now we just pull out the bits we need. The
-    // size of this one is variable, and so we have to do a bit of guess work.
-    NSString *filename = nil;
-    NSString *title = nil;
-    NSSet<NSString *> *tags = [NSSet set];
-    NSDictionary *metadata2 = [NSDictionary dictionaryWithContentsOfURL:[url URLByAppendingPathComponent:@"Metadata2.plist"]];
-    if (nil != metadata2) {
-        id maybeObjects = metadata2[@"$objects"];
-        if ((nil != maybeObjects) && [maybeObjects isKindOfClass:[NSArray class]]) {
-            NSArray *objects = (NSArray *)maybeObjects;
-            if ([objects count] > 2) {
-                id maybeFilename = objects[[objects count] - 2];
-                if ((nil != maybeFilename) && [maybeFilename isKindOfClass:[NSString class]]) {
-                    filename = (NSString *)maybeFilename;
-                }
-                id maybeTitle = objects[2];
-                if ((nil != maybeTitle) && [maybeTitle isKindOfClass:[NSString class]]) {
-                    title = (NSString *)maybeTitle;
-                }
-            }
-            // this is a crude hueristic for getting tags. Count back to find the first number.
-            if ([objects count] > 0) {
-                NSUInteger end = [objects count] - 1;
-                for (NSUInteger index = end; index > 0; index--) {
-                    id object = objects[index];
-                    if ([object isKindOfClass:[NSString class]] && ([object compare:@"{0, 0}"] == NSOrderedSame)) {
-                        end = index - 1;
-                        break;
-                    }
-                }
-                NSUInteger start = 0;
-                for (NSUInteger index = 0; index < end; index++) {
-                    id object = objects[index];
-                        if ([object isKindOfClass:[NSNumber class]]) {
-                        start = index + 1;
-                        break;
-                    }
-                }
-
-                if (end > start) {
-                    NSArray *potentialSub = [objects subarrayWithRange:NSMakeRange(start, end - start)];
-                    tags = [NSSet setWithArray:[potentialSub compactMapUsingBlock:^id _Nullable(id  _Nonnull object) {
-                        if (![object isKindOfClass:[NSString class]]) {
-                            return nil;
-                        }
-                        NSString *potentialTag = (NSString *)object;
-                        return potentialTag;
-                    }]];
-                }
-            }
-        }
-    }
-    if (nil == filename) {
+    NSData *data = [NSData dataWithContentsOfURL:[url URLByAppendingPathComponent:@"Metadata2.plist"]];
+    if (nil == data) {
         if (nil != error) {
             *error = [NSError errorWithDomain:ImportCoordinatorErrorDomain
                                          code:ImportCoordinatorErrorNoMetadataForSnap
@@ -429,12 +379,19 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
         }
         return nil;
     }
-    if (nil == title) {
-        title = filename;
+    __block NSError *innerError = nil;
+    _EMBCommonSnapMetadata *metadata = [NSKeyedUnarchiver unarchivedObjectOfClass:[_EMBCommonSnapMetadata class]
+                                                                         fromData:data
+                                                                            error:&innerError];
+    if (nil != innerError) {
+        if (nil != error) {
+            *error = innerError;
+        }
+        return nil;
     }
 
+
     NSFileManager *fm = [NSFileManager defaultManager];
-    __block NSError *innerError = nil;
     NSURL *targetURL = [self.storageDirectory URLByAppendingPathComponent:[url lastPathComponent]];
     __block BOOL copySuccess = NO;
     // canAccess can still return NO with access if you already had some implicit
@@ -463,7 +420,7 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
     NSAssert(NO != copySuccess, @"No error but copy failed");
 
     __block NSData *bookmark = nil;
-    NSURL *itemURL = [targetURL URLByAppendingPathComponent:filename];
+    NSURL *itemURL = [targetURL URLByAppendingPathComponent:metadata.imageFileName];
     [self.storageDirectory secureAccessWithBlock:^(__unused NSURL * _Nonnull secureStorageURL, __unused BOOL canAccess) {
         bookmark = [itemURL bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
                      includingResourceValuesForKeys:nil
@@ -481,7 +438,7 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
 
     Asset *asset = [NSEntityDescription insertNewObjectForEntityForName:@"Asset"
                                                  inManagedObjectContext:self.managedObjectContext];
-    asset.name = title;
+    asset.name = metadata.title;
     asset.path = itemURL;
     asset.bookmark = bookmark;
     asset.added = [NSDate now];
@@ -492,7 +449,7 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
     asset.type = uttype;
 
     // TODO: We should be somehow adding the inserted tags to a ledger to send upstream
-    NSSet<Tag *> *tagObjects = [tags compactMapUsingBlock:^id _Nullable(NSString * _Nonnull rawTag) {
+    NSSet<Tag *> *tagObjects = [[NSSet setWithArray:metadata.tags] compactMapUsingBlock:^id _Nullable(NSString * _Nonnull rawTag) {
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name ==[c] %@", rawTag];
         [fetch setPredicate:predicate];
@@ -511,7 +468,6 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
             Tag *tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag"
                                                      inManagedObjectContext:self.managedObjectContext];
             tag.name = rawTag;
-//            insertedTags = [insertedTags setByAddingObject:tag];
             return tag;
         }
 
