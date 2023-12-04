@@ -33,7 +33,35 @@
         self->_compositedImageFileName = [coder decodeObjectOfClass:[NSString class] forKey:@"compositedImageFileName"];
         self->_webArchiveFileName = [coder decodeObjectOfClass:[NSString class] forKey:@"webArchiveFileName"];
 
-        self->_tags = [coder decodeObjectOfClass:[NSMutableArray class] forKey:@"tags"];
+        id possibleTags = [coder decodeObjectOfClasses:[NSSet setWithArray:@[[NSString class], [NSMutableArray class]]] forKey:@"tags"];
+        if (nil == possibleTags) {
+            self->_tags = [NSSet set];
+        } else {
+            if ([possibleTags isKindOfClass:[NSString class]]) {
+                self->_tags = [NSSet setWithObject:possibleTags];
+            } else {
+                self->_tags = [NSSet setWithArray:possibleTags];
+            }
+        }
+
+        self->_collections = [coder decodeObjectOfClasses:[NSSet setWithArray:@[[NSString class], [NSMutableArray class]]] forKey:@"collections"];
+
+        NSValue *possibleIimageDimensions = [coder decodeObjectOfClass:[NSValue class]
+                                                                forKey:@"imageDimensions"];
+        if (nil != possibleIimageDimensions) {
+            self->_imageDimensions = [possibleIimageDimensions sizeValue];
+        }
+
+        self->_comments = [coder decodeObjectOfClass:[NSString class] forKey:@"comments"];
+        self->_rating = [coder decodeObjectOfClass:[NSNumber class] forKey:@"rating"];
+        self->_type = [coder decodeObjectOfClass:[NSNumber class] forKey:@"type"];
+        self->_uuid = [coder decodeObjectOfClass:[NSString class] forKey:@"uuid"];
+        self->_date = [coder decodeObjectOfClass:[NSDate class] forKey:@"date"];
+
+
+        self->_colourRedComponent = [coder decodeObjectOfClass:[NSNumber class] forKey:@"colourRedComponent"];
+        self->_colourGreenComponent = [coder decodeObjectOfClass:[NSNumber class] forKey:@"colourGreenComponent"];
+        self->_colourBlueComponent = [coder decodeObjectOfClass:[NSNumber class] forKey:@"colourBlueComponent"];
 
         self->_hasAnnoations = [coder decodeBoolForKey:@"hasAnnotations"];
         self->_layered = [coder decodeBoolForKey:@"layered"];

@@ -112,9 +112,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly, nullable) NSString *compositedImageFileName;
 @property (nonatomic, strong, readonly, nullable) NSString *webArchiveFileName;
 @property (nonatomic, strong, readonly, nullable) NSURL *url;
-@property (nonatomic, strong, readonly, nullable) NSArray<NSString *> *tags;
+@property (nonatomic, strong, readonly) NSSet<NSString *> *tags;
 
-@property (nonatomic, readonly) NSSize *imageDimensions;
+@property (nonatomic, strong, readonly, nullable) NSArray<NSString *> *collections;
+
+@property (nonatomic, readonly) NSSize imageDimensions;
 
 @property (nonatomic, readonly) BOOL hasAnnoations;
 @property (nonatomic, readonly) BOOL layered;
