@@ -14,6 +14,7 @@
 #import "NSArray+Functional.h"
 #import "NSSet+Functional.h"
 #import "_EMBCommonSnapMetadata.h"
+#import "_EMBCommonSnapInfo.h"
 
 #import "Helpers.h"
 
@@ -340,28 +341,10 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
     NSParameterAssert(nil != url);
     dispatch_assert_queue(self.dataQ);
 
-    // The info is an archived object of type EMBCommonSnapInfo, rather than a straight plist. Rather than
-    // reverse engineer it, I just want the date from this object, so I extract that specifically
-    NSDate *creationTime = nil;
-    NSDictionary *info = [NSDictionary dictionaryWithContentsOfURL:[url URLByAppendingPathComponent:@"Info.plist"]];
-    if (nil != info) {
-        id maybeObjects = info[@"$objects"];
-        if ((nil != maybeObjects) && [maybeObjects isKindOfClass:[NSArray class]]) {
-            NSArray *objects = (NSArray *)maybeObjects;
-            if ([objects count] > 2) {
-                id maybeTimeInfo = objects[2];
-                if ([maybeTimeInfo isKindOfClass:[NSDictionary class]]) {
-                    NSDictionary *timeInfo = (NSDictionary *)maybeTimeInfo;
-                    id maybeTime = timeInfo[@"NS.time"];
-                    if ((nil != maybeTime) && ([maybeTime isKindOfClass:[NSNumber class]])) {
-                        NSNumber *time = (NSNumber *)maybeTime;
-                        creationTime = [NSDate dateWithTimeIntervalSinceReferenceDate:[time doubleValue]];
-                    }
-                }
-            }
-        }
-    }
-    if (nil == creationTime) {
+    __block NSError *innerError = nil;
+
+    NSData *infoData = [NSData dataWithContentsOfURL:[url URLByAppendingPathComponent:@"Info.plist"]];
+    if (nil == infoData) {
         if (nil != error) {
             *error = [NSError errorWithDomain:ImportCoordinatorErrorDomain
                                          code:ImportCoordinatorErrorNoInfoForSnap
@@ -369,6 +352,16 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
         }
         return nil;
     }
+    _EMBCommonSnapInfo *info = [NSKeyedUnarchiver unarchivedObjectOfClass:[_EMBCommonSnapInfo class]
+                                                                 fromData:infoData
+                                                                    error:&innerError];
+    if (nil != innerError) {
+        if (nil != error) {
+            *error = innerError;
+        }
+        return nil;
+    }
+    NSDate *creationTime = info.snapDate;
 
     NSData *data = [NSData dataWithContentsOfURL:[url URLByAppendingPathComponent:@"Metadata2.plist"]];
     if (nil == data) {
@@ -379,7 +372,6 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
         }
         return nil;
     }
-    __block NSError *innerError = nil;
     _EMBCommonSnapMetadata *metadata = [NSKeyedUnarchiver unarchivedObjectOfClass:[_EMBCommonSnapMetadata class]
                                                                          fromData:data
                                                                             error:&innerError];
@@ -449,7 +441,7 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
     asset.type = uttype;
 
     // TODO: We should be somehow adding the inserted tags to a ledger to send upstream
-    NSSet<Tag *> *tagObjects = [[NSSet setWithArray:metadata.tags] compactMapUsingBlock:^id _Nullable(NSString * _Nonnull rawTag) {
+    NSSet<Tag *> *tagObjects = [metadata.tags compactMapUsingBlock:^id _Nullable(NSString * _Nonnull rawTag) {
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name ==[c] %@", rawTag];
         [fetch setPredicate:predicate];

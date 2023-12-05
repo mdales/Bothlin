@@ -47,6 +47,9 @@
 		4C622E5C2B013EED00FD34D7 /* VisionKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C622E5B2B013EED00FD34D7 /* VisionKit.framework */; };
 		4C622E5F2B0214E400FD34D7 /* NaturalLanguage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C622E5E2B0214E400FD34D7 /* NaturalLanguage.framework */; };
 		4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4CB886662ABB67E100968B0F /* LibraryModel.xcdatamodeld */; };
+		4C7A16E82B1E05E30066F73D /* _EMBCommonSnapInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7A16E72B1E05E30066F73D /* _EMBCommonSnapInfo.m */; };
+		4C7A16E92B1E05E30066F73D /* _EMBCommonSnapInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7A16E72B1E05E30066F73D /* _EMBCommonSnapInfo.m */; };
+		4C7A16EA2B1E05E30066F73D /* _EMBCommonSnapInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7A16E72B1E05E30066F73D /* _EMBCommonSnapInfo.m */; };
 		4C7F5F472AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
 		4C7F5F482AC6B1E5000E9BD9 /* ToolbarProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */; };
 		4C87FDE02B1DCC150078AC7E /* _EMBCommonSnapMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C87FDDF2B1DCC150078AC7E /* _EMBCommonSnapMetadata.m */; };
@@ -164,6 +167,8 @@
 		4C622E5B2B013EED00FD34D7 /* VisionKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VisionKit.framework; path = System/Library/Frameworks/VisionKit.framework; sourceTree = SDKROOT; };
 		4C622E5D2B013F6D00FD34D7 /* LibraryModel 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "LibraryModel 2.xcdatamodel"; sourceTree = "<group>"; };
 		4C622E5E2B0214E400FD34D7 /* NaturalLanguage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NaturalLanguage.framework; path = System/Library/Frameworks/NaturalLanguage.framework; sourceTree = SDKROOT; };
+		4C7A16E62B1E05E30066F73D /* _EMBCommonSnapInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _EMBCommonSnapInfo.h; sourceTree = "<group>"; };
+		4C7A16E72B1E05E30066F73D /* _EMBCommonSnapInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _EMBCommonSnapInfo.m; sourceTree = "<group>"; };
 		4C7F5F452AC6B1E5000E9BD9 /* ToolbarProgressView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ToolbarProgressView.h; sourceTree = "<group>"; };
 		4C7F5F462AC6B1E5000E9BD9 /* ToolbarProgressView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ToolbarProgressView.m; sourceTree = "<group>"; };
 		4C87FDDE2B1DCC150078AC7E /* _EMBCommonSnapMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _EMBCommonSnapMetadata.h; sourceTree = "<group>"; };
@@ -339,6 +344,8 @@
 			children = (
 				4C87FDDE2B1DCC150078AC7E /* _EMBCommonSnapMetadata.h */,
 				4C87FDDF2B1DCC150078AC7E /* _EMBCommonSnapMetadata.m */,
+				4C7A16E62B1E05E30066F73D /* _EMBCommonSnapInfo.h */,
+				4C7A16E72B1E05E30066F73D /* _EMBCommonSnapInfo.m */,
 			);
 			path = "Ember coder classes";
 			sourceTree = "<group>";
@@ -658,6 +665,7 @@
 				4C0119A82AC5AC14004A94C4 /* SidebarController.m in Sources */,
 				4CBF17512AB5F176001F7984 /* AppDelegate.m in Sources */,
 				4CD0A0372ADD3F8C00BFFF7D /* LibraryViewModel.m in Sources */,
+				4C7A16E82B1E05E30066F73D /* _EMBCommonSnapInfo.m in Sources */,
 				4CB8861E2ABA2CA900968B0F /* LibraryWriteCoordinator.m in Sources */,
 				4CBB8D4A2B0C914900DA3D68 /* NSManagedObjectContext+helpers.m in Sources */,
 				4C72240E2ABC266400A4AE57 /* LibraryModel.xcdatamodeld in Sources */,
@@ -681,6 +689,7 @@
 				4C960F472AD7D8430053C631 /* NSArray+Functional.m in Sources */,
 				4C37FBCF2AC858D8006839A3 /* NSURL+SecureAccess.m in Sources */,
 				4CBB8D4E2B0C950300DA3D68 /* NSManagedObjectContext+HelpersTexts.m in Sources */,
+				4C7A16E92B1E05E30066F73D /* _EMBCommonSnapInfo.m in Sources */,
 				4C9544B92AECE706007205A9 /* NSSet+FunctionalTests.m in Sources */,
 				4C39E9612AFCC4EE004FF77A /* TestModelHelpers.m in Sources */,
 				4C8812FE2AF659A200F7439D /* LibraryViewModelTests.m in Sources */,
@@ -704,6 +713,7 @@
 				4CE194D92AF0F2AA00F1C1A4 /* GridViewItemRootView.m in Sources */,
 				4CEA09882B0ABA660034400F /* LozangeView.m in Sources */,
 				4CBB8D4C2B0C914900DA3D68 /* NSManagedObjectContext+helpers.m in Sources */,
+				4C7A16EA2B1E05E30066F73D /* _EMBCommonSnapInfo.m in Sources */,
 				4C960F3D2AD70CF70053C631 /* GridViewItem.m in Sources */,
 				4CEA09822B0ABA270034400F /* TagViewItem.m in Sources */,
 				4CD0A0342ADA918700BFFF7D /* TableCellWithButtonView.m in Sources */,
