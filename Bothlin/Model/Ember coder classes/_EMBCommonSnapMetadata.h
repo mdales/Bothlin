@@ -101,9 +101,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong, readonly)           NSString *title;
 @property (nonatomic, strong, readonly)           NSString *imageFileName;
+@property (nonatomic, strong, readonly)           NSNumber *rating;
 @property (nonatomic, strong, readonly, nullable) NSString *uuid;
 @property (nonatomic, strong, readonly, nullable) NSString *comments;
-@property (nonatomic, strong, readonly, nullable) NSNumber *rating;
 @property (nonatomic, strong, readonly, nullable) NSNumber *type;
 @property (nonatomic, strong, readonly, nullable) NSNumber *colourRedComponent;
 @property (nonatomic, strong, readonly, nullable) NSNumber *colourGreenComponent;
@@ -112,8 +112,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly, nullable) NSString *compositedImageFileName;
 @property (nonatomic, strong, readonly, nullable) NSString *webArchiveFileName;
 @property (nonatomic, strong, readonly, nullable) NSURL *url;
-@property (nonatomic, strong, readonly) NSSet<NSString *> *tags;
 
+@property (nonatomic, strong, readonly) NSSet<NSString *> *tags;
 @property (nonatomic, strong, readonly, nullable) NSArray<NSString *> *collections;
 
 @property (nonatomic, readonly) NSSize imageDimensions;

@@ -435,6 +435,10 @@ typedef NS_ERROR_ENUM(ImportCoordinatorErrorDomain, ImportCoordinatorErrorCode) 
     asset.bookmark = bookmark;
     asset.added = [NSDate now];
     asset.created = creationTime;
+    asset.favourite = [metadata.rating integerValue] > 0;
+    if (nil != metadata.comments) {
+        asset.notes = metadata.comments;
+    }
 
     // Store the UTType, which is useful for exporting later
     NSString *uttype = (NSString *)CFBridgingRelease(UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[itemURL pathExtension], NULL));

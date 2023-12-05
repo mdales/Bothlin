@@ -54,6 +54,9 @@
 
         self->_comments = [coder decodeObjectOfClass:[NSString class] forKey:@"comments"];
         self->_rating = [coder decodeObjectOfClass:[NSNumber class] forKey:@"rating"];
+        if (nil == self->_rating) {
+            self->_rating = @0;
+        }
         self->_type = [coder decodeObjectOfClass:[NSNumber class] forKey:@"type"];
         self->_uuid = [coder decodeObjectOfClass:[NSString class] forKey:@"uuid"];
         self->_date = [coder decodeObjectOfClass:[NSDate class] forKey:@"date"];
