@@ -118,6 +118,9 @@
     NSParameterAssert(nil != indexPaths);
     dispatch_assert_queue(dispatch_get_main_queue());
 
+    NSSet<NSIndexPath *> *currentSelection = [self.collectionView selectionIndexPaths];
+    BOOL selectionChanged = ![currentSelection isEqualToSet:indexPaths];
+
     // Do a quick initial check: are the new and old asset lists different, and are there any faults on
     // visible items?
     __block NSSet<NSIndexPath *> *updatedCells = [NSSet set];
@@ -148,8 +151,10 @@
     [self.dataSource applySnapshot:newSnapshot
               animatingDifferences:YES];
 
-    [self.collectionView selectItemsAtIndexPaths:indexPaths
-                                  scrollPosition:NSCollectionViewScrollPositionTop];
+    if (selectionChanged) {
+        [self.collectionView selectItemsAtIndexPaths:indexPaths
+                                      scrollPosition:NSCollectionViewScrollPositionTop];
+    }
 }
 
 - (NSUInteger)count {
