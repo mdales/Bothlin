@@ -69,9 +69,14 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         context.persistentStoreCoordinator = store;
         self->_managedObjectContext = context;
 
+        // Queue notes:
+        // 1. We could just dispatch to the global queues directly, but going via our own queues means
+        //    we get nice labels in the debugger.
+        // 2. The textWorkerQ used to be concurrent, but it looks like everything gets backed up in
+        //    [VNImageRequestHandler performRequests...] and we swamp the system, and so doing so
+        //    serially seems to be the safest option.
         self->_textWorkerQ = dispatch_queue_create("com.digital.LibraryWriteCoordinator.textWorkerQ", DISPATCH_QUEUE_SERIAL);
         dispatch_set_target_queue(self->_textWorkerQ, dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0));
-
         self->_thumbnailWorkerQ = dispatch_queue_create("com.digitalflapjack.thumbnailWorkerQ", DISPATCH_QUEUE_CONCURRENT);
         dispatch_set_target_queue(self->_thumbnailWorkerQ, dispatch_get_global_queue(QOS_CLASS_UTILITY, 0));
 
