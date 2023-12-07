@@ -45,6 +45,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 
 // Queue used for thumbnail processing
 @property (strong, nonatomic, readonly) dispatch_queue_t _Nonnull thumbnailWorkerQ;
+@property (strong, nonatomic, readonly) dispatch_queue_t _Nonnull textWorkerQ;
 
 @end
 
@@ -68,7 +69,12 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         context.persistentStoreCoordinator = store;
         self->_managedObjectContext = context;
 
+        self->_textWorkerQ = dispatch_queue_create("com.digital.LibraryWriteCoordinator.textWorkerQ", DISPATCH_QUEUE_SERIAL);
+        dispatch_set_target_queue(self->_textWorkerQ, dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0));
+
         self->_thumbnailWorkerQ = dispatch_queue_create("com.digitalflapjack.thumbnailWorkerQ", DISPATCH_QUEUE_CONCURRENT);
+        dispatch_set_target_queue(self->_thumbnailWorkerQ, dispatch_get_global_queue(QOS_CLASS_UTILITY, 0));
+
         self->_updateDelegateQ = delegateUpdateQueue;
     }
     return self;
@@ -99,7 +105,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 
     @weakify(self);
     for (NSManagedObjectID *assetID in assetIDs) {
-        dispatch_async(self.thumbnailWorkerQ, ^{
+        dispatch_async(self.textWorkerQ, ^{
             @strongify(self);
             if (nil == self) {
                 return;
@@ -121,7 +127,7 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
 - (BOOL)generateScannedText:(NSManagedObjectID *)itemID
                       error:(NSError **)error {
     NSParameterAssert(nil != itemID);
-    dispatch_assert_queue(self.thumbnailWorkerQ);
+    dispatch_assert_queue(self.textWorkerQ);
     dispatch_assert_queue_not(self.dataQ);
     id<LibraryWriteCoordinatorDelegate> thumbnailDelegate = self.thumbnailDelegate;
 

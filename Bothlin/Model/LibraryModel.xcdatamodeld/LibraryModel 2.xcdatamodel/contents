@@ -10,7 +10,7 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="notes" attributeType="String" defaultValueString=""/>
         <attribute name="path" attributeType="URI"/>
-        <attribute name="scannedText" attributeType="String" defaultValueString=""/>
+        <attribute name="scannedText" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="thumbnailPath" optional="YES" attributeType="URI"/>
         <attribute name="type" attributeType="String"/>
         <relationship name="groups" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Group" inverseName="contains" inverseEntity="Group"/>
