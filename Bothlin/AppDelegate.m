@@ -10,6 +10,7 @@
 #import "RootWindowController.h"
 #import "SettingsWindowController.h"
 #import "ImportCoordinator.h"
+#import "Helpers.h"
 
 NSString * __nonnull const kUserDefaultsUsingDefaultStorage = @"kUserDefaultsUsingDefaultStorage";
 NSString * __nonnull const kUserDefaultsDefaultStoragePath = @"kUserDefaultsDefaultStoragePath";
@@ -18,10 +19,11 @@ NSString * __nonnull const kUserDefaultsExpandedSidebarItems = @"kUserDefaultsEx
 
 @interface AppDelegate ()
 
+// mainQ only stuff
 @property (nonatomic, strong, readwrite) NSString *trashDisplayName;
-
 @property (nonatomic, strong, readwrite) RootWindowController *mainWindowController;
 @property (nonatomic, strong, readwrite) SettingsWindowController *settingsWindowController;
+@property (nonatomic, strong, readwrite) NSTimer *launchTaskTimer;
 
 @end
 
@@ -97,6 +99,20 @@ NSString * __nonnull const kUserDefaultsExpandedSidebarItems = @"kUserDefaultsEx
     self->_libraryController = [[LibraryWriteCoordinator alloc] initWithPersistentStore:store];
     self->_importCoordinator = [[ImportCoordinator alloc] initWithPersistentStore:store
                                                                  storageDirectory:storageDirectory];
+
+    // We wait a minute, and then see if we need to do any house keeping, so as not to add load whilst the
+    // user is in the "I launched this to do a specific thing" window
+    @weakify(self);
+    self.launchTaskTimer = [NSTimer scheduledTimerWithTimeInterval:60.0
+                                                           repeats:NO
+                                                             block:^(__unused NSTimer * _Nonnull timer) {
+        @strongify(self);
+        if (nil == self) {
+            return;
+        }
+
+        [self.libraryController carryOutCleanUp];
+    }];
 
     NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *trashURL = [fm URLForDirectory:NSTrashDirectory

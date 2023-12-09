@@ -126,6 +126,34 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
     }
 }
 
+- (void)carryOutCleanUp {
+    // thumbnails that are missing will auto generate on view, so here we focus
+    // on scanned text for now.
+    @weakify(self);
+    dispatch_async(self.dataQ, ^{
+        @strongify(self);
+        if (nil == self) {
+            return;
+        }
+        __block NSArray<NSManagedObjectID *> *assetIDs = nil;
+        [self.managedObjectContext performBlockAndWait:^{
+            NSError *error = nil;
+            NSFetchRequest *unscanned = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
+            [unscanned setPredicate:[NSPredicate predicateWithFormat: @"scannedText == nil"]];
+            NSArray<Asset *> *result = [self.managedObjectContext executeFetchRequest:unscanned
+                                                                                error:&error];
+            if (nil != error) {
+                NSLog(@"Failed to find unscanned images: %@", error);
+                return;
+            }
+            assetIDs = [result mapUsingBlock:^id _Nonnull(Asset * _Nonnull asset) { return asset.objectID; }];
+        }];
+        if (nil != assetIDs) {
+            [self generateScannedTextForAssets:[NSSet setWithArray:assetIDs]];
+        }
+    });
+}
+
 
 #pragma mark -
 
@@ -223,9 +251,6 @@ typedef NS_ERROR_ENUM(LibraryWriteCoordinatorErrorDomain, LibraryWriteCoordinato
         }
 
         NSString *searchableStringForDatabase = [[foundWords allObjects] componentsJoinedByString:@" "];
-        if ([searchableStringForDatabase length] == 0) {
-            return;
-        }
 
         // now we've generated the text summary, we should update the record
         dispatch_sync(self.dataQ, ^{

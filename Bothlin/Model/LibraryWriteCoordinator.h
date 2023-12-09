@@ -63,6 +63,8 @@ NS_ASSUME_NONNULL_BEGIN
         fromAssets:(NSSet<NSManagedObjectID *> *)assetIDs
           callback:(nullable void (^)(BOOL success, NSError * _Nullable error))callback;
 
+- (void)carryOutCleanUp;
+
 @end
 
 NS_ASSUME_NONNULL_END
